@@ -4,7 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import Mapbox from '@rnmapbox/maps';
 
+// au tout début du fichier, hors du composant
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_TOKEN!);
 export const unstable_settings = {
   anchor: '(tabs)',
 };
