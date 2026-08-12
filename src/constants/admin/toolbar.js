@@ -30,6 +30,16 @@ const toolbar = {
             { name:"sort", Value:"Sort", variant:"secondary", onClick:()=>console.log("sort") },
         ]
     },
+    circuits:{
+        ctaAction: [
+            { name: "export",  value: "Export", variant: "secondary"  },
+            { name: "create",  value: "Nouveau Circuit", variant: "primary" },
+        ],
+        filter:[
+            { name:"search", placeholder:"Rechercher...", value:"", onChange:()=>console.log("search") },
+            { name:"sort", Value:"Sort", variant:"secondary", onClick:()=>console.log("sort") },
+        ]
+    },
 }
 
 export default toolbar;

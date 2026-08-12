@@ -1,8 +1,8 @@
 import { useState } from "react";
 import ImageUploadField from "../../../upload/ImageUploadField";
 import VideoUploadField from "../../../upload/VideoUploadField";
-import MultiSelectField from "../../../upload/MultiSelectField";
 import { uploadToCloudinary } from "../../../../api/admin/uploadApi";
+import MultiSelectField from "../createModal/MultiSelectField";
 
 export default function FormModal({ open, onClose, onSubmit, fields, title }) {
 

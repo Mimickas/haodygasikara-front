@@ -43,6 +43,24 @@ const createConstant = {
             { name: "videoUrl",    label: "Vidéo",           type: "video",    folder: "places/videos", defaultValue: "" },
         ],
     ],
+
+    circuits: [
+        [
+            { name: "name", label: "Nom", type: "text", placeholder: "Nom du circuit" },
+            { name: "isTemplate", label: "Modèle", type: "radio", defaultValue: "false" },
+        ],
+        [
+            { name: "dateDebut", label: "Date de début", type: "date", placeholder: "Date de début du circuit" },
+            { name: "dateFin", label: "Date de fin", type: "date", placeholder: "Date de fin du circuit" },
+        ],
+        [
+            { name: "notes", label: "Notes", type: "textarea", placeholder: "Ajoutez des notes sur le circuit…" },
+        ],
+        [
+            { name: "steps",      label: "Étapes",            type: "steps", defaultValue: [] },
+        ],
+        
+    ]
 };
 
 export default createConstant;

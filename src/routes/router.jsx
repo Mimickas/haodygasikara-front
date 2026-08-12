@@ -16,6 +16,7 @@ import CreateModal from "../components/admin/crud/createModal/CreateModal";
 import TagsGroup from "../pages/admin/tags/TagsGroup";
 import PageAdminNotFound from "../pages/admin/PageAdminNotFound";
 import DestinationCreate from "../pages/admin/destinations/DestinationCreate";
+import CircuitsCreate from "../pages/admin/circuit/CircuitsCreate";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Dashboard /> },
             { path: "circuits", element: <Circuits /> },
+            { path: "circuits/create", element: <CircuitsCreate /> },
             { path: "destinations", element: <Destinations /> },
             { path: "destinations/create", element: <DestinationCreate /> },
             { path: "tags", element: <Tags /> },

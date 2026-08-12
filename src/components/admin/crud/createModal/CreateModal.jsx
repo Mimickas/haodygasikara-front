@@ -4,8 +4,9 @@ import Button from "../../../ui/button/Button";
 import InputComponent from "../../../ui/input/InputComponent";
 import TextareaComponent from "../../../ui/input/TextareaComponent";
 import VideoUploadField from "../../../upload/VideoUploadField";
-import MultiSelectField from "../../../upload/MultiSelectField";
+import MultiSelectField from "./MultiSelectField";
 import ImageUploadField from "../../../upload/ImageUploadField";
+import MultiDropDownCircuitStep from "./MultiDropDownCircuitStep";
 
 export default function CreateModal({ onSubmit }) {
     const { state } = useLocation();
@@ -76,6 +77,36 @@ export default function CreateModal({ onSubmit }) {
                         options={field.options ?? []}
                     />
                 );
+            case "radio": {
+                const options = field.options ?? [
+                    { label: "Oui", value: "true" },
+                    { label: "Non", value: "false" },
+                ];
+                return (
+                    <div className="flex gap-4">
+                        {options.map(opt => (
+                            <label key={opt.value} className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)", cursor: "pointer" }}>
+                                <input
+                                    type="radio"
+                                    name={field.name}
+                                    value={opt.value}
+                                    checked={String(formData[field.name]) === String(opt.value)}
+                                    onChange={() => handleChange(field.name, opt.value)}
+                                />
+                                {opt.label}
+                            </label>
+                        ))}
+                    </div>
+                );
+            }
+            case "steps":
+            return (
+                <MultiDropDownCircuitStep
+                    onChange={val => handleChange(field.name, val)}
+                    options={field.options ?? []}
+                    template={formData[field.name] ?? []}
+                />
+            );
             default:
                 return (
                     <InputComponent
