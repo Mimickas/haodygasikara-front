@@ -37,7 +37,7 @@ const createConstant = {
             { name: "tagIds",      label: "Tags",            type: "multiselect", defaultValue: [] },
         ],
         [
-            { name: "images",      label: "Images",          type: "image",    folder: "places",        defaultValue: [] },
+            { name: "imageUrls",      label: "Images",          type: "image",    folder: "places",        defaultValue: [] },
         ],
         [
             { name: "videoUrl",    label: "Vidéo",           type: "video",    folder: "places/videos", defaultValue: "" },

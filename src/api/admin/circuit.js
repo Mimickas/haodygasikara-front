@@ -5,3 +5,8 @@ export const createCircuit = async (data) => {
 
     return response.data;
 };
+
+export const findAllCircuitApi = async () => {
+    const response = await api.get("/admin/circuit");
+    return response.data;
+};

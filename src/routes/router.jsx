@@ -17,6 +17,7 @@ import TagsGroup from "../pages/admin/tags/TagsGroup";
 import PageAdminNotFound from "../pages/admin/PageAdminNotFound";
 import DestinationCreate from "../pages/admin/destinations/DestinationCreate";
 import CircuitsCreate from "../pages/admin/circuit/CircuitsCreate";
+import DestinationEdit from "../pages/admin/destinations/DestinationEdit";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -84,6 +85,7 @@ const router = createBrowserRouter([
             { path: "circuits/create", element: <CircuitsCreate /> },
             { path: "destinations", element: <Destinations /> },
             { path: "destinations/create", element: <DestinationCreate /> },
+            { path: "destinations/edit/:id", element: <DestinationEdit /> },
             { path: "tags", element: <Tags /> },
             { path: "tags-groups", element: <TagsGroup /> },
             { path: "tags/create", element: <CreateModal /> },

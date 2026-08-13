@@ -1,4 +1,5 @@
 export default function MultiSelectField({ value = [], onChange, options = [] }) {
+    console.log(value);
     function toggle(id) {
         if (value.includes(id)) {
             onChange(value.filter(v => v !== id));
@@ -10,7 +11,7 @@ export default function MultiSelectField({ value = [], onChange, options = [] })
     return (
         <div className="flex flex-wrap gap-2">
             {options.map(opt => {
-                const selected = value.includes(opt.value);
+                const selected = value.map(Number).includes(Number(opt.value));
                 return (
                     <button
                         key={opt.value}

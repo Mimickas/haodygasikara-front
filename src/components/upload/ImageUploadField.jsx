@@ -6,9 +6,15 @@ export default function ImageUploadField({ value = [], onChange }) {
     const inputRef = useRef(null);
 
     useEffect(() => {
-        const urls = value.map(file => URL.createObjectURL(file));
+        const created = [];                       
+        const urls = value.map(item => {
+            if (typeof item === "string") return item;   
+            const url = URL.createObjectURL(item);      
+            created.push(url);
+            return url;
+        });
         setPreviews(urls);
-        return () => urls.forEach(u => URL.revokeObjectURL(u));
+        return () => created.forEach(u => URL.revokeObjectURL(u));  // revoke QUE les blobs
     }, [value]);
 
     function addFiles(fileList) {

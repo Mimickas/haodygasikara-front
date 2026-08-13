@@ -9,3 +9,5 @@ export const findAllTags = async () => {
     const { data } = await api.get("/admin/tags");
     return data;
 };
+
+export const updateTagApi = (id, payload) => api.put(`/admin/tags/${id}`, payload);

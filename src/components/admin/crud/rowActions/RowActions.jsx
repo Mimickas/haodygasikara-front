@@ -2,7 +2,7 @@ import { FaPen, FaTrash } from "react-icons/fa6";
 
 export default function RowActions({ id, onEdit, onDelete }) {
     return (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end">
             <button
                 onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}
                 aria-label="Modifier"

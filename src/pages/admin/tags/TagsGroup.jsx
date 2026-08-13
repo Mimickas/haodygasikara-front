@@ -13,20 +13,43 @@ import dataTableConstant from "../../../constants/admin/dataTableConstant";
 
 export default function TagsGroup() {
     const { open, setOpen, actions } = useTagsGroup();
-    const [fetchTagsGroups, setFetchTagsGroups] = useState([]);
-    useEffect(() => {
-        const fetchTagsGroups = async () => {
-            try {
-                const response = await getTagsGroupsApi();
-                setFetchTagsGroups(response.data);
-                console.log(response);
-            }catch (error) {
-                console.error("Erreur lors de la récupération des groupes d'étiquettes :", error);
-            }
+    const [tagsGroups, setTagsGroups] = useState([]);
+    const [value, setValue] = useState({});
+
+    const fetchTagsGroups = async () => {
+        try {
+            const response = await getTagsGroupsApi();
+            setTagsGroups(response.data);
+            console.log(response);
+        }catch (error) {
+            console.error("Erreur lors de la récupération des groupes d'étiquettes :", error);
         }
-        fetchTagsGroups();
-    }, []);
-    console.log(fetchTagsGroups);
+    }
+
+    useEffect(() => { fetchTagsGroups();}, []);
+
+    const handleSubmit = async (data) =>{
+        if (value?.id) {
+            
+        }else{
+
+        }
+        await loadTags();
+        setOpen(false);
+        setValue({});
+    }
+
+    const handleEdit = (id) => {
+        const tagGroups = tagsGroups?.find(t => t.id === id);
+        setValue(tagGroups);
+        actions.edit(id); 
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm("Supprimer cet élément ?")) return;
+        await deletePlacesApi(id);
+        setPlaces(prev => prev.filter(p => p.id !== id));
+    };
     return <>
         <div className="">
             <Toolbar toolbarConfigs={toolbar.tagsGroup} actions={actions} />
@@ -37,8 +60,10 @@ export default function TagsGroup() {
 
             <DataTable
                 columns={dataTableConstant.tagsGroupColumns}
-                data={fetchTagsGroups}
+                data={tagsGroups}
                 onRowClick={place => console.log(place)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
             />
 
         </div>
@@ -46,8 +71,9 @@ export default function TagsGroup() {
         <FormModal
             open={open}
             onClose={() => setOpen(false)}
-            onSubmit={async data => { await createTagsGroupsApi(data) }}
+            onSubmit={handleSubmit}
             fields={createConstant.tagsGroups}
+            value={value}
             title="Nouveau groupe d'étiquettes"
         />
     </>

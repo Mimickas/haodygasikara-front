@@ -12,8 +12,8 @@ export default function DestinationCreate() {
         setUploading(true);
         try {
             // 1. Upload images → Cloudinary
-            const imageUrls = formData.images?.length
-                ? await uploadMany(formData.images, 'places/photos')
+            const imageUrls = formData.imageUrls?.length          // ← était formData.images
+                ? await uploadMany(formData.imageUrls, 'places/photos')
                 : [];
 
             // 2. Upload vidéo → Cloudinary

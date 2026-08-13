@@ -11,11 +11,11 @@ import MultiDropDownCircuitStep from "./MultiDropDownCircuitStep";
 export default function CreateModal({ onSubmit }) {
     const { state } = useLocation();
     const navigate = useNavigate();
-    const { fields } = state;
+    const { fields, values } = state;
 
     const [formData, setFormData] = useState(
         fields.flat().reduce((acc, field) => {
-            acc[field.name] = field.defaultValue ?? "";
+            acc[field.name] = values?.[field.name] ?? field.defaultValue ?? "";
             return acc;
         }, {})
     );

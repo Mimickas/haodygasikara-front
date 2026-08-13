@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUploadField from "../../../upload/ImageUploadField";
 import VideoUploadField from "../../../upload/VideoUploadField";
 import { uploadToCloudinary } from "../../../../api/admin/uploadApi";
 import MultiSelectField from "../createModal/MultiSelectField";
 
-export default function FormModal({ open, onClose, onSubmit, fields, title }) {
+export default function FormModal({ open, onClose, onSubmit, fields,value, title }) {
 
-    const [formData, setFormData] = useState(
+    const buildFormData = (val) =>
         fields.flat().reduce((acc, field) => {
-            acc[field.name] = field.defaultValue ?? "";
+            acc[field.name] = val?.[field.name] ?? field.defaultValue ?? "";
             return acc;
-        }, {})
-    );
+        }, {});
+
+    const [formData, setFormData] = useState(() => buildFormData(value));
+
+    useEffect(() => {
+        setFormData(buildFormData(value));
+    }, [value]);
 
     console.log(formData);
 

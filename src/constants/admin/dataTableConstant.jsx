@@ -5,7 +5,8 @@ const dataTableConstant = {
         { key: "id",          label: "ID" },
         { key: "name",         label: "Nom" },
         { key: "slug",       label: "Slug"},
-        { key: "createdAt",       label: "Créé le"}
+        { key: "createdAt",       label: "Créé le"},
+        { key: "actions",   label: "Actions", type: "actions" },
     ],
     tagColumns: [
         { key: "id",          label: "ID", type:"normal" },
@@ -18,6 +19,7 @@ const dataTableConstant = {
             ]
         },
         { key: "createdAt", label: "Créé le", type: "normal", render: formatDate },
+        { key: "actions",   label: "Actions", type: "actions" },
     ],
     destination: [
         { key: "id",          label: "ID" },
@@ -31,7 +33,18 @@ const dataTableConstant = {
         { key: "tags",        label: "Tags",      render: val => val?.join(", ") ?? "—" },
         { key: "createdAt",   label: "Créé le",   render: val => new Date(val).toLocaleDateString("fr-FR") },
         { key: "actions",   label: "Actions", type: "actions" },
-    ]
+    ],
+    circuit: [
+        { key: "id",         label: "ID" },
+        { key: "nom",        label: "Nom" },
+        { key: "dateDebut",  label: "Début",     render: val => val ? new Date(val).toLocaleDateString("fr-FR") : "—" },
+        { key: "dateFin",    label: "Fin",       render: val => val ? new Date(val).toLocaleDateString("fr-FR") : "—" },
+        { key: "isTemplate", label: "Modèle",    render: val => val ? "Oui" : "Non" },
+        { key: "steps",      label: "Étapes",    render: val => `${val?.length ?? 0} étape(s)` },
+        { key: "notes",      label: "Notes",     render: val => val || "—" },
+        { key: "createdAt",  label: "Créé le",   render: val => new Date(val).toLocaleDateString("fr-FR") },
+        { key: "actions",    label: "Actions",   type: "actions" },
+    ],
 }
 
 export default dataTableConstant;

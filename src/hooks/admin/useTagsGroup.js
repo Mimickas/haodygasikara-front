@@ -5,6 +5,7 @@ export function useTagsGroup() {
 
     const actions = {
         create: () => setOpen(true),
+        edit: () => setOpen(true),
         export: () => exportTags(),
         sort:   () => console.log("sort"),
     };
