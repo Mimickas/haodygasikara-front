@@ -7,53 +7,34 @@ export default function HeaderClient() {
     const [recherche, setRecherche] = useState("");
 
     return (
-        <div className="w-full grid grid-cols-3 items-center py-5 px-10">
+        <header className="w-full grid grid-cols-3 items-center py-5 px-6">
 
-            <div className="flex items-center gap-10">
-                <img src="/img/logo/logo-2-horizontal.png" className="w-36" alt="" />
-                <ul className="flex gap-4">
-                    <li>Decouvrir</li>
-                    <li>Circuit</li>
-                    <li>Carte</li>
+            <nav className="flex items-center gap-10 font-body">
+                <img src="/img/logo/logo-2-horizontal.png" className="w-36" alt="Logo" />
+                <ul className="flex gap-6 text-[var(--text-muted)]">
+                    <li className="cursor-pointer hover:text-terre transition-colors">Découvrir</li>
+                    <li className="cursor-pointer hover:text-terre transition-colors">Circuit</li>
+                    <li className="cursor-pointer hover:text-terre transition-colors">Carte</li>
                 </ul>
-            </div>
+            </nav>
 
             <div className="flex justify-center">
-                <InputComponent
-                    value={recherche}
-                    setValue={setRecherche}
-                    placeholder="Rechercher..."
-                />
+                <InputComponent value={recherche} setValue={setRecherche} placeholder="Rechercher..." />
             </div>
 
-            <div className="flex justify-end">
-                <div className="flex gap-3">
-                    <div 
-                        className=" rounded-md shadow-normal flex items-center py-1.5 px-2.5 gap-2"
-                        style={{
-                            boxShadow: "var(--shadow-normal)",
-                            color: "var(--text-secondary)",
-                        }}
-                    >
-                        <FaBell />
-                    </div>
-                    <div 
-                        className=" rounded-md shadow-normal flex items-center py-1.5 px-2.5 gap-2"
-                        style={{
-                            boxShadow: "var(--shadow-normal)",
-                            color: "var(--text-secondary)",
-                        }}
-                    >
-                        <FaUser />
-                        <p className="text-md">Demarer</p>
-                    </div>
-                </div>
-                {/* <div className="flex gap-2">
-                    <Button value="Creer un compte" variant="secondary" className="h-full"/>
-                    <Button value="Demarrer" className="h-full"/>
-                </div> */}
+            <div className="flex justify-end items-center gap-3 text-[var(--text-secondary)] font-body">
+                <button
+                    className="flex items-center rounded-md shadow-normal py-2 px-2.5 hover:bg-[var(--bg-hover)] transition-colors"
+                    aria-label="Notifications"
+                >
+                    <FaBell />
+                </button>
+                <button className="flex items-center gap-2 rounded-md shadow-normal py-2 px-3 hover:bg-[var(--bg-hover)] transition-colors">
+                    <FaUser />
+                    <span className="text-sm">Démarrer</span>
+                </button>
             </div>
 
-        </div>
+        </header>
     );
 }

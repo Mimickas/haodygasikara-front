@@ -6,11 +6,42 @@
   font-family: abhaya-bold;
   src: url("/fonts/AbhayaLibre-Bold.ttf");
 }
+@font-face {
+  font-family: abhaya-semibold;
+  src: url("/fonts/AbhayaLibre-SemiBold.ttf");
+}
+@font-face {
+  font-family: abhaya-medium;
+  src: url("/fonts/AbhayaLibre-Medium.ttf");
+}
+@font-face {
+  font-family: barlowRegular;
+  src: url("/fonts/barlow/Barlow/Barlow-Regular.ttf");
+}
+@font-face {
+  font-family: barlowSemiBold;
+  src: url("/fonts/barlow/Barlow/Barlow-SemiBold.ttf");
+}
+
 
 @theme {
   --font-abhaya-bold: "abhaya-bold", sans-serif;
-}
+  --font-title:       "abhaya-bold", serif;      /* Abhaya est une serif, pas sans-serif */
+  --font-heading:     "abhaya-semibold", serif;
+  --font-body:        "barlowRegular", sans-serif;
+  --font-body-strong: "barlowSemiBold", sans-serif;
 
+  --shadow-normal: 0 0.85px 2.5px rgba(80, 68, 52, 0.25);
+  --shadow-soft:   0 4px 18px rgba(17, 17, 17, 0.05);
+  --shadow-card:   0 10px 30px rgba(17, 17, 17, 0.09);
+}
+@theme inline {
+  --color-terre:  var(--brand-terre);
+  --color-lagune: var(--brand-lagune);
+  --color-ocre:   var(--brand-ocre);
+  --color-nature: var(--brand-nature);
+  --color-foret:  var(--brand-foret);
+}
 :root {
 
   /* ---------- FONDS / SURFACES ---------- */
