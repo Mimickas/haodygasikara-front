@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 @font-face {
   font-family: abhaya-bold;
   src: url("/fonts/AbhayaLibre-Bold.ttf");
@@ -116,4 +118,21 @@
 
 body{
   background-color: var(--bg);
+}
+
+.skeleton-box {
+    background: linear-gradient(
+        90deg,
+        var(--bg-sunken) 25%,
+        var(--bg-hover) 37%,
+        var(--bg-sunken) 63%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-loading {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
 }

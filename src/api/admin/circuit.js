@@ -25,3 +25,5 @@ export const updateCircuitApi = async (id, data) => {
     const response = await api.put(`/admin/circuit/${id}`, data);
     return response;
 }
+
+export const findCircuitStatsApi = () => api.get("/admin/circuit/stats");
