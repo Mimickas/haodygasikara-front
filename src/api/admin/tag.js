@@ -11,3 +11,5 @@ export const findAllTags = async () => {
 };
 
 export const updateTagApi = (id, payload) => api.put(`/admin/tags/${id}`, payload);
+
+export const getTagStatsApi = () => api.get("/admin/tags/stats");

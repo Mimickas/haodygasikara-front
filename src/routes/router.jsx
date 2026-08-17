@@ -19,6 +19,8 @@ import DestinationCreate from "../pages/admin/destinations/DestinationCreate";
 import CircuitsCreate from "../pages/admin/circuit/CircuitsCreate";
 import DestinationEdit from "../pages/admin/destinations/DestinationEdit";
 import CircuitEdit from "../pages/admin/circuit/CircuitEdit";
+import AppLayout from "../layout/AppLayout";
+import Home from "../pages/client/home/Home";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -35,42 +37,42 @@ const router = createBrowserRouter([
     { path: "/admin/haodygasikara/login", element: <LoginAdmin /> },
     { path: "/admin/haodygasikara/re", element: <RegisterAdmin /> },
 
-    // // ── Layout public (header + footer) ──────────────────────────────────
-    // {
-    //     path: "/",
-    //     element: <AppLayout />,
-    //     children: [
-    //         { index: true,          element: <Home /> },
-    //         { path: "destinations", element: <Destinations /> },
-    //         { path: "destination/:id", element: <DestinationDetail /> },
+    // ── Layout public (header + footer) ──────────────────────────────────
+    {
+        path: "/",
+        element: <AppLayout />,
+        children: [
+            { index: true,          element: <Home /> },
+            // { path: "destinations", element: <Destinations /> },
+            // { path: "destination/:id", element: <DestinationDetail /> },
 
-    //         // ── Pages user connecté ───────────────────────────────────────
-    //         {
-    //             path: "favoris",
-    //             element: (
-    //                 <ProtectedRoute role="USER">
-    //                     <Favoris />
-    //                 </ProtectedRoute>
-    //             )
-    //         },
-    //         {
-    //             path: "mes-circuits",
-    //             element: (
-    //                 <ProtectedRoute role="USER">
-    //                     <MesCircuits />
-    //                 </ProtectedRoute>
-    //             )
-    //         },
-    //         {
-    //             path: "profil",
-    //             element: (
-    //                 <ProtectedRoute role="USER">
-    //                     <Profil />
-    //                 </ProtectedRoute>
-    //             )
-    //         },
-    //     ]
-    // },
+            // // ── Pages user connecté ───────────────────────────────────────
+            // {
+            //     path: "favoris",
+            //     element: (
+            //         <ProtectedRoute role="USER">
+            //             <Favoris />
+            //         </ProtectedRoute>
+            //     )
+            // },
+            // {
+            //     path: "mes-circuits",
+            //     element: (
+            //         <ProtectedRoute role="USER">
+            //             <MesCircuits />
+            //         </ProtectedRoute>
+            //     )
+            // },
+            // {
+            //     path: "profil",
+            //     element: (
+            //         <ProtectedRoute role="USER">
+            //             <Profil />
+            //         </ProtectedRoute>
+            //     )
+            // },
+        ]
+    },
 
     // ── Admin ─────────────────────────────────────────────────────────────
     {

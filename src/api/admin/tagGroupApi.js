@@ -9,3 +9,5 @@ export const getTagsGroupsApi = async () => {
     const { data } = await api.get("/admin/tags-groups");
     return data;
 };
+
+export const getTagGroupStatsApi = () => api.get("/admin/tags-groups/stats");

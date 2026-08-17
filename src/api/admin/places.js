@@ -18,3 +18,5 @@ export const getPlaceByIdApi = (id) => api.get(`/admin/places/${id}`);
 export const updatePlaceApi = (id, data) => api.put(`/admin/places/${id}`,data);
 
 export const deletePlacesApi = (id) => api.delete(`/admin/places/${id}`);
+
+export const getPlaceStatsApi = () => api.get("/admin/places/stats");
