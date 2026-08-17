@@ -8,7 +8,7 @@ export default function AppLayout(params) {
             <div
                 
             >
-                <main className="px-6 lg:px-8 pb-10">
+                <main className="px-4 pb-10">
                     <Outlet />
                 </main>
             </div>

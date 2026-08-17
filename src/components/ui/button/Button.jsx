@@ -29,7 +29,7 @@ export default function Button({ value, onClick, variant = "primary", className 
         <button
             onClick={onClick}
             className={`text-sm font-medium cursor-pointer transition-all duration-200 whitespace-nowrap ${className || ''}`}
-            style={{ padding: "8px 18px", borderRadius: "var(--radius-sm)", ...current.base }}
+            style={{borderRadius: "var(--radius-sm)", ...current.base }}
             onMouseEnter={e => Object.assign(e.currentTarget.style, current.hover)}
             onMouseLeave={e => Object.assign(e.currentTarget.style, current.base)}
         >
