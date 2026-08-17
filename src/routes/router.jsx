@@ -18,6 +18,7 @@ import PageAdminNotFound from "../pages/admin/PageAdminNotFound";
 import DestinationCreate from "../pages/admin/destinations/DestinationCreate";
 import CircuitsCreate from "../pages/admin/circuit/CircuitsCreate";
 import DestinationEdit from "../pages/admin/destinations/DestinationEdit";
+import CircuitEdit from "../pages/admin/circuit/CircuitEdit";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
             { index: true, element: <Dashboard /> },
             { path: "circuits", element: <Circuits /> },
             { path: "circuits/create", element: <CircuitsCreate /> },
+            { path: "circuits/edit/:id", element: <CircuitEdit /> },
             { path: "destinations", element: <Destinations /> },
             { path: "destinations/create", element: <DestinationCreate /> },
             { path: "destinations/edit/:id", element: <DestinationEdit /> },

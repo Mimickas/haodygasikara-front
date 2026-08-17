@@ -4,7 +4,7 @@ import DataTable from "../../../components/admin/ui/tableau/DataTable";
 import Toolbar from "../../../components/admin/ui/toolbar/Toolbar";
 import dataTableConstant from "../../../constants/admin/dataTableConstant";
 import toolbar from "../../../constants/admin/toolbar";
-import { findAllCircuitApi } from "../../../api/admin/circuit";
+import { deleteCircuitApi, findAllCircuitApi } from "../../../api/admin/circuit";
 import { useCircuitActionToolbar } from "../../../hooks/admin/useCircuitActionToolbar";
 
 export default function Circuits() {
@@ -24,13 +24,13 @@ export default function Circuits() {
 
     const handleEdit = (id) => {
         console.log("éditer circuit", id);
-        // à brancher plus tard
+        actions.edit(id);
     };
 
     const handleDelete = async (id) => {
         if (!confirm("Supprimer ce circuit ?")) return;
-        // await deleteCircuitApi(id);
-        setCircuits(prev => prev.filter(c => c.id !== id));
+        await deleteCircuitApi(id);
+        loadCircuits();
     };
 
     return (
@@ -52,4 +52,4 @@ export default function Circuits() {
             </div>
         </div>
     );
-}
+}0

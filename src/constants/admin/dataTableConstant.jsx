@@ -36,7 +36,7 @@ const dataTableConstant = {
     ],
     circuit: [
         { key: "id",         label: "ID" },
-        { key: "nom",        label: "Nom" },
+        { key: "name",        label: "Nom" },
         { key: "dateDebut",  label: "Début",     render: val => val ? new Date(val).toLocaleDateString("fr-FR") : "—" },
         { key: "dateFin",    label: "Fin",       render: val => val ? new Date(val).toLocaleDateString("fr-FR") : "—" },
         { key: "isTemplate", label: "Modèle",    render: val => val ? "Oui" : "Non" },

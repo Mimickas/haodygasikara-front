@@ -102,9 +102,9 @@ export default function CreateModal({ onSubmit }) {
             case "steps":
             return (
                 <MultiDropDownCircuitStep
+                    value={formData[field.name]}
                     onChange={val => handleChange(field.name, val)}
                     options={field.options ?? []}
-                    template={formData[field.name] ?? []}
                 />
             );
             default:
