@@ -5,6 +5,10 @@ export default function Button({ value, onClick, variant = "primary", className 
             base: { backgroundColor: "var(--cta-bg)", color: "var(--cta-text)", border: "none" },
             hover: { backgroundColor: "var(--cta-bg-hover)" },
         },
+        primaryBorder: {
+            base: { backgroundColor: "transparent", color: "var(--brand-ocre)", border: "1px solid var(--brand-ocre)" },
+            hover: { backgroundColor: "var(--brand-ocre)", color: "var(--cta-text)" },
+        },
         secondary: {
             base: { color: "var(--cta-secondary-text)",boxShadow: "var(--shadow-normal)"},
             hover: { backgroundColor: "var(--cta-secondary-bg-hover)" },
@@ -28,8 +32,8 @@ export default function Button({ value, onClick, variant = "primary", className 
     return (
         <button
             onClick={onClick}
-            className={`text-sm font-medium cursor-pointer transition-all duration-200 whitespace-nowrap ${className || ''}`}
-            style={{borderRadius: "var(--radius-sm)", ...current.base }}
+            className={`text-sm font-medium cursor-pointer transition-all duration-200 rounded-[var(--radius-sm)] whitespace-nowrap px-6 py-2 ${className || ''}`}
+            style={current.base }
             onMouseEnter={e => Object.assign(e.currentTarget.style, current.hover)}
             onMouseLeave={e => Object.assign(e.currentTarget.style, current.base)}
         >

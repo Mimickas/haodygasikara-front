@@ -15,6 +15,10 @@
   src: url("/fonts/AbhayaLibre-Medium.ttf");
 }
 @font-face {
+  font-family: abhaya-reg;
+  src: url("/fonts/AbhayaLibre-Regular.ttf");
+}
+@font-face {
   font-family: barlowRegular;
   src: url("/fonts/barlow/Barlow/Barlow-Regular.ttf");
 }
@@ -28,6 +32,8 @@
   --font-abhaya-bold: "abhaya-bold", sans-serif;
   --font-title:       "abhaya-bold", serif;      /* Abhaya est une serif, pas sans-serif */
   --font-heading:     "abhaya-semibold", serif;
+  --font-medium:     "abhaya-medium", serif;
+  --font-reg:     "abhaya-reg", serif;
   --font-body:        "barlowRegular", sans-serif;
   --font-body-strong: "barlowSemiBold", sans-serif;
 
@@ -50,7 +56,7 @@
   --bg-card:         #FDFCF8;  /* Cartes, panneaux */
   --bg-hover:        #EFEDE8;   /* Survol de surface */
   --bg-muted:        #EDEDED;   /* Gris clair (charte) */
-  --bg-sunken:       #EDEAE3;   /* Champs, listes internes */
+  --bg-sunken:       #F6ECD9;   /* Champs, listes internes */
   --bg-dark:         #111111;   /* Noir — footer, bandeaux */
   --bg-dark-2:       #3D3D3D;   /* Anthracite — dégradés sombres */
 
@@ -166,4 +172,11 @@ body{
 @keyframes skeleton-loading {
     0%   { background-position: 100% 50%; }
     100% { background-position: 0 50%; }
+}
+
+.footer-input {
+    background-color: var(--bg-card);
+}
+.footer-input::placeholder {
+    color: var(--text-muted);
 }

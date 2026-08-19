@@ -57,6 +57,9 @@ const createConstant = {
             { name: "notes", label: "Notes", type: "textarea", placeholder: "Ajoutez des notes sur le circuit…" },
         ],
         [
+            { name: "imageUrl", label: "Image", type: "image", placeholder: "Image du circuit",folder: "circuits",  defaultValue: [] },
+        ],
+        [
             { name: "steps",      label: "Étapes",            type: "steps", defaultValue: [] },
         ],
         

@@ -42,6 +42,7 @@ export function useCircuitActionToolbar() {
         console.log(circuit);
         const values = {
             ...circuit,
+            imageUrl: circuit.imageUrl ? [circuit.imageUrl] : [],   // ← string → tableau pour le champ
             steps: circuit.steps?.map(t => ({
                 id: t.idPlace,
                 duration: t.durationDays,
