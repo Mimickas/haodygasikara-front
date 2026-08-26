@@ -54,10 +54,11 @@
   --bg:              #F7F5F0;   /* Ivoire clair — fond de page */
   --bg-secondary:    #F2F0EB;   /* Section alternée */
   --bg-card:         #FDFCF8;  /* Cartes, panneaux */
+  --bg-territoires:  #EDE6DA; 
   --bg-hover:        #EFEDE8;   /* Survol de surface */
   --bg-muted:        #EDEDED;   /* Gris clair (charte) */
   --bg-sunken:       #F6ECD9;   /* Champs, listes internes */
-  --bg-dark:         #111111;   /* Noir — footer, bandeaux */
+  --bg-dark:         #100e0b;   /* Noir — footer, bandeaux */
   --bg-dark-2:       #3D3D3D;   /* Anthracite — dégradés sombres */
 
   /* ---------- BORDURES ---------- */

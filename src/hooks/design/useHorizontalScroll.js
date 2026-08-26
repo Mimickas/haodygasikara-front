@@ -14,21 +14,21 @@ export function useHorizontalScroll() {
         if (!section || !track) return;
 
         const ctx = gsap.context(() => {
-            const distance = track.scrollWidth - window.innerWidth;
 
             // Défilement horizontal pendant que la section est figée
             const scrollTween = gsap.to(track, {
-                x: -distance,
+                x: () => -(track.scrollWidth - window.innerWidth),
                 ease: "none",
                 scrollTrigger: {
                     trigger: section,
                     start: "top top",
-                    end: () => `+=${distance}`,
+                    end: () => `+=${track.scrollWidth - window.innerWidth}`,
                     pin: true,
                     scrub: 1,
                     invalidateOnRefresh: true,
                     anticipatePin: 1,
-                },
+                    refreshPriority: 1,
+                }
             });
 
             // Parallax : chaque image glisse à contre-sens dans son cadre

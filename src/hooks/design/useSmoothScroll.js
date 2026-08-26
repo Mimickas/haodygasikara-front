@@ -1,24 +1,27 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { ScrollTrigger } from "gsap/all";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function useSmoothScroll() {
     useEffect(() => {
         const lenis = new Lenis({
-            duration: 1.2,              // durée de l'inertie (plus grand = plus glissant)
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),  // expo out — le feeling "premium"
+            duration: 0.8,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
             smoothWheel: true,
         });
+
         lenis.on("scroll", ScrollTrigger.update);
-        let rafId;
-        function raf(time) {
-            lenis.raf(time);
-            rafId = requestAnimationFrame(raf);
-        }
-        rafId = requestAnimationFrame(raf);
+
+        const update = (time) => lenis.raf(time * 1000);
+        gsap.ticker.add(update);
+        gsap.ticker.lagSmoothing(0);
 
         return () => {
-            cancelAnimationFrame(rafId);
+            lenis.off("scroll", ScrollTrigger.update);
+            gsap.ticker.remove(update);
             lenis.destroy();
         };
     }, []);

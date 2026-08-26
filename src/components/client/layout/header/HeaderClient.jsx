@@ -72,7 +72,7 @@ export default function HeaderClient() {
     return (
         <>
             <header
-                className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center py-6 px-16 uppercase text-sm transition-colors duration-300"
+                className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center py-6 px-16 uppercase text-sm transition-colors duration-300 backdrop-blur-sm"
                 style={{
                     backgroundColor: isHero ? "transparent" : "var(--bg-card)",
                     borderBottom: isHero ? "none" : "1px solid var(--border)",

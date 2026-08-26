@@ -1,410 +1,278 @@
 import { FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import Button from "../../../components/ui/button/Button";
 import { useEffect, useState } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { findAllTagsGroupsApiClient } from "../../../api/client/tagGroupApi";
 import { findAllCircuitClientApi } from "../../../api/client/cricuitApi";
-import { useScrollReveal } from "../../../hooks/design/useScrollReveal";
-import { useTextColorReveal } from "../../../hooks/design/useTextColorReveal";
 import { useHorizontalScroll } from "../../../hooks/design/useHorizontalScroll";
+import { useCircuitReveal } from "../../../hooks/design/useCircuitReveal";
+import { useHeroIntro } from "../../../hooks/design/animations/home/firstHero";
 
 const heroImages = [
-    "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg",
-    "/img/lemur.webp",
+    "/img/luxury-sexy-attractive-woman-dressed-black-dress-posing-pier-luxury-resort-hotel-wearing-sunglasses-summer-vacation-tropical-beach.jpg",
+    "/img/home/firstHero/female-manager-eyeglasses-with-folder-hand.jpg",
+    "/img/home/firstHero/medium-shot-man-living-as-digital-nomad.jpg",
+];
 
+const phrase = [
+    "Un voyage ne se réserve pas.",
+    "Il se compose, geste après geste.",
+    "Nous dessinons avec vous",
+    "le Madagascar dont vous rêvez.",
+];
+
+const etapes = [
+    { n: "01", titre: "Épinglez vos étapes", desc: "Sur une carte interactive de Madagascar, vous désignez les lieux qui vous appellent. Chaque point posé dessine peu à peu la ligne de votre voyage." },
+    { n: "02", titre: "Ajustez votre style", desc: "Durée, niveau de confort, rythme, nombre de voyageurs. Le circuit épouse votre manière de voyager, pas l'inverse." },
+    { n: "03", titre: "Recevez votre devis", desc: "Notre équipe locale orchestre la logistique et vous adresse une proposition sur mesure sous quarante-huit heures." },
+];
+
+const regions = [
+    { n: "01", nom: "Hautes Terres", desc: "Rizières en terrasses, maisons de brique rouge et brumes matinales.", img: "/img/home/ctaSection/blue-sea-water-summer-silhouette.jpg" },
+    { n: "02", nom: "Côte Est", desc: "Forêt primaire, canal des Pangalanes et pluies chaudes.", img: "/img/home/ctaSection/bird-flying-with-trees-background.jpg" },
+    { n: "03", nom: "Grand Sud", desc: "Épineux, baobabs et terre ocre jusqu'à l'horizon.", img: "/img/home/ctaSection/luxury-sexy-attractive-woman-dressed-black-dress-posing-pier-luxury-resort-hotel-wearing-sunglasses-summer-vacation-tropical-beach (1).jpg" },
+    { n: "04", nom: "Nord & Îles", desc: "Eaux turquoise, tsingy et villages de pêcheurs.", img: "/img/home/ctaSection/tropical-beach-landscape-with-deckchair-parasol-from-nosy-be-madagascar-vintage-light-filter.jpg" },
+];
+
+const circuits = [
+    { id: "c1", nom: "Majunga vers le nord", depart: "Majunga", arrivee: "Nosy Be", jours: 8,
+      desc: "Remontée de la côte ouest | des plages ocre du Boeny | jusqu'aux eaux de Nosy Be.",
+      imageUrl: "/img/home/circuit/san-diego-dawn-early-morning-with-palm-tree-silhouette.jpg" },
+    { id: "c2", nom: "Route du Sud", depart: "Tananarive", arrivee: "Tuléar", jours: 12,
+      desc: "Remontée de la côte ouest | des plages ocre du Boeny | jusqu'aux eaux de Nosy Be.",
+      imageUrl: "/img/home/circuit/zen-garden.jpg" },
 ];
 
 export default function Home() {
-    const [current, setCurrent] = useState(0);
-    const revealScope = useScrollReveal();
-    const colorRevealScope = useTextColorReveal();
 
-    const { sectionRef: horizontalSection, trackRef: horizontalTrack } = useHorizontalScroll();
+    const [current, setCurrent] = useState(0);
+
+    const { triggerRef,circuitContainerRef,horizontalTrackRef,etapesContainerRef, active, setCircuitRef } = useCircuitReveal(circuits.length);
+    const heroScope = useHeroIntro();
     const prev = () => setCurrent((i) => (i === 0 ? heroImages.length - 1 : i - 1));
     const next = () => setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
-    const[tags, setTags] = useState([]);
-    const[circuits, setCircuits] = useState([]);
-    const loadTags = async () =>{
-        try {
-            const res = await findAllTagsGroupsApiClient();
-            setTags(res?.data);
-        } catch (error) {
-            alert(error);
-        }
-    }
-    const loadCircuits = async () =>{
-        try {
-            const res = await findAllCircuitClientApi();
-            setCircuits(res?.data);
-            console.log(res);
-        } catch (error) {
-            alert(error);
-        }
-    }
 
-    useEffect(() =>{
-        loadTags();
-        loadCircuits();
-    },[])
+    useEffect(() => {
+        const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+        return () => cancelAnimationFrame(raf);
+    }, []); // ← plus de dépendance [circuits], juste au montage
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
+        }, 5000); // change toutes les 5s
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <>
-            <section className="h-screen relative">
+            {/* ===== HERO ===== */}
+            <section ref={heroScope} className="h-screen relative">
                 <div className="relative w-full h-full overflow-hidden bg-black">
-
+                {heroImages.map((src, i) => (
                     <img
-                        key={current}
-                        src={heroImages[current]}
-                        className="absolute inset-0 w-full h-full object-cover opacity-75 transition-opacity duration-700"
-                        alt="hero"
+                        key={src}
+                        data-hero-img={i === 0 ? "" : undefined}
+                        src={src}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ease-in-out"
+                        style={{ opacity: i === current ? 0.75 : 0 }}
                     />
+                ))}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                        <div className="absolute bottom-20 left-0 right-0 z-10 flex items-end justify-between px-16">
-                            <div>
-                                <p className="font-body text-sm uppercase tracking-widest text-[var(--brand-ocre)]">
-                                    Créateur de circuit sur mesure
-                                </p>
-                                <h1 className="text-8xl font-abhaya-bold text-white leading-none">
-                                    Composez votre <br /> Madagascar.
-                                </h1>
-                            </div>
-                            <div className="shrink-0 pb-6 ">
-                                <Button
-                                    variant="primaryBorder"
-                                    value="Créer mon circuit"
-                                    className="py-4 px-12 font-body-strong rounded-none"
-                                />
-                            </div>
+                    <div className="absolute bottom-20 left-0 right-0 z-10 flex items-end justify-between px-16">
+                        <div>
+                            <p data-hero-kicker className="font-body text-sm uppercase tracking-widest text-[var(--brand-ocre)]">Créateur de circuit sur mesure</p>
+                            <h1 data-hero-title className="text-8xl font-abhaya-bold text-white leading-none">
+                                <span className="block overflow-hidden"><span className="line block">Composez votre</span></span>
+                                <span className="block overflow-hidden"><span className="line block">Madagascar.</span></span>
+                            </h1>
                         </div>
+                        <div data-hero-cta className="shrink-0 pb-6">
+                            <Button variant="primaryBorder" value="Créer mon circuit" className="py-4 px-12 font-body-strong rounded-none" />
+                        </div>
+                    </div>
 
-                    <div
-                        className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-16 py-6"
-                        style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}
-                    >
-                        <div className="flex items-center gap-3 cursor-pointer group">
-                            <span className="font-body text-xs uppercase tracking-widest text-[var(--text-inverse-muted)]">
-                                Découvrez la suite
-                            </span>
+                    <div data-hero-bar className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-16 py-6" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+                        <div className="flex items-center gap-3 cursor-pointer">
+                            <span className="font-body text-xs uppercase tracking-widest text-[var(--text-inverse-muted)]">Découvrez la suite</span>
                             <FaArrowDown className="text-[var(--text-inverse-muted)] text-xs animate-bounce" />
                         </div>
-
                         <div className="flex items-center gap-4">
-                            <FaArrowLeft onClick={prev} className="text-white text-xs" />
-                            <FaArrowRight onClick={next} className="text-white text-xs" />
+                            <FaArrowLeft onClick={prev} className="text-white text-xs cursor-pointer" />
+                            <FaArrowRight onClick={next} className="text-white text-xs cursor-pointer" />
                         </div>
                     </div>
-
                 </div>
             </section>
 
-            <section
-                className="py-56 px-16"
-                style={{ backgroundColor: "var(--bg-secondary)" }}
-            >
-                <div ref={colorRevealScope} className="max-w-5xl mx-auto">
-                    <p className="font-body-strong text-xs uppercase tracking-[0.3em] mb-12 text-center" style={{ color: "var(--brand-ocre)" }}>
-                        La méthode Haodygasikara
-                    </p>
+            <div ref={triggerRef}>
+                <section className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
-                    <p className="font-reg text-5xl leading-snug text-center" style={{ color: "var(--text-primary)" }}>
-                        {(
-                            "Un voyage ne se réserve pas. Il se compose, geste après geste. Nous dessinons avec vous le Madagascar dont vous rêvez."
-                        )
-                            .split(" ")
-                            .map((mot, i) => (
-                                <span key={i} data-word className="inline-block mr-[0.25em]">
-                                    {mot}
+                    <div className="absolute inset-0 z-0 overflow-hidden" style={{ backgroundColor: "var(--bg-territoires)" }}>
+
+                        {/* Colonne gauche — texte fixe, le nom change */}
+                        <div className="absolute left-0 top-0 bottom-0 z-20 flex flex-col justify-between py-32 pl-16 pr-8" style={{ width: "38vw" }}>
+                            <div>
+                                <span className="block font-body text-[10px] uppercase tracking-[0.45em] mb-6" style={{ color: "var(--text-muted)" }}>
+                                    Territoires
                                 </span>
-                            ))}
-                    </p>
-                </div>
-            </section>
-
-            <section className="my-40 px-16">
-                <div className="flex items-center justify-between ">
-
-                </div>
-                
-                <div className="border-b-[0.5px] border-[var(--border)] uppercase flex justify-between items-end mt-10 mb-5">
-
-                    <div>
-                        <h2 className="text-7xl font-reg">
-                            Nos circuits signatures
-                        </h2>
-                    </div>
-                    <div className="mb-4">
-                        <button className="flex items-center text-[var(--text-secondary)] rounded-full gap-4 uppercase">
-                            <span className="font-body text-sm">Voir plus</span>
-                            <div className=" rounded-full  flex items-center justify-center">
-                                <FaArrowRight className="text-[var(--text-secondary)] text-sm" />
+                                <h2 className="font-title leading-[0.9]" style={{ color: "var(--text-primary)", fontSize: "clamp(2.5rem, 4.5vw, 5rem)" }}>
+                                    Six mondes,<br />une seule île.
+                                </h2>
                             </div>
-                        </button>
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-5 my-8">
-                    <div className="flex justify-between">
-                        {tags.map((t) => (
-                            <div key={t.id} className="font-body-strong text-sm">
-                                <span className="text-sm">{t?.name || t?.nom}</span>
-                            </div>
-                        ))}
-
-                    </div>
-                    {circuits.map((c) => {
-                        const steps = c.steps ?? [];
-                        const depart = steps[0]?.place?.nom;
-                        const arrivee = steps[steps.length - 1]?.place?.nom;
-                        const totalJours = steps.reduce((sum, s) => sum + (s.durationDays ?? 0), 0);
-
-                        return (
-                            <div key={c.id} className="group relative flex flex-col cursor-pointer">
-
-                                <div className="relative overflow-hidden">
-                                    {c.imageUrl ? (
-                                        <img
-                                            src={c.imageUrl}
-                                            alt={c.nom}
-                                            className="w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                                            style={{ height: "600px" }}
-                                        />
-                                    ) : (
-                                        <div className="w-full flex items-center justify-center" style={{ height: "600px", backgroundColor: "var(--bg-sunken)" }}>
-                                            <span className="text-sm" style={{ color: "var(--text-muted)" }}>Pas d'image</span>
-                                        </div>
-                                    )}
-
-                                    <div
-                                        className="absolute inset-0 transition-opacity duration-700 ease-out opacity-0 group-hover:opacity-100"
-                                        style={{ background: "linear-gradient(to top, rgba(17,17,17,0.35), transparent 60%)" }}
-                                    />
-
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div
-                                            className="flex items-center justify-center rounded-full transition-all duration-500 ease-out opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100"
-                                            style={{
-                                                width: "110px",
-                                                height: "110px",
-                                                border: "1px solid rgba(255,255,255,0.7)",
-                                                backdropFilter: "blur(2px)",
-                                            }}
-                                        >
-                                            <span className="font-body-strong text-sm uppercase tracking-widest" style={{ color: "#fff" }}>
-                                                Voir
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr className="border-t-[1.5px] border-[var(--border)] mt-8 mb-6" />
-
-                                <div className="flex items-end justify-between gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h3 className="text-3xl leading-none" style={{ fontFamily: "var(--font-title)", color: "var(--text-primary)" }}>
-                                            {c.nom}
+                            {/* Le nom de la région active — empilés, un seul visible à la fois */}
+                            <div className="relative" style={{ height: "9rem" }}>
+                                {regions.map((region) => (
+                                    <div key={region.n} data-region-label className="absolute inset-0 flex flex-col justify-end">
+                                        <span className="block font-body text-[10px] uppercase tracking-[0.4em] mb-4" style={{ color: "var(--brand-ocre)" }}>
+                                            {region.n} / {String(regions.length).padStart(2, "0")}
+                                        </span>
+                                        <h3 className="font-title leading-none mb-3" style={{ color: "var(--text-primary)", fontSize: "clamp(1.8rem, 2.8vw, 3rem)" }}>
+                                            {region.nom}
                                         </h3>
-                                        <div className="flex items-center gap-3 font-body text-sm" style={{ color: "var(--text-muted)" }}>
-                                            {depart && arrivee && <span>{depart} → {arrivee}</span>}
-                                            {depart && arrivee && totalJours > 0 && (
-                                                <span style={{ width: "1px", height: "14px", backgroundColor: "var(--border-strong)" }} />
-                                            )}
-                                            {totalJours > 0 && <span>{totalJours} jours</span>}
-                                        </div>
+                                        <p className="font-body text-sm leading-relaxed max-w-xs" style={{ color: "var(--text-secondary)" }}>
+                                            {region.desc}
+                                        </p>
                                     </div>
-
-                                    <button className="flex items-center gap-2 shrink-0 pb-1" style={{ color: "var(--text-primary)" }}>
-                                        <span className="font-body-strong text-sm">Découvrir</span>
-                                        <FaArrowRight className="text-sm transition-transform duration-300 ease-out group-hover:translate-x-1" />
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </section>
-
-            <section ref={revealScope} className="my-56 px-16">
-
-                {/* En-tête de section */}
-                <div className="mb-20" data-reveal>
-                    <p className="font-body-strong text-xs uppercase tracking-[0.3em]" style={{ color: "var(--brand-ocre)" }}>
-                        Simple & sur mesure
-                    </p>
-                    <h2 className="mt-4 text-7xl font-title leading-none" style={{ color: "var(--text-primary)" }}>
-                        Votre voyage
-                        <br />
-                        en trois gestes
-                    </h2>
-                </div>
-
-                {/* Étapes — pas de boîtes, juste des filets */}
-                <div className="flex flex-col">
-                    {[
-                        { n: "01", titre: "Épinglez vos étapes", desc: "Sur une carte interactive de Madagascar, vous désignez les lieux qui vous appellent. Chaque point posé dessine peu à peu la ligne de votre voyage." },
-                        { n: "02", titre: "Ajustez votre style", desc: "Durée, niveau de confort, rythme, nombre de voyageurs. Le circuit épouse votre manière de voyager, pas l'inverse." },
-                        { n: "03", titre: "Recevez votre devis", desc: "Notre équipe locale orchestre la logistique et vous adresse une proposition sur mesure sous quarante-huit heures." },
-                    ].map((etape, i) => (
-                        <div
-                            key={etape.n}
-                            data-reveal
-                            className="group grid grid-cols-12 gap-8 items-baseline py-14"
-                            style={{ borderTop: "1px solid var(--border)" }}
-                        >
-                            {/* Numéro */}
-                            <div className="col-span-2">
-                                <span
-                                    className="font-title text-6xl transition-colors duration-500"
-                                    style={{ color: "var(--border-strong)" }}
-                                >
-                                    {etape.n}
-                                </span>
-                            </div>
-
-                            {/* Titre */}
-                            <div className="col-span-4">
-                                <h3
-                                    className="font-title text-4xl leading-tight transition-transform duration-500 ease-out group-hover:translate-x-2"
-                                    style={{ color: "var(--text-primary)" }}
-                                >
-                                    {etape.titre}
-                                </h3>
-                            </div>
-
-                            {/* Description */}
-                            <div className="col-span-6">
-                                <p className="font-body text-base leading-relaxed max-w-md" style={{ color: "var(--text-muted)" }}>
-                                    {etape.desc}
-                                </p>
+                                ))}
                             </div>
                         </div>
-                    ))}
-                    {/* Filet de clôture */}
-                    <div style={{ borderTop: "1px solid var(--border)" }} />
-                </div>
-            </section>
 
-            <section ref={horizontalSection} className="relative overflow-hidden" style={{ backgroundColor: "var(--bg-dark)" }}>
-                <div ref={horizontalTrack} className="flex h-screen items-center will-change-transform">
+                        {/* Colonne droite — les images empilées, plein cadre */}
+                        <div className="absolute top-0 bottom-0 right-0 overflow-hidden" style={{ left: "38vw" }}>
+                            {regions.map((region) => (
+                                <div key={region.n} data-region-frame className="absolute inset-0 overflow-hidden">
+                                    <img data-region-img src={region.img} alt={region.nom} className="absolute inset-0 w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
 
-                    {/* Panneau d'intro */}
-                    <div className="shrink-0 h-screen flex flex-col justify-center px-24" style={{ width: "60vw" }}>
-                        <p className="font-body-strong text-xs uppercase tracking-[0.3em] mb-8" style={{ color: "var(--brand-ocre)" }}>
-                            Six territoires, une île
-                        </p>
-                        <h2 className="font-title text-8xl leading-[0.95]" style={{ color: "var(--text-inverse)" }}>
-                            Madagascar
-                            <br />
-                            n'est pas
-                            <br />
-                            un pays.
-                        </h2>
-                        <p className="mt-10 font-body text-base leading-relaxed max-w-md" style={{ color: "var(--text-inverse-muted)" }}>
-                            C'est un continent miniature. Chaque région y possède sa lumière, son climat, ses gestes. Faites glisser pour les parcourir.
-                        </p>
                     </div>
 
-                    {/* Régions */}
-                    {[
-                        { n: "01", nom: "Hautes Terres", desc: "Rizières en terrasses, maisons de brique rouge et brumes matinales.", img: "/img/lemur.webp" },
-                        { n: "02", nom: "Côte Est", desc: "Forêt primaire, canal des Pangalanes et pluies chaudes.", img: "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg" },
-                        { n: "03", nom: "Grand Sud", desc: "Épineux, baobabs et terre ocre jusqu'à l'horizon.", img: "/img/lemur.webp" },
-                        { n: "04", nom: "Nord & Îles", desc: "Eaux turquoise, tsingy et villages de pêcheurs.", img: "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg" },
-                    ].map((region) => (
-                        <div key={region.n} className="shrink-0 h-screen flex items-center px-8" style={{ width: "42vw" }}>
-                            <div className="w-full group cursor-pointer">
 
-                                {/* Cadre image avec parallax interne */}
-                                <div className="relative overflow-hidden" style={{ height: "62vh" }}>
-                                    <img
-                                        data-parallax-img
-                                        src={region.img}
-                                        alt={region.nom}
-                                        className="absolute inset-0 w-[125%] h-full object-cover transition-[filter] duration-700 ease-out"
-                                        style={{ filter: "grayscale(0.35) brightness(0.85)" }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.filter = "grayscale(0) brightness(1)")}
-                                        onMouseLeave={(e) => (e.currentTarget.style.filter = "grayscale(0.35) brightness(0.85)")}
-                                    />
-                                    {/* Numéro en filigrane */}
-                                    <span
-                                        className="absolute top-6 left-6 font-title text-7xl leading-none pointer-events-none"
-                                        style={{ color: "rgba(255,255,255,0.28)" }}
-                                    >
-                                        {region.n}
+                    <div
+                        className="absolute inset-0 z-0 flex flex-col justify-center px-16 pb-20"
+                        style={{ backgroundColor: "var(--bg)" }}
+                        ref={etapesContainerRef}
+                    >
+                        <div className="mb-10" data-reveal>
+                            <p className="font-body-strong text-xs uppercase tracking-[0.3em]" style={{ color: "var(--brand-ocre)" }}>Simple &amp; sur mesure</p>
+                            <h2 className="mt-3 text-6xl font-title leading-none" style={{ color: "var(--text-primary)" }}>Votre voyage<br />en trois gestes</h2>
+                        </div>
+                        <div className="flex flex-col">
+                            {etapes.map((etape) => (
+                                <div key={etape.n} data-reveal className="group grid grid-cols-12 gap-8 items-baseline py-8" style={{ borderTop: "1px solid var(--border)" }}>
+                                    <div className="col-span-2"><span className="font-title text-5xl" style={{ color: "var(--border-strong)" }}>{etape.n}</span></div>
+                                    <div className="col-span-4"><h3 className="font-title text-3xl leading-tight transition-transform duration-500 ease-out group-hover:translate-x-2" style={{ color: "var(--text-primary)" }}>{etape.titre}</h3></div>
+                                    <div className="col-span-6"><p className="font-body text-base leading-relaxed max-w-md" style={{ color: "var(--text-muted)" }}>{etape.desc}</p></div>
+                                </div>
+                            ))}
+                            <div style={{ borderTop: "1px solid var(--border)" }} />
+                        </div>
+                    </div>
+
+                    {/* Circuits — z-10, au-dessus des étapes, remonte comme un rideau à la fin */}
+                    <div className="absolute inset-0 z-10 overflow-hidden" ref={circuitContainerRef}>
+                        {circuits.map((c, i) => {
+                            const depart =  c.depart;
+                            const arrivee = c.arrivee;
+                            const totalJours = c.jours;
+
+                            return (
+                                <div key={c.id} ref={(el) => setCircuitRef(el, i)} className="absolute inset-0" data-circuit={i}>
+                                    <img src={c.imageUrl} alt={c.nom} className="absolute inset-0 w-full h-full object-cover" />
+                                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent 55%)" }} />
+                                    <div className="absolute inset-0 flex flex-col justify-end px-16 pb-15">
+
+                                        <h3 data-circuit-title className="font-title text-8xl leading-[0.9]" style={{ color: "#fff" }}>{c.nom}</h3>
+
+                                        <div data-circuit-line style={{ borderTop: "1px solid var(--border-strong)", transformOrigin: "left center" }} className="my-6"></div>
+
+                                        <div className="flex items-start justify-between gap-8">
+                                            <div data-circuit-meta className="flex items-center gap-4 font-body text-sm uppercase tracking-[0.15em] text-[var(--text-inverse-secondary)]">
+                                                {depart && arrivee && <span>{depart} → {arrivee}</span>}
+                                                {depart && arrivee && totalJours > 0 && (
+                                                    <span style={{ width: "1px", height: "14px", backgroundColor: "rgba(255,255,255,0.45)" }} />
+                                                )}
+                                                {totalJours > 0 && <span>{totalJours} jours</span>}
+                                            </div>
+                                            <div data-circuit-meta className="flex flex-wrap justify-end gap-x-12 gap-y-2 text-right font-body text-sm leading-relaxed text-[var(--text-inverse-secondary)]">
+                                                {c.desc.split("|").map((part, j) => (
+                                                    <span key={j}>{part.trim()}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        <div className="absolute right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
+                            {circuits.map((_, i) => (
+                                <span key={i} className="transition-all duration-500 ease-out" style={{ width: "2px", height: i === active ? "36px" : "16px", backgroundColor: i === active ? "#fff" : "rgba(255,255,255,0.35)" }} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Rideau de panneaux — z-20, cache tout jusqu'à son ouverture */}
+                    <div className="absolute inset-0 z-20 flex">
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} data-panel className="flex-1 h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+                        ))}
+                    </div>
+
+                    {/* Texte (phrase + Découvrez.) — z-30, par-dessus le rideau */}
+                    <div className="absolute inset-0 z-30 flex items-center justify-center px-16">
+                        <div className="relative w-full h-full flex items-center justify-center">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <div className="mb-14">
+                                    <span data-phrase className="font-body-strong text-xs uppercase tracking-[0.35em] inline-block" style={{ color: "var(--brand-ocre)" }}>
+                                        La méthode Haodygasikara
                                     </span>
                                 </div>
-
-                                <div className="mt-8" style={{ borderTop: "1px solid rgba(255,255,255,0.18)" }}>
-                                    <h3
-                                        className="font-title text-5xl mt-6 transition-transform duration-500 ease-out group-hover:translate-x-2"
-                                        style={{ color: "var(--text-inverse)" }}
-                                    >
-                                        {region.nom}
-                                    </h3>
-                                    <p className="mt-3 font-body text-sm leading-relaxed max-w-sm" style={{ color: "var(--text-inverse-muted)" }}>
-                                        {region.desc}
-                                    </p>
+                                {phrase.map((ligne, i) => (
+                                    <div key={i} className="flex justify-center flex-wrap">
+                                        {ligne.split(" ").map((mot, j) => (
+                                            <span key={j} data-phrase className="font-body text-5xl leading-[1.25] inline-block mr-[0.25em]" style={{ color: "var(--text-primary)" }}>
+                                                {mot}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div>
+                                    {"Découvrez.".split("").map((char, i) => (
+                                        <span key={i} data-final-char className="font-title text-8xl leading-none inline-block">
+                                            {char}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
                         </div>
-                    ))}
-
-                    {/* Panneau de clôture */}
-                    <div className="shrink-0 h-screen flex flex-col justify-center px-24" style={{ width: "45vw" }}>
-                        <h3 className="font-title text-6xl leading-tight" style={{ color: "var(--text-inverse)" }}>
-                            Et la vôtre,
-                            <br />
-                            laquelle sera-t-elle&nbsp;?
-                        </h3>
-                        <button
-                            className="mt-10 w-fit px-10 py-4 font-body-strong text-sm uppercase tracking-widest transition-all duration-300"
-                            style={{ border: "1px solid rgba(255,255,255,0.4)", color: "var(--text-inverse)" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--text-inverse)"; e.currentTarget.style.color = "var(--bg-dark)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "var(--text-inverse)"; }}
-                        >
-                            Composer mon circuit
-                        </button>
                     </div>
-                </div>
-            </section>
+
+                </section>
+            </div>
 
 
-            <section className="mt-28 mb-16">
-                <div
-                    className="relative overflow-hidden flex flex-col items-center justify-center text-center gap-5 px-6 py-20"
-                    style={{ backgroundColor: "var(--brand-foret)", borderRadius: "var(--radius-xl)" }}
-                >
-                    <img
-                        src="/img/motif/motifs-1000 1.png"
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
-                    />
+            {/* ===== RÉGIONS — scroll horizontal ===== */}
+            
 
+            {/* ===== CTA FINAL ===== */}
+            <section className="relative z-10 mt-28 mb-16" style={{ backgroundColor: "var(--bg)" }}>
+                <div className="relative overflow-hidden flex flex-col items-center justify-center text-center gap-5 px-6 py-20" style={{ backgroundColor: "var(--brand-foret)", borderRadius: "var(--radius-xl)" }}>
+                    <img src="/img/motif/motifs-1000 1.png" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
                     <div className="relative z-10 flex flex-col items-center gap-5">
-                        <h2 className="text-6xl font-abhaya-bold" style={{ color: "var(--text-inverse)" }}>
-                            Prêt à dessiner votre itinéraire&nbsp;?
-                        </h2>
-                        <p className="font-body text-sm max-w-xl" style={{ color: "var(--text-inverse-secondary)" }}>
-                            Ouvrez la carte de Madagascar, épinglez vos étapes et recevez une proposition personnalisée sous 48h.
-                        </p>
-                        <button
-                            className="mt-2 px-8 py-3 font-body-strong text-sm transition-all duration-200"
-                            style={{
-                                backgroundColor: "var(--cta-accent-bg)",
-                                color: "var(--cta-accent-text)",
-                                borderRadius: "var(--radius-md)",
-                                boxShadow: "var(--shadow-card)",
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg-hover)")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg)")}
-                        >
-                            Créer mon circuit
-                        </button>
+                        <h2 className="text-6xl font-abhaya-bold" style={{ color: "var(--text-inverse)" }}>Prêt à dessiner votre itinéraire&nbsp;?</h2>
+                        <p className="font-body text-sm max-w-xl" style={{ color: "var(--text-inverse-secondary)" }}>Ouvrez la carte de Madagascar, épinglez vos étapes et recevez une proposition personnalisée sous 48h.</p>
+                        <button className="mt-2 px-8 py-3 font-body-strong text-sm transition-all duration-200" style={{ backgroundColor: "var(--cta-accent-bg)", color: "var(--cta-accent-text)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg-hover)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg)")}>Créer mon circuit</button>
                     </div>
                 </div>
             </section>
         </>
-        
     );
 }

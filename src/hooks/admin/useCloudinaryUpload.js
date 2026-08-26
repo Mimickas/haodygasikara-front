@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import api from '../../api/axiosInstance';
-
+import { compressImage } from '../../utils/Compressimage';
 
 export const useCloudinaryUpload = () => {
   const [uploading, setUploading] = useState(false);
@@ -12,8 +12,10 @@ export const useCloudinaryUpload = () => {
     const { signature, timestamp, apiKey, cloudName } = res.data;
 
     const isVideo = file.type.startsWith('video/');
+    const fileToUpload = isVideo ? file : await compressImage(file);
+
     const fd = new FormData();
-    fd.append('file', file);                      // File object directement (web ✅)
+    fd.append('file', fileToUpload);              // fichier compressé si image
     fd.append('signature', signature);
     fd.append('timestamp', String(timestamp));
     fd.append('api_key', apiKey);
@@ -27,7 +29,6 @@ export const useCloudinaryUpload = () => {
     return result.secure_url;
   };
 
-  // Pour uploader plusieurs images d'un coup
   const uploadMany = async (files, folder = 'places') =>
     Promise.all([...files].map(file => upload(file, folder)));
 

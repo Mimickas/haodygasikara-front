@@ -24,6 +24,8 @@ export function useScrollReveal() {
                             trigger: el,
                             start: "top 85%",
                             toggleActions: "play none none none",
+                            invalidateOnRefresh: true,
+                            refreshPriority: 0,
                         },
                     }
                 );
