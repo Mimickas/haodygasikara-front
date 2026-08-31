@@ -3,6 +3,8 @@ import { FaUser, FaArrowRight } from "react-icons/fa6";
 import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import MenuRevealLink from "../../../../hooks/design/MenuRevealLink";
+import { useHeaderIntro } from "../../../../hooks/design/animations/useHeaderIntro";
+import { useHeaderTextColor } from "../../../../hooks/design/animations/useHeaderTextColor";
 
 const navLinks = [
     { label: "Découvrir", href: "/",        img: "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg" },
@@ -15,8 +17,9 @@ export default function HeaderClient() {
     const isHero = pathname === "/";
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const textColor  = !menuOpen ? "var(--text-inverse)"       : "var(--text-primary)";
-    const mutedColor = !menuOpen ? "var(--text-inverse-muted)" : "var(--text-muted)";
+    // const textColo  = !menuOpen ? "var(--text-inverse)"       : "var(--text-primary)";
+    const scopeRef = useRef();
+    const textColor = useHeaderTextColor(scopeRef);
 
     const panelRef = useRef(null);
     const revealRef = useRef(null);
@@ -43,17 +46,6 @@ export default function HeaderClient() {
         });
     };
 
-    const handleMouseEnter = (img) => {
-        const el = revealRef.current;
-        el.style.backgroundImage = `url(${img})`;
-        gsap.killTweensOf(el);
-        gsap.to(el, { opacity: 1, scale: 1, duration: 0.6, ease: "expo.out" });
-    };
-
-    const handleMouseLeave = () => {
-        gsap.to(revealRef.current, { opacity: 0, scale: 0.8, duration: 0.5, ease: "expo.out" });
-    };
-
     const handleMouseMove = (e) => {
         mousePos.current = { x: e.clientX, y: e.clientY };
         const velX = mousePos.current.x - lastPos.current.x;
@@ -72,38 +64,45 @@ export default function HeaderClient() {
     return (
         <>
             <header
+                ref={scopeRef}
                 className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center py-6 px-16 uppercase text-sm transition-colors duration-300 backdrop-blur-sm"
-                style={{
-                    backgroundColor: isHero ? "transparent" : "var(--bg-card)",
-                    borderBottom: isHero ? "none" : "1px solid var(--border)",
-                }}
+                style={{borderBottom: "1px solid var(--border)"}}
             >
                 <div
+                    data-header-menu
                     className="flex items-center gap-2 font-body-strong uppercase text-sm duration-200 hover:opacity-80 cursor-pointer"
                     style={{ color: textColor }}
                     onClick={() => (menuOpen ? closeMenu() : setMenuOpen(true))}
                 >
                     <div className="flex flex-col gap-1">
-                        <span className={`w-10 border border-t-1.5 transition-transform duration-300 ease-in-out ${
-                            menuOpen ? "rotate-15 translate-y-[3px]" : ""
-                        }`} style={{ borderColor: textColor }}></span>
-                        <span className={`w-10 border border-t-1.5 transition-transform duration-300 ease-in-out ${
-                            menuOpen ? "-rotate-15 -translate-y-[3px]" : ""
-                        }`} style={{ borderColor: textColor }}></span>
+                        <span
+                            className={`w-10 border transition-all duration-300 ease-in-out ${
+                                menuOpen ? "rotate-[15deg] translate-y-[3px]" : ""
+                            }`}
+                            style={{ borderColor: textColor, borderTopWidth: "1.5px" }}
+                        ></span>
+                        <span
+                            className={`w-10 border transition-all duration-300 ease-in-out ${
+                                menuOpen ? "-rotate-[15deg] -translate-y-[3px]" : ""
+                            }`}
+                            style={{ borderColor: textColor, borderTopWidth: "1.5px" }}
+                        ></span>
                     </div>
                     <div>Menu</div>
                 </div>
 
-                <div className="flex justify-center">
+                <div data-header-logo className="flex justify-center">
                     <Link to="/">
-                        {/* <img src="/img/logo/logo-2-horizontal.png" className="w-36" alt="Logo" /> */}
-                        <span className={`font-abhaya-bold text-2xl ${menuOpen ? "text-[var(--text-primary)]":"text-[var(--text-inverse)]"}`}>HaodyGasikara</span>
+                        <span
+                            className="font-abhaya-bold text-2xl transition-colors duration-300"
+                            style={{ color: menuOpen ? "var(--text-primary)" : textColor }}
+                        >
+                            HaodyGasikara
+                        </span>
                     </Link>
                 </div>
 
-                <div className="flex justify-end items-center gap-6 font-body" style={{ color: textColor }}>
-
-
+                <div data-header-cta className="flex justify-end items-center gap-6 font-body" style={{ color: textColor }}>
                     <button
                         className="flex items-center gap-2 rounded-md py-2 px-4 cursor-pointer transition-colors font-body-strong uppercase text-sm"
                         style={{ color: textColor }}

@@ -5,8 +5,6 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-// 1 "unité" de durée dans la timeline = ce nombre de vh de scroll physique.
-// Monte pour ralentir TOUTE la séquence, descends pour accélérer.
 const VH_PER_UNIT = 45;
 
 export function useCircuitReveal(count) {
@@ -52,9 +50,15 @@ export function useCircuitReveal(count) {
         };
 
         // --- États initiaux ---
+        // Tous les circuits sont pleinement visibles (clip-path neutre) et
+        // empilés en zIndex décroissant : l'indice le plus bas est au-dessus.
+        // C'est lui qui se fait couper via clip-path — le bord bas de sa
+        // zone visible remonte vers le haut, jusqu'à disparition totale.
+        // Le circuit du dessous ne reçoit AUCUNE animation : il est déjà là,
+        // intact, simplement révélé au fur et à mesure de la coupe.
         els.forEach((el, i) => {
             if (!el) return;
-            gsap.set(el, { yPercent: i === 0 ? 0 : 100, zIndex: i, scale: 1, transformOrigin: "center center" });
+            gsap.set(el, { clipPath: "inset(0% 0% 0% 0%)", zIndex: count - i });
             const { title, line, metas } = circuitContent(i);
             gsap.set(title, { y: 60, opacity: 0 });
             gsap.set(line, { scaleX: 0 });
@@ -67,7 +71,6 @@ export function useCircuitReveal(count) {
         gsap.set(etapesContainerRef.current, { yPercent: 0 });
         gsap.set(revealItems, { opacity: 0, y: 40 });
 
-        // Régions : la 1re image visible, les suivantes masquées par le bas
         gsap.set(regionFrames, {
             clipPath: (i) => (i === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)"),
             zIndex: (i) => i,
@@ -80,49 +83,46 @@ export function useCircuitReveal(count) {
 
         // --- La phrase apparaît ---
         tl.to(phraseLines, { opacity: 1, xPercent: 0, letterSpacing: "0em", duration: 1.4, ease: "expo.out", stagger: 0.04 });
-        tl.to({}, { duration: 0.9 }); // conservée
+        tl.to({}, { duration: 0.9 });
 
-        // --- Transition phrase → Découvrez ---
         tl.to(phraseLines, { opacity: 0, xPercent: (i) => (i % 2 === 0 ? 60 : -60), letterSpacing: "0.6em", duration: 1.1, ease: "expo.in", stagger: 0.03 });
-        tl.to({}, { duration: 0.45 }); // conservée
+        tl.to({}, { duration: 0.45 });
 
-        // --- "Découvrez." apparaît ---
         tl.to(finalChars, { opacity: 1, scaleY: 1, duration: 1.1, ease: "expo.out", stagger: 0.05 });
-        tl.to({}, { duration: 0.7 }); // conservée
+        tl.to({}, { duration: 0.7 });
 
-        // --- Transition Découvrez → rideau ---
         tl.to(finalChars, { scaleY: 0, opacity: 0, duration: 0.7, ease: "expo.in", stagger: { amount: 0.3, from: "center" } });
-        tl.to({}, { duration: 0.45 }); // conservée
+        tl.to({}, { duration: 0.45 });
 
-        // --- Le rideau s'ouvre ---
         tl.to(panels, { yPercent: -100, duration: 3.6, ease: "power4.inOut", stagger: 0.4 });
 
-        // --- Contenu du circuit 0 ---
         revealContent(0, tl.duration());
         tl.to({}, { duration: 0.15 });
 
-        // --- Carousel des circuits ---
+        // --- Carousel des circuits : coupe complète via clip-path ---
         tl.addLabel("circuits");
         for (let i = 1; i < count; i++) {
             const enterAt = tl.duration();
-            tl.to(els[i], { yPercent: 0, ease: "none", duration: 3.2 });
-            tl.to(els[i - 1], { scale: 1.12, ease: "none", duration: 3.2 }, "<");
-            revealContent(i, enterAt + 3.2);
+
+            tl.to(els[i - 1], {
+                clipPath: "inset(0% 0% 100% 0%)",
+                duration: 3.2,
+                ease: "power2.inOut",
+            });
+            revealContent(i, enterAt);
             tl.to({}, { duration: 0.15 });
         }
         tl.to({}, { duration: 0.25 });
 
-        // --- Les circuits remontent, révèlent les étapes ---
+        tl.addLabel("etapes");
         tl.to(circuitContainerRef.current, { yPercent: -100, duration: 1.6, ease: "power4.inOut" });
         tl.to(revealItems, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", stagger: 0.15 }, "-=0.8");
         tl.to({}, { duration: 0.7 });
 
-        // --- Les étapes remontent, révèlent les régions ---
         tl.addLabel("horizontal");
         tl.to(etapesContainerRef.current, { yPercent: -100, duration: 1.6, ease: "power4.inOut" });
         tl.to({}, { duration: 0.4 });
 
-        // --- Chaque région se substitue à la précédente ---
         for (let i = 1; i < regionFrames.length; i++) {
             const at = tl.duration();
 
@@ -144,6 +144,8 @@ export function useCircuitReveal(count) {
 
         triggerRef.current.style.height = `${tl.duration() * VH_PER_UNIT}vh`;
 
+        let lastColor = null;
+
         ScrollTrigger.create({
             trigger: triggerRef.current,
             start: "top top",
@@ -155,7 +157,18 @@ export function useCircuitReveal(count) {
             onUpdate: () => {
                 const t = tl.time();
                 const circuitsStart = tl.labels.circuits ?? 0;
+                const etapesStart = tl.labels.etapes ?? tl.duration();
                 const horizontalStart = tl.labels.horizontal ?? tl.duration();
+
+                const color = (t < circuitsStart || t >= etapesStart)
+                    ? "var(--text-primary)"
+                    : "var(--text-inverse)";
+
+                if (color !== lastColor) {
+                    lastColor = color;
+                    window.dispatchEvent(new CustomEvent("header:text-color", { detail: color }));
+                }
+
                 if (t <= circuitsStart) { setActive(0); return; }
                 if (t >= horizontalStart) { setActive(count - 1); return; }
                 const p = (t - circuitsStart) / (horizontalStart - circuitsStart);

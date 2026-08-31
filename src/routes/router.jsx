@@ -21,6 +21,7 @@ import DestinationEdit from "../pages/admin/destinations/DestinationEdit";
 import CircuitEdit from "../pages/admin/circuit/CircuitEdit";
 import AppLayout from "../layout/AppLayout";
 import Home from "../pages/client/home/Home";
+import ViewCircuit from "../pages/client/viewCircuit/ViewCircuit";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
             { index: true,          element: <Home /> },
+            { path:"/circuit",          element: <ViewCircuit /> },
             // { path: "destinations", element: <Destinations /> },
             // { path: "destination/:id", element: <DestinationDetail /> },
 

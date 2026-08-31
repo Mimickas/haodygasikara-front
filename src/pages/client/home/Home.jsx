@@ -2,11 +2,9 @@ import { FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import Button from "../../../components/ui/button/Button";
 import { useEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { findAllTagsGroupsApiClient } from "../../../api/client/tagGroupApi";
-import { findAllCircuitClientApi } from "../../../api/client/cricuitApi";
-import { useHorizontalScroll } from "../../../hooks/design/useHorizontalScroll";
 import { useCircuitReveal } from "../../../hooks/design/useCircuitReveal";
 import { useHeroIntro } from "../../../hooks/design/animations/home/firstHero";
+import { useAssetsLoader } from "../../../hooks/design/useAssetsLoader";
 
 const heroImages = [
     "/img/luxury-sexy-attractive-woman-dressed-black-dress-posing-pier-luxury-resort-hotel-wearing-sunglasses-summer-vacation-tropical-beach.jpg",
@@ -43,44 +41,79 @@ const circuits = [
       imageUrl: "/img/home/circuit/zen-garden.jpg" },
 ];
 
+// toutes les images à précharger avant d'afficher la page
+const ALL_IMAGES = [
+    ...heroImages,
+    ...regions.map((r) => r.img),
+    ...circuits.map((c) => c.imageUrl),
+];
+
 export default function Home() {
+    const { progress, ready } = useAssetsLoader(ALL_IMAGES);
 
     const [current, setCurrent] = useState(0);
 
-    const { triggerRef,circuitContainerRef,horizontalTrackRef,etapesContainerRef, active, setCircuitRef } = useCircuitReveal(circuits.length);
+    const { triggerRef, circuitContainerRef, etapesContainerRef, active, setCircuitRef } = useCircuitReveal(circuits.length);
     const heroScope = useHeroIntro();
     const prev = () => setCurrent((i) => (i === 0 ? heroImages.length - 1 : i - 1));
     const next = () => setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
 
+    // recalcule les positions des animations une fois tout chargé
     useEffect(() => {
-        const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
-        return () => cancelAnimationFrame(raf);
-    }, []); // ← plus de dépendance [circuits], juste au montage
+        if (!ready) return;
+        const t = setTimeout(() => ScrollTrigger.refresh(), 100);
+        return () => clearTimeout(t);
+    }, [ready]);
 
+    // carousel auto du hero — ne démarre qu'une fois prêt
     useEffect(() => {
+        if (!ready) return;
         const interval = setInterval(() => {
             setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
-        }, 5000); // change toutes les 5s
+        }, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [ready]);
 
     return (
         <>
-            {/* ===== HERO ===== */}
-            <section ref={heroScope} className="h-screen relative">
-                <div className="relative w-full h-full overflow-hidden bg-black">
-                {heroImages.map((src, i) => (
-                    <img
-                        key={src}
-                        data-hero-img={i === 0 ? "" : undefined}
-                        src={src}
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ease-in-out"
-                        style={{ opacity: i === current ? 0.75 : 0 }}
-                    />
-                ))}
+            {/* ===== ÉCRAN DE CHARGEMENT ===== */}
+            {!ready && (
+                <div
+                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-700"
+                    style={{ backgroundColor: "var(--bg)" }}
+                >
+                    <span className="font-body-strong text-xs uppercase tracking-[0.45em] mb-10" style={{ color: "var(--brand-ocre)" }}>
+                        Haodygasikara
+                    </span>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="w-64 h-[2px] mb-5" style={{ backgroundColor: "var(--border)" }}>
+                        <div
+                            className="h-full transition-all duration-300 ease-out"
+                            style={{ width: `${progress}%`, backgroundColor: "var(--brand-terre)" }}
+                        />
+                    </div>
+
+                    <span className="font-title" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
+                        {progress}%
+                    </span>
+                </div>
+            )}
+
+            {/* ===== HERO ===== */}
+            <section ref={heroScope} className="h-screen relative" data-header-text="var(--text-inverse)">
+                <div className="relative w-full h-full overflow-hidden bg-black">
+                    {heroImages.map((src, i) => (
+                        <img
+                            key={src}
+                            data-hero-img={i === 0 ? "" : undefined}
+                            src={src}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ease-in-out"
+                            style={{ opacity: i === current ? 0.75 : 0 }}
+                        />
+                    ))}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                     <div className="absolute bottom-20 left-0 right-0 z-10 flex items-end justify-between px-16">
                         <div>
@@ -124,7 +157,6 @@ export default function Home() {
                                 </h2>
                             </div>
 
-                            {/* Le nom de la région active — empilés, un seul visible à la fois */}
                             <div className="relative" style={{ height: "9rem" }}>
                                 {regions.map((region) => (
                                     <div key={region.n} data-region-label className="absolute inset-0 flex flex-col justify-end">
@@ -153,7 +185,6 @@ export default function Home() {
 
                     </div>
 
-
                     <div
                         className="absolute inset-0 z-0 flex flex-col justify-center px-16 pb-20"
                         style={{ backgroundColor: "var(--bg)" }}
@@ -175,10 +206,10 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Circuits — z-10, au-dessus des étapes, remonte comme un rideau à la fin */}
+                    {/* Circuits — z-10 */}
                     <div className="absolute inset-0 z-10 overflow-hidden" ref={circuitContainerRef}>
                         {circuits.map((c, i) => {
-                            const depart =  c.depart;
+                            const depart = c.depart;
                             const arrivee = c.arrivee;
                             const totalJours = c.jours;
 
@@ -217,14 +248,14 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Rideau de panneaux — z-20, cache tout jusqu'à son ouverture */}
+                    {/* Rideau — z-20 */}
                     <div className="absolute inset-0 z-20 flex">
                         {[0, 1, 2, 3, 4, 5].map((i) => (
                             <div key={i} data-panel className="flex-1 h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
                         ))}
                     </div>
 
-                    {/* Texte (phrase + Découvrez.) — z-30, par-dessus le rideau */}
+                    {/* Texte — z-30 */}
                     <div className="absolute inset-0 z-30 flex items-center justify-center px-16">
                         <div className="relative w-full h-full flex items-center justify-center">
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
@@ -257,22 +288,6 @@ export default function Home() {
 
                 </section>
             </div>
-
-
-            {/* ===== RÉGIONS — scroll horizontal ===== */}
-            
-
-            {/* ===== CTA FINAL ===== */}
-            <section className="relative z-10 mt-28 mb-16" style={{ backgroundColor: "var(--bg)" }}>
-                <div className="relative overflow-hidden flex flex-col items-center justify-center text-center gap-5 px-6 py-20" style={{ backgroundColor: "var(--brand-foret)", borderRadius: "var(--radius-xl)" }}>
-                    <img src="/img/motif/motifs-1000 1.png" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
-                    <div className="relative z-10 flex flex-col items-center gap-5">
-                        <h2 className="text-6xl font-abhaya-bold" style={{ color: "var(--text-inverse)" }}>Prêt à dessiner votre itinéraire&nbsp;?</h2>
-                        <p className="font-body text-sm max-w-xl" style={{ color: "var(--text-inverse-secondary)" }}>Ouvrez la carte de Madagascar, épinglez vos étapes et recevez une proposition personnalisée sous 48h.</p>
-                        <button className="mt-2 px-8 py-3 font-body-strong text-sm transition-all duration-200" style={{ backgroundColor: "var(--cta-accent-bg)", color: "var(--cta-accent-text)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg-hover)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-accent-bg)")}>Créer mon circuit</button>
-                    </div>
-                </div>
-            </section>
         </>
     );
 }
