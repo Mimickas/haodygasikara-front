@@ -16,9 +16,26 @@ export function useImageRevealHover(img) {
         const image = imgRef.current;
         if (!link) return;
 
+        const GAP = 32;
+        const MARGE = 16;
+
+        // L'image se pose à droite du curseur et centrée sur lui — elle bascule
+        // à gauche si elle allait sortir de l'écran, et ne déborde jamais en haut
+        // ni en bas.
         const positionElement = (e) => {
-            reveal.style.top = `${e.clientY + 20}px`;
-            reveal.style.left = `${e.clientX + 20}px`;
+            const w = reveal.offsetWidth;
+            const h = reveal.offsetHeight;
+
+            let left = e.clientX + GAP;
+            if (left + w > window.innerWidth - MARGE) left = e.clientX - GAP - w;
+
+            const top = Math.min(
+                Math.max(e.clientY - h / 2, MARGE),
+                window.innerHeight - h - MARGE
+            );
+
+            reveal.style.left = `${left}px`;
+            reveal.style.top = `${top}px`;
         };
 
         const onEnter = (e) => {

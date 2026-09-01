@@ -7,6 +7,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 export default function BaseMap({ circuit }) {
     const containerRef = useRef(null);
     const mapRef = useRef(null);
+    const markersRef = useRef([]);   // pour nettoyer les anciens marqueurs
 
     useEffect(() => {
         if (mapRef.current) return;
@@ -19,23 +20,23 @@ export default function BaseMap({ circuit }) {
         });
         mapRef.current = map;
 
-        map.on("load", () => {
-            map.resize();
-        });
+        map.on("load", () => map.resize());
+
+        // resize différé — couvre l'animation d'ouverture du panneau
+        const t = setTimeout(() => map.resize(), 750);
 
         return () => {
+            clearTimeout(t);
             map.remove();
             mapRef.current = null;
         };
     }, []);
 
-    // dessine le circuit quand il arrive (séparé de l'init)
     useEffect(() => {
         const map = mapRef.current;
         if (!map || !circuit?.steps?.length) return;
 
         const draw = () => {
-            // extraire les points dans l'ordre des steps
             const points = circuit.steps
                 .map((s) => s.place)
                 .filter((p) => p && p.longitude != null && p.latitude != null)
@@ -48,19 +49,19 @@ export default function BaseMap({ circuit }) {
 
             if (!points.length) return;
 
-            // nettoyer un ancien tracé si on redessine
+            // nettoyer ancien tracé
             if (map.getLayer("route-line")) map.removeLayer("route-line");
             if (map.getSource("route")) map.removeSource("route");
 
-            // 1. LA LIGNE reliant les étapes
+            // nettoyer anciens marqueurs
+            markersRef.current.forEach((m) => m.remove());
+            markersRef.current = [];
+
             map.addSource("route", {
                 type: "geojson",
                 data: {
                     type: "Feature",
-                    geometry: {
-                        type: "LineString",
-                        coordinates: points.map((p) => [p.lng, p.lat]),
-                    },
+                    geometry: { type: "LineString", coordinates: points.map((p) => [p.lng, p.lat]) },
                 },
             });
             map.addLayer({
@@ -68,14 +69,9 @@ export default function BaseMap({ circuit }) {
                 type: "line",
                 source: "route",
                 layout: { "line-join": "round", "line-cap": "round" },
-                paint: {
-                    "line-color": "#D94E2B",
-                    "line-width": 3,
-                    "line-dasharray": [1, 1.5],
-                },
+                paint: { "line-color": "#D94E2B", "line-width": 3, "line-dasharray": [1, 1.5] },
             });
 
-            // 2. LES MARQUEURS image (style Snapchat)
             points.forEach((p, i) => {
                 const el = document.createElement("div");
                 el.className = "circuit-marker";
@@ -85,19 +81,19 @@ export default function BaseMap({ circuit }) {
                         <div class="circuit-marker__badge">${i + 1}</div>
                     </div>`;
 
-                new mapboxgl.Marker({ element: el, anchor: "bottom" })
+                const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
                     .setLngLat([p.lng, p.lat])
                     .setPopup(new mapboxgl.Popup({ offset: 30, closeButton: false }).setHTML(`<strong>${p.nom}</strong>`))
                     .addTo(map);
+
+                markersRef.current.push(marker);
             });
 
-            // 3. cadrer sur tous les points
             const bounds = new mapboxgl.LngLatBounds();
             points.forEach((p) => bounds.extend([p.lng, p.lat]));
             map.fitBounds(bounds, { padding: 120, maxZoom: 9, duration: 1200 });
         };
 
-        // si la carte est déjà chargée on dessine, sinon on attend le load
         if (map.isStyleLoaded()) draw();
         else map.once("load", draw);
     }, [circuit]);

@@ -1,75 +1,96 @@
 import { FaArrowRight } from "react-icons/fa6";
+import { useCardEnter } from "../../../hooks/design/useCardEnter";
+import { circuitDays, circuitRoute, circuitSteps } from "../../../utils/circuit";
 
-export default function CircuitCard({ circuit: c, index, drift = 0, tall = false }) {
-    const steps = c.steps ?? [];
-    const depart = steps[0]?.place?.nom;
-    const arrivee = steps[steps.length - 1]?.place?.nom;
-    const totalJours = steps.reduce((sum, s) => sum + (s.durationDays ?? 0), 0);
+// Toutes les cartes ont exactement le même cadre.
+const CARD_HEIGHT = "620px";
+
+export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
+    const cardRef = useCardEnter(delay);
+
+    const steps = circuitSteps(c);
+    const route = circuitRoute(c);
+    const jours = circuitDays(c);
 
     return (
-        <div data-card data-drift={drift} className="group cursor-pointer">
-            <div className="relative overflow-hidden">
+        <article ref={cardRef} data-card onClick={onClick} className="group cursor-pointer">
+            <div
+                data-card-media
+                className="relative overflow-hidden"
+                style={{ height: CARD_HEIGHT, backgroundColor: "var(--bg-dark)" }}
+            >
                 {c.imageUrl ? (
                     <img
+                        data-card-img
                         src={c.imageUrl}
                         alt={c.nom}
-                        className="w-full object-cover transition-all duration-[900ms] ease-out group-hover:scale-[1.04]"
-                        style={{ height: tall ? "720px" : "560px", filter: "brightness(0.95)" }}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06]"
                     />
                 ) : (
-                    <div className="w-full flex items-center justify-center" style={{ height: tall ? "720px" : "560px", backgroundColor: "var(--bg-sunken)" }}>
-                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>Pas d'image</span>
+                    <div data-card-img className="absolute inset-0 flex items-center justify-center">
+                        <span className="font-body text-[10px] uppercase tracking-[0.3em]" style={{ color: "rgba(247,245,240,0.4)" }}>
+                            Visuel à venir
+                        </span>
                     </div>
                 )}
 
+                {/* Le texte vit sur l'image : c'est là que se joue le contraste */}
                 <div
-                    className="absolute inset-0 transition-opacity duration-700 ease-out opacity-0 group-hover:opacity-100 pointer-events-none"
-                    style={{ background: "linear-gradient(to top, rgba(17,17,17,0.45), transparent 55%)" }}
+                    className="absolute inset-0 transition-opacity duration-700"
+                    style={{ background: "linear-gradient(to top, rgba(16,14,11,0.92) 0%, rgba(16,14,11,0.22) 46%, rgba(16,14,11,0.55) 100%)" }}
                 />
 
-                {/* Index éditorial en filigrane */}
                 <span
-                    className="absolute top-8 left-8 font-body text-xs tracking-[0.3em] pointer-events-none"
-                    style={{ color: "rgba(255,255,255,0.85)" }}
+                    className="absolute top-8 left-8 font-body text-[11px] tracking-[0.4em]"
+                    style={{ color: "rgba(247,245,240,0.75)" }}
                 >
                     {String(index + 1).padStart(2, "0")}
                 </span>
 
-                {/* Cercle Voir */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div
-                        className="flex items-center justify-center rounded-full transition-all duration-700 ease-out opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100"
-                        style={{ width: "118px", height: "118px", border: "1px solid rgba(255,255,255,0.75)", backdropFilter: "blur(3px)" }}
+                {jours > 0 && (
+                    <span
+                        className="absolute top-8 right-8 font-body text-[11px] uppercase tracking-[0.3em]"
+                        style={{ color: "rgba(247,245,240,0.75)" }}
                     >
-                        <span className="font-body text-xs uppercase tracking-[0.25em]" style={{ color: "#fff" }}>Voir</span>
-                    </div>
-                </div>
-            </div>
+                        {jours} jours
+                    </span>
+                )}
 
-            <div className="mt-8 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-                <div className="flex items-end justify-between gap-6">
-                    <div className="flex flex-col gap-3">
-                        <h3
-                            className="font-title text-4xl leading-none transition-transform duration-500 ease-out group-hover:translate-x-1"
-                            style={{ color: "var(--text-primary)" }}
-                        >
-                            {c.nom}
-                        </h3>
-                        <div className="flex items-center gap-4 font-body text-xs uppercase tracking-[0.15em]" style={{ color: "var(--text-muted)" }}>
-                            {depart && arrivee && <span>{depart} → {arrivee}</span>}
-                            {depart && arrivee && totalJours > 0 && (
-                                <span style={{ width: "1px", height: "12px", backgroundColor: "var(--border-strong)" }} />
-                            )}
-                            {totalJours > 0 && <span>{totalJours} jours</span>}
-                        </div>
-                    </div>
-
-                    <span className="flex items-center gap-2 shrink-0 pb-1" style={{ color: "var(--text-primary)" }}>
-                        <span className="font-body text-xs uppercase tracking-[0.2em]">Découvrir</span>
-                        <FaArrowRight className="text-xs transition-transform duration-500 ease-out group-hover:translate-x-1.5" />
+                {/* Cercle d'appel au survol */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span
+                        className="flex items-center justify-center rounded-full opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 ease-out font-body text-[10px] uppercase tracking-[0.25em]"
+                        style={{ width: "124px", height: "124px", backgroundColor: "rgba(247,245,240,0.14)", color: "var(--text-inverse)", backdropFilter: "blur(6px)" }}
+                    >
+                        Explorer
                     </span>
                 </div>
+
+                <div data-card-text className="absolute inset-x-0 bottom-0 p-10">
+                    <h3
+                        className="font-title leading-[0.95] transition-transform duration-700 ease-out group-hover:-translate-y-1"
+                        style={{ color: "var(--text-inverse)", fontSize: "clamp(2rem, 2.7vw, 3.25rem)" }}
+                    >
+                        {c.nom}
+                    </h3>
+
+                    <div className="mt-5 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 font-body text-[11px] uppercase tracking-[0.22em] min-w-0" style={{ color: "rgba(247,245,240,0.7)" }}>
+                            {route && <span className="truncate">{route.depart} → {route.arrivee}</span>}
+                            {route && steps.length > 0 && <span>·</span>}
+                            {steps.length > 0 && <span className="shrink-0">{steps.length} étapes</span>}
+                        </div>
+
+                        <span
+                            className="flex items-center gap-2 shrink-0 font-body-strong text-[10px] uppercase tracking-[0.25em] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out"
+                            style={{ color: "var(--brand-ocre)" }}
+                        >
+                            Découvrir
+                            <FaArrowRight className="text-[10px]" />
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
+        </article>
     );
 }

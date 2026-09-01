@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export function useHeaderTextColor(headerRef) {
     const [textColor, setTextColor] = useState("var(--text-inverse)");
+    const { pathname } = useLocation();
 
+    // Le header survit aux changements de route : sans re-scan, l'observer
+    // resterait accroché aux sections de la page précédente, déjà démontées.
     useEffect(() => {
         if (!headerRef.current) return;
 
@@ -29,7 +33,7 @@ export function useHeaderTextColor(headerRef) {
             observer.disconnect();
             window.removeEventListener("header:text-color", handleForcedColor);
         };
-    }, [headerRef]);
+    }, [headerRef, pathname]);
 
     return textColor;
 }

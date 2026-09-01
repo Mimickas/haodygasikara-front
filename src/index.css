@@ -51,7 +51,7 @@
 :root {
 
   /* ---------- FONDS / SURFACES ---------- */
-  --bg:              #F7F5F0;   /* Ivoire clair — fond de page */
+  --bg:              #fafafa;   /* Ivoire clair — fond de page */
   --bg-secondary:    #F2F0EB;   /* Section alternée */
   --bg-card:         #FDFCF8;  /* Cartes, panneaux */
   --bg-territoires:  #EDE6DA; 
@@ -68,6 +68,7 @@
 
   /* ---------- TEXTE (sur fond clair) ---------- */
   --text-primary:    #111111;   /* Noir (charte) */
+  --text-yellow:    #ffdf28;   /* Noir (charte) */
   --text-secondary:  #3D3D3D;   /* Anthracite (charte) */
   --text-muted:      #8A8A8A;   /* Gris — légendes, méta */
   --text:            #111111;   /* alias */
@@ -154,6 +155,12 @@
 
 }
 
+html {
+  /* la gouttiere reste reservee : bloquer le scroll (menu, panneau circuit)
+     ne decale plus la page de la largeur de la barre */
+  scrollbar-gutter: stable;
+}
+
 body{
   background-color: var(--bg);
 }
@@ -201,4 +208,115 @@ body{
     background: #D94E2B; color: #fff; font-size: 12px; font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     border: 2px solid #fff;
+}
+
+/* ---------- BARRES DE DEFILEMENT ---------- */
+/* La gouttiere est peinte sur le fond de page (scrollbar-gutter: stable),
+   jamais par-dessus les sections sombres : un pouce sombre reste donc
+   lisible partout. Le liserE transparent + background-clip donne un rail
+   large a attraper mais une barre fine a l'oeil. */
+/* Chromium ignore tout le style ::-webkit-scrollbar des qu'on declare
+   scrollbar-width. On reserve donc les proprietes standard a Firefox,
+   qui n'a pas ces pseudo-elements. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-primary) var(--bg-secondary);
+  }
+}
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--text-primary);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--brand-terre);
+}
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--brand-terre-600);
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg-secondary);
+}
+
+/* Variante des panneaux internes : meme langage, un cran plus discret */
+.scroll-fine::-webkit-scrollbar { width: 10px; }
+.scroll-fine::-webkit-scrollbar-track { background: transparent; }
+.scroll-fine::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.scroll-fine::-webkit-scrollbar-thumb:hover { background-color: var(--brand-terre); }
+
+
+/* ---------- CURSEUR SUR MESURE ---------- */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none;
+}
+/* on rend la main au curseur natif la ou sa forme porte du sens */
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor select,
+.has-custom-cursor [contenteditable="true"] {
+  cursor: auto;
+}
+
+.cursor-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #fff;
+}
+.cursor-ring {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.detail-panel { animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideIn {
+    from { transform: translateX(50px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+.panel-backdrop {
+    animation: backdropIn 0.6s ease-out forwards;
+}
+@keyframes backdropIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.slide-panel {
+    animation: slidePanel 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+@keyframes slidePanel {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+.field-input::placeholder {
+    color: var(--text-muted);
+}
+.field-input-dark::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
