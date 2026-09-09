@@ -8,17 +8,20 @@ export function useAuth() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const login = async (credentials) => {
+    // `destination` : la page d'ou l'utilisateur a ete refoule, transmise
+    // par ProtectedRoute. A defaut, on rentre a l'accueil.
+    const login = async (credentials, destination) => {
         const response = await loginApi(credentials);
         const { token, email, nom, prenom, role } = response.data;
 
         setAuth(token, { email, nom, prenom, role });
 
-        // Redirect selon le rôle
+        // Redirection selon le rôle. Pour un client, on repart de préférence
+        // vers la page d'où ProtectedRoute l'avait refoulé.
         if (role === "ADMIN" || role === "SUPER_ADMIN") {
-            navigate("/admin/haodygasikara");
+            navigate("/admin/haodygasikara", { replace: true });
         } else {
-            navigate("/");
+            navigate(destination || "/", { replace: true });
         }
     };
 
@@ -46,5 +49,6 @@ export function useAuth() {
         isAuthenticated: !!accessToken,
         login,
         logout,
+        restoreSession,   // manquait : AuthProvider l'appelait et plantait
     };
 }

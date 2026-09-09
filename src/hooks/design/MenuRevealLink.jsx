@@ -2,7 +2,14 @@ import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa6";
 import { useImageRevealHover } from "./useImageRevealHover";
 
-export default function MenuRevealLink({ label, href, img, onClick }) {
+/**
+ * Lien de navigation du panneau menu.
+ *
+ * Le titre au format d'affiche et l'image qui suit le curseur donnent le ton ;
+ * la note, elle, dit ce qu'on trouve derriere le lien. Trois mots seuls
+ * (« Decouvrir », « Circuit », « Carte ») ne renseignent personne.
+ */
+export default function MenuRevealLink({ label, href, img, note, onClick }) {
     const { linkRef, revealRef, innerRef, imgRef } = useImageRevealHover(img);
 
     return (
@@ -10,28 +17,45 @@ export default function MenuRevealLink({ label, href, img, onClick }) {
             ref={linkRef}
             to={href}
             onClick={onClick}
-            className="group relative flex items-center justify-between py-8 hover:text-[var(--brand-terre)]"
-            style={{ borderBottom: "1px solid var(--border)" }}
+            className="group relative flex items-end justify-between gap-10 py-6"
+            style={{ borderBottom: "1px solid var(--border)", color: "var(--text-primary)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-terre)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
         >
-            <span
-                className="font-abhaya-bold text-7xl transition-colors duration-300"  
-            >
-                {label}
+            {/* Titre et note dans la meme colonne : posee en face, sur douze
+                colonnes, la note se retrouvait orpheline au milieu du vide. */}
+            <span className="min-w-0 transition-transform duration-500 ease-out group-hover:translate-x-3">
+                <span
+                    className="block font-abhaya-bold leading-[0.95]"
+                    style={{ fontSize: "clamp(2.75rem, 4.6vw, 4.5rem)" }}
+                >
+                    {label}
+                </span>
+
+                {/* La note garde sa couleur propre : sinon tout le bloc virerait
+                    a l'orange d'un seul coup au survol. */}
+                <span
+                    className="block font-body text-[15px] leading-relaxed mt-2.5 max-w-md"
+                    style={{ color: "var(--text-muted)" }}
+                >
+                    {note}
+                </span>
             </span>
 
-            <FaArrowRight
-                className="text-3xl transition-transform duration-300 group-hover:translate-x-2"
-                style={{ color: "var(--text-muted)" }}
-            />
+            <span className="shrink-0 pb-1.5">
+                <FaArrowRight className="text-xl transition-transform duration-500 ease-out group-hover:translate-x-2" />
+            </span>
 
             <div
                 ref={revealRef}
                 className="hover-reveal pointer-events-none fixed top-0 left-0"
                 style={{ opacity: 0, width: "280px", height: "360px", zIndex: 100 }}
             >
-                <div ref={innerRef} className="hover-reveal__inner" style={{ width: "100%", height: "100%", overflow: "hidden", borderRadius: "var(--radius-md)" }}>
+                <div
+                    ref={innerRef}
+                    className="hover-reveal__inner"
+                    style={{ width: "100%", height: "100%", overflow: "hidden", borderRadius: "var(--radius-md)" }}
+                >
                     <div
                         ref={imgRef}
                         className="hover-reveal__img"

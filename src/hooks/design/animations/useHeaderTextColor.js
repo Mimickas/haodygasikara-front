@@ -10,7 +10,11 @@ export function useHeaderTextColor(headerRef) {
     useEffect(() => {
         if (!headerRef.current) return;
 
-        const headerHeight = headerRef.current.offsetHeight;
+        // Une valeur negative ici produirait « --1px » et ferait echouer la
+        // construction de l'observer, donc planter toute l'application.
+        const headerHeight = Math.max(0, headerRef.current.offsetHeight);
+        const basDeBande = Math.max(0, window.innerHeight - headerHeight - 1);
+
         const sections = document.querySelectorAll("[data-header-text]");
 
         const observer = new IntersectionObserver(
@@ -19,7 +23,7 @@ export function useHeaderTextColor(headerRef) {
                     if (entry.isIntersecting) setTextColor(entry.target.dataset.headerText);
                 });
             },
-            { rootMargin: `-${headerHeight}px 0px -${window.innerHeight - headerHeight - 1}px 0px` }
+            { rootMargin: `-${headerHeight}px 0px -${basDeBande}px 0px` }
         );
         sections.forEach((s) => observer.observe(s));
 

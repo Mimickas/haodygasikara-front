@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import HeaderClient from "../components/client/layout/header/HeaderClient";
 import FooterClient from "../components/client/layout/footer/FooterClient";
-import CursorClient from "../components/client/layout/cursor/CursorClient";
 import { useSmoothScroll } from "../hooks/design/useSmoothScroll";
 
 export default function AppLayout() {
@@ -13,7 +12,6 @@ export default function AppLayout() {
                 <Outlet />
             </main>
             <FooterClient />
-            <CursorClient />
         </div>
     );
 }

@@ -10,7 +10,7 @@ const FALLBACK_IMAGES = [
     "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg",
 ];
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 3;
 const SLIDE_MS = 6000;
 const CURTAIN_PANELS = 6;
 
@@ -85,9 +85,9 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                         data-hero-cue
                         onClick={onBrowse}
                         className="group mt-12 self-start flex items-center gap-5 px-11 py-5 transition-colors duration-300 cursor-pointer"
-                        style={{ backgroundColor: "var(--bg-dark)", color: "var(--text-inverse)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--brand-terre)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-dark)")}
+                        style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}
                     >
                         <span className="font-body-strong text-[11px] uppercase tracking-[0.3em]">
                             Voir la sélection
@@ -100,9 +100,9 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                 <div data-hero-panel className="relative overflow-hidden" style={{ width: "54%" }}>
                     {/* plus haut que le cadre : la dérive ne découvre jamais de vide */}
                     <div data-hero-media className="absolute inset-x-0" style={{ top: "-8%", bottom: "-8%" }}>
-                        {images.map((src, i) => (
+                        {FALLBACK_IMAGES.map((src, i) => (
                             <img
-                                key={src + i}
+                                key={i}
                                 src={src}
                                 alt=""
                                 className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out"
@@ -111,11 +111,11 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                         ))}
                     </div>
 
-                    {images.length > 1 && (
+                    {FALLBACK_IMAGES.length > 1 && (
                         <div className="absolute right-10 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-3">
-                            {images.map((src, i) => (
+                            {FALLBACK_IMAGES.map((src, i) => (
                                 <span
-                                    key={src + i}
+                                    key={i}
                                     className="transition-all duration-700 ease-out"
                                     style={{
                                         width: "2px",

@@ -1,9 +1,9 @@
 // src/route/route.jsx
 import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "../components/ProtectedRoute";
+import AuthProvider from "../providers/AuthProvider";
 
 // Pages publiques
-import Login from "../pages/login/Login";
 import PageNotFound from "../pages/PageNotFound";
 import LoginAdmin from "../pages/admin/login/LoginAdmin";
 import RegisterAdmin from "../pages/admin/register/RegisterAdmin";
@@ -22,6 +22,8 @@ import CircuitEdit from "../pages/admin/circuit/CircuitEdit";
 import AppLayout from "../layout/AppLayout";
 import Home from "../pages/client/home/Home";
 import ViewCircuit from "../pages/client/viewCircuit/ViewCircuit";
+import LoginClient from "../pages/client/auth/login/LoginClient";
+import VerificationEmail from "../pages/client/auth/verification/VerificationEmail";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
 // import PageNotFound from "../pages/PageNotFound";
@@ -31,9 +33,17 @@ import ViewCircuit from "../pages/client/viewCircuit/ViewCircuit";
 // import Dashboard from "../pages/admin/Dashboard";
 
 const router = createBrowserRouter([
+{
+    // Route sans chemin : elle enveloppe tout le reste pour restaurer la
+    // session une seule fois. AuthProvider utilise useNavigate, il doit donc
+    // vivre a l'interieur du routeur — pas autour de RouterProvider.
+    element: <AuthProvider />,
+    children: [
 
     // ── Totalement public ─────────────────────────────────────────────────
-    { path: "/login",    element: <Login /> },
+    { path: "/login",    element: <LoginClient /> },
+    { path: "/register", element: <LoginClient /> },
+    { path: "/verification", element: <VerificationEmail /> },
     // { path: "/register", element: <Register /> },
     { path: "/admin/haodygasikara/login", element: <LoginAdmin /> },
     { path: "/admin/haodygasikara/re", element: <RegisterAdmin /> },
@@ -99,7 +109,9 @@ const router = createBrowserRouter([
         ]
     },
 
-    { path: "*", element: <PageNotFound /> }
+    { path: "*", element: <PageNotFound /> },
+    ],
+},
 ]);
 
 export default router;

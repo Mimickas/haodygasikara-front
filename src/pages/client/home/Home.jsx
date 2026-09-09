@@ -50,11 +50,13 @@ const ALL_IMAGES = [
 
 export default function Home() {
     const { progress, ready } = useAssetsLoader(ALL_IMAGES);
-
     const [current, setCurrent] = useState(0);
 
+    // le voile reste monté le temps de son animation de sortie
+    const [voileVisible, setVoileVisible] = useState(true);
+
     const { triggerRef, circuitContainerRef, etapesContainerRef, active, setCircuitRef } = useCircuitReveal(circuits.length);
-    const heroScope = useHeroIntro();
+    const heroScope = useHeroIntro(ready, () => setVoileVisible(false));
     const prev = () => setCurrent((i) => (i === 0 ? heroImages.length - 1 : i - 1));
     const next = () => setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
 
@@ -77,23 +79,24 @@ export default function Home() {
     return (
         <>
             {/* ===== ÉCRAN DE CHARGEMENT ===== */}
-            {!ready && (
+            {voileVisible && (
                 <div
-                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-700"
+                    data-loader
+                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
                     style={{ backgroundColor: "var(--bg)" }}
                 >
-                    <span className="font-body-strong text-xs uppercase tracking-[0.45em] mb-10" style={{ color: "var(--brand-ocre)" }}>
+                    <span data-loader-item className="font-body-strong text-xs uppercase tracking-[0.45em] mb-10" style={{ color: "var(--brand-ocre)" }}>
                         Haodygasikara
                     </span>
 
-                    <div className="w-64 h-[2px] mb-5" style={{ backgroundColor: "var(--border)" }}>
+                    <div data-loader-item className="w-64 h-[2px] mb-5" style={{ backgroundColor: "var(--border)" }}>
                         <div
                             className="h-full transition-all duration-300 ease-out"
                             style={{ width: `${progress}%`, backgroundColor: "var(--brand-terre)" }}
                         />
                     </div>
 
-                    <span className="font-title" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
+                    <span data-loader-item className="font-title" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
                         {progress}%
                     </span>
                 </div>

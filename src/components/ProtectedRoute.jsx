@@ -1,40 +1,51 @@
-import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
+/**
+ * Garde de route.
+ *
+ * Ne tente plus lui-meme de rafraichir la session : AuthProvider s'en charge
+ * une fois pour toutes a la racine. Deux composants qui appelaient
+ * /auth/refresh chacun de leur cote se couraient apres.
+ */
 export default function ProtectedRoute({ children, role }) {
-    const { accessToken, user, setAuth, clearAuth } = useAuthStore();
-    const [loading, setLoading] = useState(true);
+    const accessToken = useAuthStore((s) => s.accessToken);
+    const user = useAuthStore((s) => s.user);
+    const sessionRestauree = useAuthStore((s) => s.sessionRestauree);
     const location = useLocation();
 
-    // Détermine vers quel login rediriger selon la route actuelle
-    const isAdminRoute = location.pathname.startsWith("/admin");
-    const loginPath = isAdminRoute ? "/admin/haodygasikara/login" : "/login";
+    // Chaque espace a son propre login
+    const loginPath = location.pathname.startsWith("/admin")
+        ? "/admin/haodygasikara/login"
+        : "/login";
 
-    useEffect(() => {
-        if (accessToken) {
-            setLoading(false);
-            return;
-        }
+    // Tant que la tentative de restauration n'a pas eu lieu, on ne sait pas
+    // encore si l'utilisateur est connecte : rediriger ici le ferait sortir
+    // a chaque rechargement.
+    if (!sessionRestauree) {
+        return (
+            <div
+                className="flex items-center justify-center h-screen"
+                style={{ backgroundColor: "var(--bg)" }}
+            >
+                <span
+                    className="font-body-strong text-[10px] uppercase tracking-[0.45em]"
+                    style={{ color: "var(--text-muted)" }}
+                >
+                    Un instant
+                </span>
+            </div>
+        );
+    }
 
-        axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true })
-            .then(({ data }) => {
-                console.log("REFRESH RESPONSE:", data.data);  // ← ce log
-                setAuth(data.data.token, { ...data.data });
-            })
-            .catch(() => clearAuth())
-            .finally(() => setLoading(false));
+    // On garde d'ou l'on vient : la page de connexion pourra y renvoyer
+    if (!accessToken) {
+        return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
+    }
 
-    }, []);
-
-    if (loading) return <div>Chargement...</div>;
-
-    // Redirige vers le bon login
-    if (!accessToken) return <Navigate to={loginPath} replace />;
-
-    // Mauvais rôle
-    if (role && user?.role !== role) return <Navigate to={loginPath} replace />;
+    if (role && user?.role !== role) {
+        return <Navigate to={loginPath} replace />;
+    }
 
     return children;
 }

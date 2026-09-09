@@ -152,9 +152,9 @@ export default function ViewCircuit() {
                         <button
                             onClick={() => setPage((p) => p + 1)}
                             className="px-14 py-5 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
-                            style={{ backgroundColor: "var(--bg-dark)", color: "var(--text-inverse)" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--brand-terre)")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-dark)")}
+                            style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}
                         >
                             Charger la suite — {String(filtered.length - visible.length).padStart(2, "0")} restants
                         </button>
@@ -193,9 +193,9 @@ function EmptyState({ title, text, actionLabel, onAction }) {
                 <button
                     onClick={onAction}
                     className="mt-10 px-10 py-4 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
-                    style={{ backgroundColor: "var(--bg-dark)", color: "var(--text-inverse)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--brand-terre)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-dark)")}
+                    style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}
                 >
                     {actionLabel}
                 </button>
