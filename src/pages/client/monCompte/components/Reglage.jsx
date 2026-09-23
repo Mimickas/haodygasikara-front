@@ -15,7 +15,7 @@ import { ChevronDown } from "lucide-react";
  *
  * `grid-template-rows: 0fr → 1fr` : la seule façon d'animer l'ouverture d'une
  * hauteur inconnue sans aller la mesurer en JavaScript. Le geste est celui de
- * l'itinéraire et des réservations.
+ * l'itinéraire.
  */
 export default function Reglage({
     numero,

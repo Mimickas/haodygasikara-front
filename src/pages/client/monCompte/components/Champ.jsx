@@ -1,7 +1,7 @@
 /**
  * Un champ de la page de paramètres.
  *
- * Même grammaire qu'à la connexion et qu'au formulaire de réservation :
+ * Même grammaire qu'à la connexion :
  * étiquette en petites capitales, champ souligné d'un filet qui passe en Terre
  * à la saisie (`.field-line`). Aucun champ encadré nulle part sur le site — un
  * rectangle gris autour d'une saisie, c'est le vocabulaire d'un formulaire

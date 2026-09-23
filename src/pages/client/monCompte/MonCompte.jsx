@@ -76,7 +76,7 @@ export default function MonCompte() {
 
     // Le compte rendu par le serveur remplace le précédent : les blocs
     // n'inventent jamais l'état d'après, ils affichent celui que la réponse
-    // leur donne. Même règle que l'accusé de réservation.
+    // leur donne.
     const majCompte = (frais) => setCompte(frais);
 
     // ── Le hero est monté DÈS QUE le compte est connecté ────────────────
@@ -112,7 +112,7 @@ export default function MonCompte() {
                         {isAuthenticated && (
                             <p className="cx-tete__chapo font-body">
                                 Votre identit&eacute;, votre adresse de connexion et votre mot de
-                                passe. Ce que vous modifiez ici vaut pour vos r&eacute;servations
+                                passe. Ce que vous modifiez ici vaut pour vos demandes de devis
                                 comme pour nos messages.
                             </p>
                         )}
@@ -131,15 +131,15 @@ export default function MonCompte() {
                     ) : !pret ? (
                         <Vide
                             texte="Vos informations n'ont pas pu être chargées. Réessayez dans un instant."
-                            lien="/mes-reservations"
-                            action="Voir mes réservations"
+                            lien="/circuit"
+                            action="Voir les circuits"
                         />
                     ) : (
                     <ol className="cx-reglages">
                         <Reglage
                             numero="01"
                             titre="Votre identité"
-                            propos="Le nom qui figure sur vos réservations et le numéro auquel nous vous joignons."
+                            propos="Le nom qui figure sur vos demandes de devis et le numéro auquel nous vous joignons."
                             valeur={[compte.prenom, compte.nom].filter(Boolean).join(" ")}
                             ouvert={ouvert === "identite"}
                             onBasculer={() => basculer("identite")}

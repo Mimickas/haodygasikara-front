@@ -7,7 +7,6 @@ import CircuitDetailHero from "./components/hero/CircuitDetailHero";
 import CircuitApropos from "./components/apropos/CircuitApropos";
 import CircuitRecap from "./components/recap/CircuitRecap";
 import CircuitItineraire from "./components/itineraire/CircuitItineraire";
-import CircuitBooking from "./components/booking/CircuitBooking";
 
 // ── La page detail d'un circuit ───────────────────────────────────────────
 // Elle ne fait plus que trois choses : charger le circuit, en tirer les deux
@@ -20,7 +19,6 @@ import CircuitBooking from "./components/booking/CircuitBooking";
 //   components/recap/      ce que comprend le circuit : fiche, decompte, listes
 //   components/itineraire/ la liste des haltes, une halte, une journee,
 //                          ses visites, sa planche photo
-//   components/booking/    les departs vendables et leurs tarifs
 //   components/shared/     la mention (valeur + legende), partagee
 //
 // Ce que le back envoie et qu'on ne recalcule donc pas : `dureeJours` (la
@@ -57,17 +55,6 @@ export default function CircuitDetail() {
     // visuels des etapes, et le film s'il y en a un.
     const visuels = circuitMedias(circuit, 4).slice(1);
 
-    // ── Reserver, ou faire chiffrer ──────────────────────────────────────
-    // Un MODELE de l'agence porte deja ses departs et leurs tarifs : tout ce
-    // qu'il faut pour engager est la, on reserve une date. Un circuit compose
-    // par le visiteur n'a ni l'un ni l'autre : on demande un devis.
-    //
-    // Le croisement des deux conditions, et pas le seul drapeau isTemplate :
-    // un modele dont aucun depart n'est encore programme n'a rien a reserver,
-    // il retombe donc sur le devis.
-    const departs = circuit?.dates ?? [];
-    const reservable = Boolean(circuit?.isTemplate) && departs.length > 0;
-
     return (
         <>
             <CircuitDetailHero
@@ -92,8 +79,6 @@ export default function CircuitDetail() {
                     tags={circuit?.tags ?? []}
                     visuels={visuels}
                     duree={jours}
-                    reservable={reservable}
-                    nbDeparts={departs.length}
                 />
 
                 <CircuitItineraire
@@ -102,17 +87,6 @@ export default function CircuitDetail() {
                     depart={depart}
                     arrivee={arrivee}
                     circuitId={id}
-                />
-
-                {/* En dernier : on choisit une date apres avoir lu le voyage,
-                    pas avant. La section ne regle que sa marge HAUTE — c'est
-                    .cx-detail qui ferme la page (cf. la regle de rythme dans
-                    index.css). */}
-                <CircuitBooking
-                    circuitId={id}
-                    dates={departs}
-                    duree={jours}
-                    reservable={reservable}
                 />
             </div>
         </>

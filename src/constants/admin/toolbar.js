@@ -1,16 +1,4 @@
 const toolbar = {
-    // Pas de bouton « Nouvelle réservation » : une réservation naît d'une
-    // demande du visiteur, elle ne s'invente pas depuis le back-office.
-    reservations:{
-        ctaAction: [
-            { name: "export",  value: "Export", variant: "secondary"  },
-        ],
-        filter:[
-            { name:"search", placeholder:"Rechercher un client, un circuit...", value:"", onChange:()=>console.log("search") },
-            { name:"sort", Value:"Sort", variant:"secondary", onClick:()=>console.log("sort") },
-        ]
-    },
-
     tagsGroup:{
         ctaAction: [
             { name: "export",  value: "Export", variant: "secondary"  },

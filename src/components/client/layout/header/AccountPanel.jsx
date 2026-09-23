@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
-import { findMesReservationsApi } from "../../../../api/client/cricuitApi";
 import { useAuth } from "../../../../hooks/useAuth";
 import Avatar from "../../compte/Avatar";
 
@@ -108,21 +106,6 @@ function Rangee({ compte, titre, texte, action, vers, onClose }) {
 
 export default function AccountPanel({ onClose }) {
     const { isAuthenticated, user, logout } = useAuth();
-
-    // Le compte se lit au survol du panneau, pas au chargement de la page :
-    // l'appel ne part que lorsqu'on ouvre l'espace voyageur, et seulement
-    // connecté. Un panneau d'en-tête ne doit pas faire travailler l'API à
-    // chaque visite du site.
-    const [reservations, setReservations] = useState(0);
-
-    useEffect(() => {
-        if (!isAuthenticated) return;
-        let vivant = true;
-        findMesReservationsApi()
-            .then((r) => { if (vivant) setReservations((r?.data ?? []).length); })
-            .catch(() => { /* un compteur absent vaut mieux qu'un panneau cassé */ });
-        return () => { vivant = false; };
-    }, [isAuthenticated]);
 
     return (
         <div className="flex h-full">
@@ -280,19 +263,6 @@ export default function AccountPanel({ onClose }) {
                             >
                                 Où en sont vos voyages.
                             </h3>
-                        </div>
-
-                        <div data-panel-item>
-                            <Rangee
-                                compte={reservations}
-                                titre="Mes réservations"
-                                texte={reservations > 0
-                                    ? "Suivez l'état de chaque demande, de l'envoi à la confirmation."
-                                    : "Aucune réservation pour l'instant. Choisissez une date de départ sur un circuit."}
-                                action="Voir mes réservations"
-                                vers="/mes-reservations"
-                                onClose={onClose}
-                            />
                         </div>
 
                         <div data-panel-item>

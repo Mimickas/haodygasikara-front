@@ -180,10 +180,6 @@ export function useCircuitDetailAnimations(pret) {
             monte(".cx-iti__titre, .cx-iti__intro", { y: 40, duration: 1.15, stagger: 0.1 });
             monte(".cx-leg", { y: 36, stagger: 0.09, start: "top 92%" });
 
-            // La réservation
-            monte(".cx-departs > li", { y: 30, stagger: 0.08 });
-            monte(".cx-booking__sur-mesure", { y: 26 });
-
             // Les images arrivent après coup et changent les hauteurs : sans
             // ce recalage, les déclencheurs des sections basses sont posés sur
             // des positions périmées et se jouent trop tôt — ou jamais.

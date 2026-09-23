@@ -15,7 +15,6 @@ import {
     FaLayerGroup,
     FaCalendarDays,
     FaPersonHiking,
-    FaTicket,
 } from "react-icons/fa6";
 
 
@@ -28,7 +27,6 @@ const SidebarListMenu = [
         items: [
             { name: "Tableau de bord", icon: FaGauge, link: B },
             { name: "Circuits", icon: FaRoute, link: `${B}/circuits` },
-            { name: "Réservations", icon: FaTicket, link: `${B}/reservations` },
             { name: "Demandes de devis", icon: FaFileInvoice, link: `${B}/devis` },
         ],
     },

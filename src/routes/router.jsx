@@ -29,15 +29,12 @@ import CategoryPois from "../pages/admin/poi/CategoryPois";
 import Pois from "../pages/admin/poi/Pois";
 import CircuitDays from "../pages/admin/programme/CircuitDays";
 import CircuitDayPois from "../pages/admin/programme/CircuitDayPois";
-import Reservations from "../pages/admin/reservations/Reservations";
 import AppLayout from "../layout/AppLayout";
 import Home from "../pages/client/home/Home";
 import ViewCircuit from "../pages/client/viewCircuit/ViewCircuit";
 import LoginClient from "../pages/client/auth/login/LoginClient";
 import VerificationEmail from "../pages/client/auth/verification/VerificationEmail";
 import CircuitDetail from "../pages/client/circuitDetail/CircuitDetail";
-import CircuitConfirmBooking from "../pages/client/circuitConfirmBooking/CircuitConfirmBooking";
-import MesReservations from "../pages/client/mesReservations/MesReservations";
 import MonCompte from "../pages/client/monCompte/MonCompte";
 // import Home from "../pages/Home";
 // import Register from "../pages/Register";
@@ -72,20 +69,8 @@ const router = createBrowserRouter([
             { path:"/circuit",          element: <ViewCircuit /> },
             { path: "/circuit/:id", element: <CircuitDetail /> },
 
-            // La reservation est IMBRIQUEE sous le circuit, et ce n'est pas
-            // cosmetique : l'URL dit que ce depart appartient a ce circuit.
-            // La page revalide ce lien cote serveur — un visiteur qui tape
-            // /circuit/1/reservation/999 tombe sur un refus, pas sur un
-            // formulaire qui reserverait le depart d'un autre voyage.
-            { path: "/circuit/:id/reservation/:dateId", element: <CircuitConfirmBooking /> },
-
             // Pas de ProtectedRoute : la page se charge sans compte et invite
-            // a se connecter. Une redirection seche vers /login ferait perdre
-            // l'adresse qu'on vient de partager a quelqu'un.
-            { path: "/mes-reservations", element: <MesReservations /> },
-
-            // Meme raison qu'au-dessus : pas de ProtectedRoute. La page se
-            // charge sans compte et invite a se connecter.
+            // a se connecter.
             { path: "/mon-compte", element: <MonCompte /> }
 
             // { path: "destinations", element: <Destinations /> },
@@ -129,7 +114,6 @@ const router = createBrowserRouter([
         ),
         children: [
             { index: true, element: <Dashboard /> },
-            { path: "reservations", element: <Reservations /> },
             { path: "circuits", element: <Circuits /> },
             { path: "circuits/create", element: <CircuitsCreate /> },
             { path: "circuits/edit/:id", element: <CircuitEdit /> },

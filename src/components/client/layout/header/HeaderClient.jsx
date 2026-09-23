@@ -73,7 +73,7 @@ export default function HeaderClient() {
         // s'elargissait de 12 px : tout sautait vers la droite.
         //
         // `scrollbar-gutter: stable` (index.css) est cense l'eviter, et ne le
-        // fait pas ici : il ne reserve la gouttiere que tant qu'une barre peut
+        // fait pas ici : il ne garde la gouttiere que tant qu'une barre peut
         // s'afficher. Des que `overflow` passe a `hidden`, plus de barre, plus
         // de gouttiere. Mesure a l'appui : clientWidth 1588 → 1600.
         //

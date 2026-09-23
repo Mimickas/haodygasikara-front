@@ -210,18 +210,6 @@ const createConstant = {
         ],
     ],
 
-    // Le seul geste de l'administration sur une réservation : la faire passer à
-    // l'étape suivante. Les options viennent du référentiel (/statuts), jamais
-    // d'une liste recopiée ici.
-    reservations: [
-        [
-            { name: "statut", label: "Nouveau statut", type: "dropdown", placeholder: "Choisir un statut" },
-        ],
-        [
-            { name: "note",   label: "Note (facultative)", type: "textarea", placeholder: "Ex : 3 places bloquées, acompte attendu au 30/09" },
-        ],
-    ],
-
     circuitDays: [
         [
             { name: "circuitStepId", label: "Étape du circuit",   type: "dropdown", placeholder: "Sélectionner une étape" },

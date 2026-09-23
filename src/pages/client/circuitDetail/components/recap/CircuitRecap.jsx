@@ -37,7 +37,6 @@ import ListeInclusions from "./ListeInclusions";
 // l'administration n'a pas rempli ne devient jamais une phrase.
 export default function CircuitRecap({
     recap, fiche, tags = [], visuels = [], duree,
-    reservable = false, nbDeparts = 0,
 }) {
     const compris = recap?.compris ?? [];
     const nonCompris = recap?.nonCompris ?? [];
@@ -108,34 +107,15 @@ export default function CircuitRecap({
                         nuitees={recap?.nuitees ?? 0}
                     />
 
-                    {/* Deux propositions, jamais les deux à la fois : un modèle
-                        de l'agence porte ses départs et ses tarifs, il se
-                        réserve ; un circuit composé par le visiteur se chiffre.
-                        Cf. CircuitBooking, qui applique la même règle.
-
-                        Le premier cas donne un vrai lien — il mène à la liste
-                        des départs, plus bas. Le second attend l'API devis, qui
-                        n'existe pas encore (cf. AccountPanel). */}
+                    {/* La demande de devis attend son API, qui n'existe pas
+                        encore (cf. AccountPanel). */}
                     <div className="cx-devis">
-                        {reservable ? (
-                            <>
-                                <p className="cx-devis__mention font-body">
-                                    {nbDeparts} départ{nbDeparts > 1 ? "s" : ""} programmé{nbDeparts > 1 ? "s" : ""}
-                                </p>
-                                <a href="#departs" className="cx-devis__bouton font-body-strong">
-                                    Voir les dates et réserver
-                                </a>
-                            </>
-                        ) : (
-                            <>
-                                <p className="cx-devis__mention font-body">
-                                    Devis sur mesure sous 48&nbsp;heures
-                                </p>
-                                <button type="button" className="cx-devis__bouton font-body-strong">
-                                    Demander un devis
-                                </button>
-                            </>
-                        )}
+                        <p className="cx-devis__mention font-body">
+                            Devis sur mesure sous 48&nbsp;heures
+                        </p>
+                        <button type="button" className="cx-devis__bouton font-body-strong">
+                            Demander un devis
+                        </button>
                     </div>
                 </div>
 

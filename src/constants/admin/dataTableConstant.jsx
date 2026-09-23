@@ -127,21 +127,6 @@ const dataTableConstant = {
         { key: "videoUrl",       label: "Vidéo",       render: val => val ? <a href={val} target="_blank" rel="noreferrer">▶ Voir</a> : "—" },
         { key: "actions",        label: "Actions",     type: "actions" },
     ],
-    reservationColumns: [
-        { key: "id",              label: "ID" },
-        { key: "createdAt",       label: "Reçue le",   render: val => formatDate(val) },
-        { key: "client",          label: "Client" },
-        { key: "email",           label: "E-mail" },
-        { key: "circuitNom",      label: "Circuit" },
-        // Le départ, pas la durée : c'est la date qui engage
-        { key: "dateDebut",       label: "Départ",     render: val => formatDateCourte(val) },
-        { key: "detailVoyageurs", label: "Voyageurs",  render: (val, row) => val || `${row?.voyageurs ?? 0} pers.` },
-        // Le total est figé à l'enregistrement : il ne se recalcule pas
-        { key: "total",           label: "Total",      render: (val, row) => val == null ? "—" : `${formatPrice(val)} ${row?.devise ?? ""}` },
-        { key: "statutLibelle",   label: "Statut",     render: (val, row) => val || row?.statut || "—" },
-        { key: "actions",         label: "Actions",    type: "actions" },
-    ],
-
     circuitDayColumns: [
         { key: "id",           label: "ID" },
         { key: "circuitNom",   label: "Circuit" },
