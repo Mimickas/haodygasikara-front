@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { FaXmark, FaArrowRight, FaGripVertical } from "react-icons/fa6";
 import { ChevronDown, Star } from "lucide-react";
-import { circuitSteps } from "../../../../../utils/circuit";
+import { circuitLegs, circuitSteps } from "../../../../../utils/circuit";
 import { useCircuitPanel } from "../../../../../hooks/design/animations/circuit/useCircuitPanel";
 import { useReorderDrag } from "../../../../../hooks/useReorderDrag";
 
@@ -20,6 +20,13 @@ import { useReorderDrag } from "../../../../../hooks/useReorderDrag";
 //      cartes a 16 px de rayon, ombres portees. C'est l'exact contraire du
 //      luxe — une maison premium n'arrondit pas ses angles et ne pose pas
 //      d'ombre sous ses blocs.
+//   4. La bonne mise en page, mais posee sur du noir. Erreur plus coûteuse
+//      que les trois autres parce qu'elle ne se voyait qu'en contexte : le
+//      panneau s'ouvre par-dessus la page des circuits — ivoire, encre noire,
+//      accent Terre — et basculait les trois quarts de l'ecran dans une autre
+//      marque. Un panneau n'est pas une page a part : c'est la meme feuille
+//      qui se souleve. Le fond est donc revenu au papier, et l'accent a
+//      l'ocre pres : le Rouge Terre, seul accent de toute l'application.
 //
 // ── LA REGLE ─────────────────────────────────────────────────────────────
 // ANGLE VIF PARTOUT. Aucun `border-radius` dans ce fichier, sauf les deux
@@ -47,9 +54,11 @@ import { useReorderDrag } from "../../../../../hooks/useReorderDrag";
 //      vignettes passent de 156 a 220 px. Sur ce fond, une image de paysage
 //      gagne deux crans de contraste — autant lui donner la place.
 //
-// Toutes les couleurs sortent de la charte : --bg-dark pour le fond,
-// --text-inverse* pour les encres, --brand-ocre pour l'accent, --cta-* pour
-// l'appel a l'action. Plus aucune valeur inventee.
+// Toutes les couleurs sortent de la charte : --bg-card pour le fond,
+// --text-primary/-secondary/-muted pour les encres, --brand-terre pour
+// l'accent, --cta-* pour l'appel a l'action. Plus aucune valeur inventee.
+// L'ocre a ete abandonne comme accent du panneau : il ne se lit comme un or
+// que sur sombre, et tombe a 1,7:1 sur ivoire.
 //
 // La carte Mapbox a ete retiree : plus aucun contexte WebGL, plus aucune
 // requete de tuiles, et le morceau `mapbox-gl` sort du build. L'itineraire
@@ -72,20 +81,27 @@ import { useReorderDrag } from "../../../../../hooks/useReorderDrag";
 // dur le sont pour une raison precise : GSAP interpole des couleurs, pas des
 // `var(--x)`, et le hook ne sait resoudre que les variables posees sur
 // :root — pas celles d'une classe locale. Tout ce qui passe par
-// `data-hover-swap` doit donc etre litteral.
-const OCRE = "#F1B631";    // --brand-ocre, l'accent
-const ENCRE = "#F7F5F0";   // --text-inverse
-const FOND = "#100e0b";    // --bg-dark
-const FILET = "rgba(247,245,240,0.10)";
-const FILET_FORT = "rgba(247,245,240,0.20)";
-const TRANSPARENT = "rgba(0,0,0,0)";
+// `data-hover-swap`, par un degrade ou par une prop d'icone doit donc etre
+// litteral. Chaque valeur ci-dessous double un jeton de la charte, et le
+// commentaire dit lequel : si l'un bouge, l'autre doit suivre.
+const ACCENT = "#A85832";   // --brand-terre, l'accent
+const ENCRE = "#2B211A";    // --text-primary
+const FOND = "#FDFBF6";     // --bg-card
+const FILET = "#E3DACB";       // --border
+const FILET_FORT = "#CFC3AF";  // --cta-outline-border
 
-// Le hero ne s'arrete pas sur une arete : son bas se fond dans le fond de la
-// page, de sorte qu'on ne voit jamais ou finit la photo et ou commence le
-// panneau. C'est la difference entre une image collee et une image imprimee.
-// Le haut recoit un voile plus leger, juste ce qu'il faut pour que la croix
-// tienne sur une photographie claire.
-const VOILE_HERO = `linear-gradient(to top, ${FOND} 0%, rgba(16,14,11,0.92) 22%, rgba(16,14,11,0.45) 46%, rgba(16,14,11,0.10) 74%, rgba(16,14,11,0.45) 100%)`;
+// Le hero ne s'arrete pas sur une arete : son bas se fond dans le fond du
+// panneau, de sorte qu'on ne voit jamais ou finit la photo et ou commence la
+// page. C'est la difference entre une image collee et une image imprimee.
+//
+// Sur fond sombre, ce voile pouvait rester leger : l'encre etait claire et
+// tenait sur la photographie brute. Sur ivoire, l'encre est noire — le voile
+// doit donc ramener la moitie basse quasiment au papier avant que le titre
+// n'arrive, sans quoi rien ne se lit. D'ou une montee franche : opaque au
+// pied, encore a 0.88 a mi-hauteur du bloc de titre, disparu aux trois quarts.
+// La photographie garde le haut du cadre pour elle, et le titre se pose sur du
+// papier — ce qui est, litteralement, la mise en page d'un magazine.
+const VOILE_HERO = `linear-gradient(to top, ${FOND} 0%, rgba(253,251,246,0.97) 26%, rgba(253,251,246,0.88) 40%, rgba(253,251,246,0.55) 55%, rgba(253,251,246,0.16) 70%, rgba(253,251,246,0) 82%)`;
 
 // ── La grille d'une halte ────────────────────────────────────────────────
 // La poignee, l'ordinal, la vignette, le nom, le sejour, la bascule. Six
@@ -108,8 +124,8 @@ const RETRAIT_DEPLI = COL_POIGNEE + COL_ORDINAL + COL_MEDIA + GAP_LIGNE * 3;
 
 // Le back renvoie plusieurs visuels par lieu, ranges par `position`, dont un
 // eventuel `isCover`. La couverture prime, sinon le premier de la file.
-const imagePrincipale = (place) => {
-    const images = place?.images ?? [];
+const imagePrincipale = (destination) => {
+    const images = destination?.images ?? [];
     if (!images.length) return null;
     const couverture = images.find((img) => img.isCover);
     if (couverture?.url) return couverture.url;
@@ -145,7 +161,7 @@ export default function CircuitPanel({ circuit, onClose }) {
         // Une ligne depliee pendant un deplacement brouille la lecture du
         // nouvel ordre : on referme.
         setOuvert(null);
-        setAnnonce(`${deplacee?.place?.nom ?? "Étape"} déplacée en position ${vers + 1} sur ${suite.length}`);
+        setAnnonce(`${deplacee?.destination?.nom ?? "Étape"} déplacée en position ${vers + 1} sur ${suite.length}`);
     }, [ordre, origine]);
 
     const { listRef, dragIndex, poigneeProps } = useReorderDrag({
@@ -165,20 +181,11 @@ export default function CircuitPanel({ circuit, onClose }) {
         setOuvert((actuel) => (actuel === index ? null : index));
     }, []);
 
-    // Les jours se cumulent le long du parcours : la troisieme etape ne
-    // commence pas au jour 3 mais apres la duree des deux precedentes. C'est ce
-    // report qui rend l'ordre lisible autrement que par le numero — et qui se
-    // recalcule des qu'on deplace une halte.
-    const etapes = useMemo(() => {
-        let curseur = 1;
-        return steps.map((step, index) => {
-            const duree = Math.max(step.durationDays ?? 0, 0);
-            const debut = duree > 0 ? curseur : null;
-            const fin = duree > 0 ? curseur + duree - 1 : null;
-            if (duree > 0) curseur += duree;
-            return { step, index, duree, debut, fin };
-        });
-    }, [steps]);
+    // Les jours se cumulent le long du parcours (cf. circuitLegs) : la
+    // troisieme etape ne commence pas au jour 3 mais apres la duree des deux
+    // precedentes. Le report se recalcule des qu'on deplace une halte, d'ou
+    // l'appel sur `steps` — la liste reordonnee en local — et non sur circuit.
+    const etapes = useMemo(() => circuitLegs(steps), [steps]);
 
     const jours = useMemo(
         () => steps.reduce((total, step) => total + (step.durationDays ?? 0), 0),
@@ -187,8 +194,8 @@ export default function CircuitPanel({ circuit, onClose }) {
 
     // Depart et arrivee suivent l'ordre courant, pas celui du back.
     const route = useMemo(() => {
-        const depart = steps[0]?.place?.nom;
-        const arrivee = steps[steps.length - 1]?.place?.nom;
+        const depart = steps[0]?.destination?.nom;
+        const arrivee = steps[steps.length - 1]?.destination?.nom;
         return depart && arrivee ? { depart, arrivee } : null;
     }, [steps]);
 
@@ -205,7 +212,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                 data-panel-backdrop
                 onClick={fermer}
                 className="absolute inset-0"
-                style={{ backgroundColor: "rgba(8,7,5,0.88)" }}
+                style={{ backgroundColor: "rgba(24,16,10,0.88)" }}
             />
 
             {/* Aucun rayon sur la surface : le panneau est une arete franche,
@@ -249,19 +256,21 @@ export default function CircuitPanel({ circuit, onClose }) {
                 {/* data-lenis-prevent : Lenis rend la molette au panneau au lieu
                     de continuer à piloter la page derrière. Remplace l'ancien
                     onWheel + stopPropagation, appelé à chaque événement.
-                    scroll-lux : le pouce clair de ce fond — `scroll-fine` est
-                    réglé pour le papier, ici il ressortirait comme une rayure. */}
+                    scroll-fine : le panneau est redevenu du papier, il reprend
+                    donc la barre de tout le site (`scroll-lux` a disparu). */}
                 <div
                     data-panel-scroller
                     data-lenis-prevent
-                    className="h-full overflow-y-auto scroll-lux"
+                    className="h-full overflow-y-auto scroll-fine"
                     style={{ overscrollBehavior: "contain" }}
                 >
                     {/* ===== HÉRO =====
-                        Plein cadre, pleine hauteur. Sur ce fond le titre peut
-                        rester sur la photographie sans qu'on ait a l'assombrir
-                        outre mesure : le panneau EST sombre, le voile n'est
-                        plus une rustine mais la continuite du fond. */}
+                        Plein cadre, pleine hauteur. Le panneau etant redevenu
+                        ivoire, le voile ne peut plus etre discret : il ramene
+                        la moitie basse au papier pour que l'encre noire du
+                        titre s'y pose. La photographie garde le haut du cadre.
+                        Ce n'est pas une perte — un cliche qui s'eteint dans la
+                        page est plus imprime qu'un cliche encadre. */}
                     <div data-panel-hero className="relative overflow-hidden" style={{ height: "100vh" }}>
                         {circuit.imageUrl ? (
                             <img
@@ -287,7 +296,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                                     <span
                                         data-panel-hero-line
                                         className="inline-block px-4 py-2 font-body-strong text-[10px] uppercase tracking-[0.1em]"
-                                        style={{ border: "1px solid rgba(73,184,232,0.45)", color: "#7FCDEE" }}
+                                        style={{ border: "1px solid rgba(74,118,134,0.55)", color: "var(--info-text)" }}
                                     >
                                         Modèle
                                     </span>
@@ -295,7 +304,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                             )}
 
                             <div className="overflow-hidden mb-7">
-                                <span data-panel-hero-line className="cx-label font-body-strong" style={{ color: OCRE }}>
+                                <span data-panel-hero-line className="cx-label font-body-strong" style={{ color: ACCENT }}>
                                     Itinéraire signature
                                 </span>
                             </div>
@@ -333,7 +342,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                     {/* ===== ITINÉRAIRE ===== */}
                     <div className="px-20 pt-40">
                         <div data-panel-reveal className="max-w-3xl">
-                            <span className="cx-label font-body-strong" style={{ color: OCRE }}>
+                            <span className="cx-label font-body-strong" style={{ color: ACCENT }}>
                                 Étape par étape
                             </span>
                             <h3
@@ -357,7 +366,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                             et c'est ce mouvement qui dit « ceci se saisit ». */}
                         <div data-panel-reveal className="mt-16 flex flex-wrap items-center justify-between gap-8">
                             <div className="flex items-center gap-4 shrink-0">
-                                <span data-drag-hint-icon className="flex" style={{ color: OCRE }}>
+                                <span data-drag-hint-icon className="flex" style={{ color: ACCENT }}>
                                     <FaGripVertical className="text-[12px]" />
                                 </span>
                                 <span className="font-body text-[13px]" style={{ color: "var(--cx-ink-2)" }}>
@@ -369,7 +378,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                                 <button
                                     onClick={retablir}
                                     className="font-body-strong text-[11px] uppercase tracking-[0.1em] cursor-pointer shrink-0 transition-opacity duration-300 hover:opacity-60"
-                                    style={{ color: OCRE }}
+                                    style={{ color: ACCENT }}
                                 >
                                     Ordre personnalisé — rétablir
                                 </button>
@@ -386,7 +395,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                             <ul ref={listRef} className="relative">
                                 {etapes.map((etape) => (
                                     <StepRow
-                                        key={etape.step.id ?? `${etape.step.place?.id}-${etape.index}`}
+                                        key={etape.step.id ?? `${etape.step.destination?.id}-${etape.index}`}
                                         step={etape.step}
                                         index={etape.index}
                                         total={steps.length}
@@ -411,7 +420,7 @@ export default function CircuitPanel({ circuit, onClose }) {
                     {circuit.notes && (
                         <div className="px-20 pt-40 pb-48">
                             <div data-panel-reveal className="max-w-3xl">
-                                <span className="cx-label font-body-strong" style={{ color: OCRE }}>
+                                <span className="cx-label font-body-strong" style={{ color: ACCENT }}>
                                     À propos
                                 </span>
                                 <h3
@@ -462,8 +471,14 @@ export default function CircuitPanel({ circuit, onClose }) {
     );
 }
 
-// La croix : un anneau d'un pixel, pas un aplat. Il se remplit d'ocre au
+// La croix : un disque de papier cercle d'un filet. Il se remplit de Terre au
 // survol et l'icone passe au fond — la seule inversion du panneau.
+//
+// Son fond etait transparent tant que le panneau etait sombre : une encre
+// claire tient aussi bien sur un aplat noir que sur une photographie. Une
+// encre noire, non — sur le hero elle disparaitrait dans la premiere zone
+// sombre du cliche. D'ou le disque plein, a la couleur du panneau : le meme
+// bouton se pose alors indifferemment sur la barre et sur l'image.
 //
 // C'est la seule forme ronde du fichier, et c'est assume : un cercle est ici
 // une forme, pas un angle qu'on adoucit.
@@ -472,8 +487,8 @@ function Croix({ onClick, taille }) {
         <button
             onClick={onClick}
             data-hover-swap
-            data-hover-from={TRANSPARENT}
-            data-hover-to={OCRE}
+            data-hover-from={FOND}
+            data-hover-to={ACCENT}
             data-hover-text-from={ENCRE}
             data-hover-text-to={FOND}
             className="flex items-center justify-center rounded-full cursor-pointer shrink-0"
@@ -481,7 +496,7 @@ function Croix({ onClick, taille }) {
                 width: `${taille}px`,
                 height: `${taille}px`,
                 border: `1px solid ${FILET_FORT}`,
-                backgroundColor: TRANSPARENT,
+                backgroundColor: FOND,
                 color: ENCRE,
             }}
             aria-label="Fermer"
@@ -497,7 +512,7 @@ function Mention({ valeur, legende }) {
     return (
         <div className="flex flex-col gap-3">
             <span
-                className="font-title leading-none tracking-[-0.015em]"
+                className="font-body-strong leading-none tracking-[-0.015em]"
                 style={{ color: "var(--cx-ink)", fontSize: "clamp(1.25rem, 1.7vw, 1.6rem)" }}
             >
                 {valeur}
@@ -523,10 +538,10 @@ const StepRow = memo(function StepRow({
     step, index, total, duree, debut, fin,
     poigneeProps, saisie, ouvert, onBasculer,
 }) {
-    const image = imagePrincipale(step.place);
-    const etoiles = Math.round(step.place?.stars ?? 0);
-    const tags = step.place?.tags ?? [];
-    const texte = step.notes || step.place?.description;
+    const image = imagePrincipale(step.destination);
+    const etoiles = Math.round(step.destination?.stars ?? 0);
+    const tags = step.destination?.tags ?? [];
+    const texte = step.notes || step.destination?.description;
 
     const borne = index === 0 ? "Départ" : index === total - 1 ? "Arrivée" : null;
     const jours = debut == null ? null : debut === fin ? `Jour ${debut}` : `Jours ${debut} — ${fin}`;
@@ -551,7 +566,7 @@ const StepRow = memo(function StepRow({
                     // C'est la seule ombre du fichier, et elle n'existe que
                     // pendant le geste.
                     transform: saisie ? "scale(1.004)" : undefined,
-                    boxShadow: saisie ? "0 30px 70px rgba(0,0,0,0.6)" : undefined,
+                    boxShadow: saisie ? "0 26px 60px rgba(58,42,28,0.18)" : undefined,
                     transition: "box-shadow 260ms ease, transform 260ms ease",
                 }}
             >
@@ -561,7 +576,7 @@ const StepRow = memo(function StepRow({
                     aria-hidden
                     className="cx-step__wash absolute inset-0 pointer-events-none"
                     style={{
-                        background: "linear-gradient(90deg, rgba(241,182,49,0.05), rgba(241,182,49,0))",
+                        background: "linear-gradient(90deg, rgba(168,88,50,0.06), rgba(168,88,50,0))",
                         opacity: saisie ? 1 : undefined,
                     }}
                 />
@@ -576,11 +591,11 @@ const StepRow = memo(function StepRow({
                     <button
                         {...poigneeProps(index)}
                         type="button"
-                        aria-label={`Déplacer ${step.place?.nom ?? `l'étape ${index + 1}`} — flèches haut et bas`}
+                        aria-label={`Déplacer ${step.destination?.nom ?? `l'étape ${index + 1}`} — flèches haut et bas`}
                         title="Glisser pour réordonner"
                         className="cx-step__grip w-6 h-10 flex items-center justify-center outline-none"
                         style={{
-                            color: saisie ? OCRE : "var(--cx-ink-3)",
+                            color: saisie ? ACCENT : "var(--cx-ink-3)",
                             cursor: saisie ? "grabbing" : "grab",
                             touchAction: "none",
                             opacity: saisie ? 1 : undefined,
@@ -611,7 +626,7 @@ const StepRow = memo(function StepRow({
                             <img
                                 data-step-media
                                 src={image}
-                                alt={step.place?.nom}
+                                alt={step.destination?.nom}
                                 loading="lazy"
                                 decoding="async"
                                 className="absolute inset-0 w-full h-full object-cover"
@@ -626,7 +641,7 @@ const StepRow = memo(function StepRow({
                                 className="font-title leading-[1.05] truncate tracking-[-0.02em]"
                                 style={{ color: "var(--cx-ink)", fontSize: "clamp(1.5rem, 2.1vw, 2.1rem)" }}
                             >
-                                {step.place?.nom}
+                                {step.destination?.nom}
                             </h4>
                             {borne && (
                                 <span
@@ -646,7 +661,7 @@ const StepRow = memo(function StepRow({
                                 {etoiles > 0 && (
                                     <span className="flex items-center gap-1 shrink-0" aria-label={`${etoiles} sur 5`}>
                                         {Array.from({ length: etoiles }, (_, i) => (
-                                            <Star key={i} size={12} fill={OCRE} stroke={OCRE} strokeWidth={1} />
+                                            <Star key={i} size={12} fill={ACCENT} stroke={ACCENT} strokeWidth={1} />
                                         ))}
                                     </span>
                                 )}
@@ -663,7 +678,7 @@ const StepRow = memo(function StepRow({
                     <div className="text-right shrink-0">
                         {jours && (
                             <span
-                                className="block font-title leading-none tabular-nums tracking-[-0.015em] text-[20px]"
+                                className="block font-body-strong leading-none tabular-nums tracking-[-0.015em] text-[20px]"
                                 style={{ color: "var(--cx-ink)" }}
                             >
                                 {jours}
@@ -687,8 +702,8 @@ const StepRow = memo(function StepRow({
                             aria-label={ouvert ? "Replier l'étape" : "Déplier l'étape"}
                             className="w-11 h-11 flex items-center justify-center justify-self-end cursor-pointer transition-colors duration-300"
                             style={{
-                                border: `1px solid ${ouvert ? OCRE : FILET_FORT}`,
-                                color: ouvert ? OCRE : "var(--cx-ink-2)",
+                                border: `1px solid ${ouvert ? ACCENT : FILET_FORT}`,
+                                color: ouvert ? ACCENT : "var(--cx-ink-2)",
                             }}
                         >
                             <ChevronDown
@@ -716,7 +731,7 @@ const StepRow = memo(function StepRow({
                                 >
                                     <img
                                         src={image}
-                                        alt={step.place?.nom}
+                                        alt={step.destination?.nom}
                                         loading="lazy"
                                         decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover"
@@ -732,7 +747,7 @@ const StepRow = memo(function StepRow({
                                         <li key={tag.id ?? tag.nom}>
                                             <span
                                                 className="font-body-strong text-[10px] uppercase tracking-[0.1em]"
-                                                style={{ color: OCRE }}
+                                                style={{ color: ACCENT }}
                                             >
                                                 {tag.nom}
                                             </span>

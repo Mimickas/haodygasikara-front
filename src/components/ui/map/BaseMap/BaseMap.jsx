@@ -38,7 +38,7 @@ export default function BaseMap({ circuit }) {
 
         const draw = () => {
             const points = circuit.steps
-                .map((s) => s.place)
+                .map((s) => s.destination)
                 .filter((p) => p && p.longitude != null && p.latitude != null)
                 .map((p) => ({
                     lng: p.longitude,
@@ -69,7 +69,7 @@ export default function BaseMap({ circuit }) {
                 type: "line",
                 source: "route",
                 layout: { "line-join": "round", "line-cap": "round" },
-                paint: { "line-color": "#D94E2B", "line-width": 3, "line-dasharray": [1, 1.5] },
+                paint: { "line-color": "#A85832", "line-width": 3, "line-dasharray": [1, 1.5] },
             });
 
             points.forEach((p, i) => {

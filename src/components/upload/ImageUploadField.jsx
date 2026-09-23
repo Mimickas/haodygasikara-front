@@ -58,7 +58,7 @@ export default function ImageUploadField({ value = [], onChange }) {
                 style={{
                     border: `1.5px dashed ${isDragging ? "var(--brand-terre)" : "var(--border-strong)"}`,
                     borderRadius: "var(--radius-md)",
-                    backgroundColor: isDragging ? "rgba(217, 78, 43, 0.04)" : "var(--bg-card)",
+                    backgroundColor: isDragging ? "rgba(168, 88, 50, 0.04)" : "var(--bg-card)",
                     boxShadow: "var(--shadow-normal)",
                 }}
             >
@@ -111,7 +111,7 @@ export default function ImageUploadField({ value = [], onChange }) {
 
                                 {isCover && (
                                     <div
-                                        className="absolute top-1.5 left-1.5 px-2 py-0.5 text-xs font-medium"
+                                        className="absolute top-1.5 left-1.5 px-2 py-0.5 text-xs font-body-strong"
                                         style={{
                                             backgroundColor: "var(--brand-terre)",
                                             color: "#fff",
@@ -127,14 +127,14 @@ export default function ImageUploadField({ value = [], onChange }) {
                                     onClick={e => removeImage(i, e)}
                                     className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center cursor-pointer transition-all duration-200 opacity-0 group-hover:opacity-100"
                                     style={{
-                                        backgroundColor: "rgba(17, 17, 17, 0.75)",
+                                        backgroundColor: "rgba(37, 26, 18, 0.75)",
                                         color: "#fff",
                                         borderRadius: "var(--radius-pill)",
                                         fontSize: "14px",
                                         lineHeight: 1,
                                     }}
                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--brand-terre)"}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(17, 17, 17, 0.75)"}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(37, 26, 18, 0.75)"}
                                 >
                                     ×
                                 </button>

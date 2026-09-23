@@ -32,7 +32,7 @@ export default function Button({ value, onClick, variant = "primary", className 
     return (
         <button
             onClick={onClick}
-            className={`text-sm font-medium cursor-pointer transition-all duration-200 rounded-[var(--radius-sm)] whitespace-nowrap px-6 py-2 ${className || ''}`}
+            className={`text-sm font-body-strong cursor-pointer transition-all duration-200 rounded-[var(--radius-sm)] whitespace-nowrap px-6 py-2 ${className || ''}`}
             style={current.base }
             onMouseEnter={e => Object.assign(e.currentTarget.style, current.hover)}
             onMouseLeave={e => Object.assign(e.currentTarget.style, current.base)}

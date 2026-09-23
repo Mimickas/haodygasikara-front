@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { updatePlaceApi } from "../../../api/admin/places";
+import { updateDestinationApi } from "../../../api/admin/destinations";
 import CreateModal from "../../../components/admin/crud/createModal/CreateModal";
 import { useCloudinaryUpload } from "../../../hooks/admin/useCloudinaryUpload";
 
@@ -25,7 +25,7 @@ export default function DestinationEdit() {
                 videoUrl = await upload(videoUrl, 'places/videos');
             }
 
-            await updatePlaceApi(id, {
+            await updateDestinationApi(id, {
                 nom: formData.nom,
                 description: formData.description,
                 lat: formData.lat,

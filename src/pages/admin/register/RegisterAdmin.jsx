@@ -104,7 +104,7 @@ export default function RegisterAdmin() {
 
                         <div className="flex gap-3">
                             <div className="flex flex-col gap-1.5 w-1/2">
-                                <label className="text-sm font-medium"
+                                <label className="text-sm font-body-strong"
                                        style={{ color: "var(--text-secondary)" }}>
                                     Nom
                                 </label>
@@ -116,7 +116,7 @@ export default function RegisterAdmin() {
                             </div>
 
                             <div className="flex flex-col gap-1.5 w-1/2">
-                                <label className="text-sm font-medium"
+                                <label className="text-sm font-body-strong"
                                        style={{ color: "var(--text-secondary)" }}>
                                     Prénom
                                 </label>
@@ -129,7 +129,7 @@ export default function RegisterAdmin() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium"
+                            <label className="text-sm font-body-strong"
                                    style={{ color: "var(--text-secondary)" }}>
                                 Email
                             </label>
@@ -142,7 +142,7 @@ export default function RegisterAdmin() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium"
+                            <label className="text-sm font-body-strong"
                                    style={{ color: "var(--text-secondary)" }}>
                                 Mot de passe
                             </label>
@@ -155,7 +155,7 @@ export default function RegisterAdmin() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium"
+                            <label className="text-sm font-body-strong"
                                    style={{ color: "var(--text-secondary)" }}>
                                 Confirmer le mot de passe
                             </label>

@@ -120,7 +120,7 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                                     style={{
                                         width: "2px",
                                         height: i === current ? "34px" : "14px",
-                                        backgroundColor: i === current ? "var(--text-inverse)" : "rgba(247,245,240,0.4)",
+                                        backgroundColor: i === current ? "var(--text-inverse)" : "rgba(245,240,230,0.4)",
                                     }}
                                 />
                             ))}

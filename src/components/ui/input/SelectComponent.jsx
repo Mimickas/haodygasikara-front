@@ -11,7 +11,7 @@ export default function SelectComponent({ value, onChange, options = [], placeho
                 WebkitAppearance: "none",
             }}
             onFocus={e => {
-                e.currentTarget.style.boxShadow = "0 0 8px rgba(217, 78, 43, 0.35)";
+                e.currentTarget.style.boxShadow = "0 0 8px rgba(168, 88, 50, 0.35)";
                 e.currentTarget.style.backgroundColor = "var(--bg-card)";
             }}
             onBlur={e => {

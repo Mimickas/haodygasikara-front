@@ -1,17 +1,19 @@
 export default function MultiSelectField({ value = [], onChange, options = [] }) {
-    console.log(value);
-    function toggle(id) {
-        if (value.includes(id)) {
-            onChange(value.filter(v => v !== id));
-        } else {
-            onChange([...value, id]);
-        }
+    // Comparaison par chaine, des deux cotes : ce champ sert aussi bien des
+    // identifiants numeriques (les tags) que des noms de constantes (les
+    // langues, les transports). L ancienne version comparait via Number(), ce
+    // qui donnait NaN sur une valeur texte — aucune option ne s allumait jamais.
+    const memeValeur = (a, b) => String(a) === String(b);
+
+    function toggle(v) {
+        const deja = value.some(x => memeValeur(x, v));
+        onChange(deja ? value.filter(x => !memeValeur(x, v)) : [...value, v]);
     }
 
     return (
         <div className="flex flex-wrap gap-2">
             {options.map(opt => {
-                const selected = value.map(Number).includes(Number(opt.value));
+                const selected = value.some(v => memeValeur(v, opt.value));
                 return (
                     <button
                         key={opt.value}

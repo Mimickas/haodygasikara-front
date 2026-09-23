@@ -12,6 +12,11 @@ const TITLES = {
     "/admin/haodygasikara/tags": "Étiquettes",
     "/admin/haodygasikara/tags-groups": "Groupes d'Étiquettes",
     "/admin/haodygasikara/tags/create": "Création d'étiquette",  // ←
+    "/admin/haodygasikara/tarifs/categories": "Catégories de tarif",
+    "/admin/haodygasikara/tarifs/devises": "Devises",
+    "/admin/haodygasikara/tarifs/conditions": "Conditions de tarif",
+    "/admin/haodygasikara/tarifs/circuits": "Tarifs par circuit",
+    "/admin/haodygasikara/tarifs/circuits-conditions": "Conditions par tarif",
     "/admin/haodygasikara/utilisateurs": "Utilisateurs",
     "/admin/haodygasikara/parametres": "Paramètres",
 };
@@ -37,9 +42,15 @@ export default function Header({ collapsed, onToggle }) {
                 >
                     <FaBars />
                 </button>
-                <div className="flex gap-1 items-center">
+                <div className="flex flex-col gap-1.5">
+                    <span
+                        className="font-body-strong text-[10px] uppercase leading-none"
+                        style={{ color: "var(--brand-terre)", letterSpacing: "0.1em" }}
+                    >
+                        Haodygasikara · Administration
+                    </span>
                     <h1
-                        className="font-abhaya-bold text-2xl lg:text-3xl"
+                        className="font-title text-2xl lg:text-3xl leading-none"
                         style={{ color: "var(--text-primary)" }}
                     >
                         {title}
@@ -53,62 +64,47 @@ export default function Header({ collapsed, onToggle }) {
             </div>
 
             <div className="flex items-center gap-3">
-                <div
-                    className={`w-full px-4 py-2.5 rounded-md text-sm outline-none transition-all hidden md:flex items-center gap-4 h-9 px-4 rounded-md`}
-                    style={{
-                        boxShadow: "var(--shadow-normal)",
-                        color: "var(--text-secondary)",
-                    }}
-                    onFocus={e => {
-                        e.currentTarget.style.borderColor = "var(--brand-terre)"
-                        e.currentTarget.style.boxShadow = "0 0 8px rgba(217, 78, 43, 0.35)"
-                        e.currentTarget.style.backgroundColor = "var(--bg-card)"
-                    }}
-                    onBlur={e => {
-                        e.currentTarget.style.borderColor = "none"
-                        e.currentTarget.style.boxShadow = "var(--shadow-normal)"
-                        e.currentTarget.style.backgroundColor = "transparent"
-                    }}
-                >
+                {/* ← recherche soulignée : le filet passe en terre à la saisie (.field-line, cf. index.css) */}
+                <label className="field-line hidden md:flex items-center gap-3 h-9 w-72">
                     <FaMagnifyingGlass className="text-sm" style={{ color: "var(--text-muted)" }} />
                     <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Rechercher un circuit, un client…"
-                        className=" outline-none text-sm w-56"
+                        className="field-input w-full bg-transparent outline-none font-body text-sm"
                         style={{ color: "var(--text-primary)" }}
                     />
-                </div>
+                </label>
 
                 {/* Notifications */}
                 <button
                     className="relative w-9 h-9 flex items-center justify-center transition-colors flex-shrink-0"
                     style={{
-                        boxShadow: "var(--shadow-normal)",
+                        border: "1px solid var(--border)",
                         color: "var(--text-secondary)",
                         backgroundColor: "var(--bg)",  // ← manquait
-                        borderRadius: "50%",               // ← inline, plus fiable
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bg)")}
                 >
                     <FaBell />
                     <span
-                        className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                        className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
                         style={{ backgroundColor: "var(--brand-terre)" }}
                     />
                 </button>
 
                 {/* Avatar */}
                 <div
-                    className="w-9 h-9 flex items-center justify-center text-sm font-bold flex-shrink-0"
+                    className="w-9 h-9 flex items-center justify-center font-body-strong text-xs flex-shrink-0"
                     style={{
                         backgroundColor: "var(--brand-terre)",
                         color: "#FFFFFF",
-                        borderRadius: "50%",  // ← inline, plus fiable
                     }}
+                    title={user ? `${user.prenom ?? ""} ${user.nom ?? ""}`.trim() : undefined}
                 >
-                    HR
+                    {/* ← initiales de l'admin connecté, "HR" en repli */}
+                    {user?.prenom || user?.nom ? `${user?.prenom?.[0] ?? ""}${user?.nom?.[0] ?? ""}`.toUpperCase() : "HR"}
                 </div>
             </div>
         </header>

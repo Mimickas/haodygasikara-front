@@ -27,3 +27,11 @@ export const updateCircuitApi = async (id, data) => {
 }
 
 export const findCircuitStatsApi = () => api.get("/admin/circuit/stats");
+
+// Referentiel de la fiche technique : styles, niveaux, langues, transports et
+// postes d'inclusion. Servi par le back a partir de ses enums — le formulaire
+// n'en redeclare aucun, ajouter une langue ne se fait qu'a un seul endroit.
+export const findCircuitEnumsApi = async () => {
+    const { data } = await api.get("/admin/circuit/enums");
+    return data;
+};

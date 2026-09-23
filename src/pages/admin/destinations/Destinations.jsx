@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import KpiCard from "../../../components/admin/shared/kpiCard/KpiCard";
 import DataTable from "../../../components/admin/ui/tableau/DataTable";
 import Toolbar from "../../../components/admin/ui/toolbar/Toolbar";
-import { deletePlacesApi, getPlacesApi, getPlaceStatsApi } from "../../../api/admin/places";
+import { deleteDestinationsApi, getDestinationsApi, getDestinationStatsApi } from "../../../api/admin/destinations";
 import { useDestinationActionToolbar } from "../../../hooks/admin/useDestinationActionToolbar";
 import toolbar from "../../../constants/admin/toolbar";
 import dataTableConstant from "../../../constants/admin/dataTableConstant";
@@ -11,26 +11,26 @@ const emptyStat = { value: 0, trend: "" };
 
 export default function Destinations() {
     const { actions } = useDestinationActionToolbar();
-    const [places, setPlaces] = useState([]);
+    const [destinations, setDestinations] = useState([]);
     const [stats, setStats] = useState({
         total: emptyStat, withTags: emptyStat, withoutTags: emptyStat, createdThisMonth: emptyStat,
     });
-    const [loadingFetch, setLoadingFetch] = useState({ loadingStats: true, loadingPlaces: true });
+    const [loadingFetch, setLoadingFetch] = useState({ loadingStats: true, loadingDestinations: true });
 
-    const loadPlaces = async () => {
+    const loadDestinations = async () => {
         try {
-            const response = await getPlacesApi();
-            setPlaces(response.data);   
+            const response = await getDestinationsApi();
+            setDestinations(response.data);   
         } catch (error) {
-            console.error("Erreur lors de la récupération des places :", error);
+            console.error("Erreur lors de la récupération des destinations :", error);
         } finally {
-            setLoadingFetch(prev => ({ ...prev, loadingPlaces: false }));
+            setLoadingFetch(prev => ({ ...prev, loadingDestinations: false }));
         }
     };
 
     const loadStats = async () => {
         try {
-            const response = await getPlaceStatsApi();
+            const response = await getDestinationStatsApi();
             setStats(response.data.data);
         } catch (error) {
             console.error("Erreur stats destinations :", error);
@@ -40,7 +40,7 @@ export default function Destinations() {
     };
 
     useEffect(() => {
-        loadPlaces();
+        loadDestinations();
         loadStats();
     }, []);
 
@@ -57,8 +57,8 @@ export default function Destinations() {
 
     const handleDelete = async (id) => {
         if (!confirm("Supprimer cet élément ?")) return;
-        await deletePlacesApi(id);
-        setPlaces(prev => prev.filter(p => p.id !== id)); // ← CORRIGÉ : tableau, pas objet
+        await deleteDestinationsApi(id);
+        setDestinations(prev => prev.filter(p => p.id !== id)); // ← CORRIGÉ : tableau, pas objet
     };
 
     return (
@@ -72,9 +72,9 @@ export default function Destinations() {
 
                 <DataTable
                     columns={dataTableConstant.destination}
-                    data={places}
-                    loading={loadingFetch.loadingPlaces}
-                    onRowClick={place => console.log(place)}
+                    data={destinations}
+                    loading={loadingFetch.loadingDestinations}
+                    onRowClick={destination => console.log(destination)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />

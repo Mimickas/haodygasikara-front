@@ -4,7 +4,7 @@ import { loginApi, logoutApi, refreshSessionApi } from "../api/authApi"; // supp
 import { useNavigate, useLocation } from "react-router-dom";
 
 export function useAuth() {
-    const { accessToken, user, setAuth, clearAuth } = useAuthStore();
+    const { accessToken, user, setAuth, clearAuth, majUser } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -12,9 +12,9 @@ export function useAuth() {
     // par ProtectedRoute. A defaut, on rentre a l'accueil.
     const login = async (credentials, destination) => {
         const response = await loginApi(credentials);
-        const { token, email, nom, prenom, role } = response.data;
+        const { token, email, nom, prenom, role, photoUrl } = response.data;
 
-        setAuth(token, { email, nom, prenom, role });
+        setAuth(token, { email, nom, prenom, role, photoUrl });
 
         // Redirection selon le rôle. Pour un client, on repart de préférence
         // vers la page d'où ProtectedRoute l'avait refoulé.
@@ -28,8 +28,8 @@ export function useAuth() {
     const restoreSession = async () => {
         try {
             const response = await refreshSessionApi();
-            const { token, email, nom, prenom, role } = response.data;
-            setAuth(token, { email, nom, prenom, role });
+            const { token, email, nom, prenom, role, photoUrl } = response.data;
+            setAuth(token, { email, nom, prenom, role, photoUrl });
         } catch {
             clearAuth(); // pas de session valide → reste déconnecté
         }
@@ -50,5 +50,7 @@ export function useAuth() {
         login,
         logout,
         restoreSession,   // manquait : AuthProvider l'appelait et plantait
+        setAuth,          // le changement d'adresse rend une paire de jetons neufs
+        majUser,          // retouche du compte en place, sans toucher au jeton
     };
 }

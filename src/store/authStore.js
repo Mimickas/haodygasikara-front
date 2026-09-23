@@ -13,4 +13,17 @@ export const useAuthStore = create((set) => ({
     setAuth: (token, user) => set({ accessToken: token, user }),
     clearAuth: () => set({ accessToken: null, user: null }),
     finRestauration: () => set({ sessionRestauree: true }),
+
+    // Retouche du compte en place, sans toucher au jeton.
+    //
+    // La page de parametres en a besoin : quand la photo ou le prenom change,
+    // la barre d'en-tete doit suivre immediatement. Sans cela elle afficherait
+    // le monogramme et l'ancien prenom jusqu'au prochain rechargement complet,
+    // alors que la modification est deja enregistree — et l'ecran donnerait
+    // l'impression de n'avoir rien fait.
+    //
+    // Fusion et non remplacement : un appel qui ne connait que `photoUrl` ne
+    // doit pas effacer le role et l'email au passage.
+    majUser: (partiel) =>
+        set((etat) => (etat.user ? { user: { ...etat.user, ...partiel } } : {})),
 }));

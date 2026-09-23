@@ -7,6 +7,8 @@ export default function VideoUploadField({ value, onChange }) {
 
     useEffect(() => {
         if (!value) { setPreview(null); return; }
+        // ← une vidéo déjà en ligne arrive en URL : createObjectURL n'accepte qu'un File
+        if (typeof value === "string") { setPreview(value); return; }
         const url = URL.createObjectURL(value);
         setPreview(url);
         return () => URL.revokeObjectURL(url);
@@ -41,7 +43,7 @@ export default function VideoUploadField({ value, onChange }) {
                     style={{
                         border: `1.5px dashed ${isDragging ? "var(--brand-terre)" : "var(--border-strong)"}`,
                         borderRadius: "var(--radius-md)",
-                        backgroundColor: isDragging ? "rgba(217, 78, 43, 0.04)" : "var(--bg-card)",
+                        backgroundColor: isDragging ? "rgba(168, 88, 50, 0.04)" : "var(--bg-card)",
                         boxShadow: "var(--shadow-normal)",
                     }}
                 >
@@ -85,14 +87,14 @@ export default function VideoUploadField({ value, onChange }) {
                         onClick={handleRemove}
                         className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200"
                         style={{
-                            backgroundColor: "rgba(17, 17, 17, 0.7)",
+                            backgroundColor: "rgba(37, 26, 18, 0.7)",
                             color: "#fff",
                             borderRadius: "var(--radius-pill)",
                             fontSize: "18px",
                             lineHeight: 1,
                         }}
                         onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--brand-terre)"}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(17, 17, 17, 0.7)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(37, 26, 18, 0.7)"}
                     >
                         ×
                     </button>

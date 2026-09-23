@@ -96,7 +96,7 @@ export default function Home() {
                         />
                     </div>
 
-                    <span data-loader-item className="font-title" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
+                    <span data-loader-item className="font-body-strong" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
                         {progress}%
                     </span>
                 </div>
@@ -219,7 +219,7 @@ export default function Home() {
                             return (
                                 <div key={c.id} ref={(el) => setCircuitRef(el, i)} className="absolute inset-0" data-circuit={i}>
                                     <img src={c.imageUrl} alt={c.nom} className="absolute inset-0 w-full h-full object-cover" />
-                                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent 55%)" }} />
+                                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(24,16,10,0.65), transparent 55%)" }} />
                                     <div className="absolute inset-0 flex flex-col justify-end px-16 pb-15">
 
                                         <h3 data-circuit-title className="font-title text-8xl leading-[0.9]" style={{ color: "#fff" }}>{c.nom}</h3>

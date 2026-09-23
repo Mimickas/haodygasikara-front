@@ -15,7 +15,7 @@ const CARD_HEIGHT = "620px";
 // Cherche dans le nom du circuit et dans les lieux traversés
 const matchQuery = (circuit, needle) => {
     if (!needle) return true;
-    const haystack = [circuit.nom, ...circuitSteps(circuit).map((s) => s.place?.nom)]
+    const haystack = [circuit.nom, ...circuitSteps(circuit).map((s) => s.destination?.nom)]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
@@ -89,7 +89,7 @@ export default function ViewCircuit() {
     return (
         <section className="w-full" style={{ backgroundColor: "var(--bg)" }}>
             <CircuitHero circuits={circuits} onBrowse={scrollToIndex} topOffset={headerHeight} />
-
+            
             <div ref={indexRef} data-header-text="var(--text-primary)" className="pb-32" style={{ scrollMarginTop: `${headerHeight}px` }}>
                 <CircuitFilters
                     query={query}
@@ -162,7 +162,6 @@ export default function ViewCircuit() {
                 )}
             </div>
 
-            {selected && <CircuitPanel circuit={selected} onClose={() => setSelected(null)} />}
         </section>
     );
 }

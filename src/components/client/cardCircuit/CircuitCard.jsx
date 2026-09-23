@@ -1,6 +1,7 @@
 import { FaArrowRight } from "react-icons/fa6";
 import { useCardEnter } from "../../../hooks/design/useCardEnter";
 import { circuitDays, circuitRoute, circuitSteps } from "../../../utils/circuit";
+import { Link } from "react-router-dom";
 
 // Toutes les cartes ont exactement le même cadre.
 const CARD_HEIGHT = "620px";
@@ -14,6 +15,7 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
 
     return (
         <article ref={cardRef} data-card onClick={onClick} className="group cursor-pointer">
+            <Link to={`/circuit/${c.id}`}>
             <div
                 data-card-media
                 className="relative overflow-hidden"
@@ -28,7 +30,7 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
                     />
                 ) : (
                     <div data-card-img className="absolute inset-0 flex items-center justify-center">
-                        <span className="font-body text-[10px] uppercase tracking-[0.3em]" style={{ color: "rgba(247,245,240,0.4)" }}>
+                        <span className="font-body text-[10px] uppercase tracking-[0.3em]" style={{ color: "rgba(245,240,230,0.4)" }}>
                             Visuel à venir
                         </span>
                     </div>
@@ -37,12 +39,12 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
                 {/* Le texte vit sur l'image : c'est là que se joue le contraste */}
                 <div
                     className="absolute inset-0 transition-opacity duration-700"
-                    style={{ background: "linear-gradient(to top, rgba(16,14,11,0.92) 0%, rgba(16,14,11,0.22) 46%, rgba(16,14,11,0.55) 100%)" }}
+                    style={{ background: "linear-gradient(to top, rgba(37,26,18,0.92) 0%, rgba(37,26,18,0.22) 46%, rgba(37,26,18,0.55) 100%)" }}
                 />
 
                 <span
                     className="absolute top-8 left-8 font-body text-[11px] tracking-[0.4em]"
-                    style={{ color: "rgba(247,245,240,0.75)" }}
+                    style={{ color: "rgba(245,240,230,0.75)" }}
                 >
                     {String(index + 1).padStart(2, "0")}
                 </span>
@@ -50,7 +52,7 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
                 {jours > 0 && (
                     <span
                         className="absolute top-8 right-8 font-body text-[11px] uppercase tracking-[0.3em]"
-                        style={{ color: "rgba(247,245,240,0.75)" }}
+                        style={{ color: "rgba(245,240,230,0.75)" }}
                     >
                         {jours} jours
                     </span>
@@ -58,12 +60,13 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
 
                 {/* Cercle d'appel au survol */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span
-                        className="flex items-center justify-center rounded-full opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 ease-out font-body text-[10px] uppercase tracking-[0.25em]"
-                        style={{ width: "124px", height: "124px", backgroundColor: "rgba(247,245,240,0.14)", color: "var(--text-inverse)", backdropFilter: "blur(6px)" }}
-                    >
-                        Explorer
-                    </span>
+                    
+                        <span
+                            className="flex items-center justify-center rounded-full opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 ease-out font-body text-[10px] uppercase tracking-[0.25em]"
+                            style={{ width: "124px", height: "124px", backgroundColor: "rgba(245,240,230,0.14)", color: "var(--text-inverse)", backdropFilter: "blur(6px)" }}
+                        >
+                            Explorer
+                        </span>
                 </div>
 
                 <div data-card-text className="absolute inset-x-0 bottom-0 p-10">
@@ -75,7 +78,7 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
                     </h3>
 
                     <div className="mt-5 flex items-center justify-between gap-6">
-                        <div className="flex items-center gap-4 font-body text-[11px] uppercase tracking-[0.22em] min-w-0" style={{ color: "rgba(247,245,240,0.7)" }}>
+                        <div className="flex items-center gap-4 font-body text-[11px] uppercase tracking-[0.22em] min-w-0" style={{ color: "rgba(245,240,230,0.7)" }}>
                             {route && <span className="truncate">{route.depart} → {route.arrivee}</span>}
                             {route && steps.length > 0 && <span>·</span>}
                             {steps.length > 0 && <span className="shrink-0">{steps.length} étapes</span>}
@@ -91,6 +94,7 @@ export default function CircuitCard({ circuit: c, index, delay = 0, onClick }) {
                     </div>
                 </div>
             </div>
+            </Link>
         </article>
     );
 }

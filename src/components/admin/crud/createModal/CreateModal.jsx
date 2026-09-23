@@ -7,6 +7,7 @@ import VideoUploadField from "../../../upload/VideoUploadField";
 import MultiSelectField from "./MultiSelectField";
 import ImageUploadField from "../../../upload/ImageUploadField";
 import MultiDropDownCircuitStep from "./MultiDropDownCircuitStep";
+import InclusionsField from "./InclusionsField";
 
 export default function CreateModal({ onSubmit }) {
     const { state } = useLocation();
@@ -107,6 +108,14 @@ export default function CreateModal({ onSubmit }) {
                     options={field.options ?? []}
                 />
             );
+            case "inclusions":
+                return (
+                    <InclusionsField
+                        value={formData[field.name]}
+                        onChange={val => handleChange(field.name, val)}
+                        options={field.options ?? []}
+                    />
+                );
             default:
                 return (
                     <InputComponent
@@ -128,7 +137,7 @@ export default function CreateModal({ onSubmit }) {
                     <div key={index} className="flex gap-4 w-full">
                         {group.map((field, fieldIndex) => (
                             <div key={fieldIndex} className="mb-4 w-full">
-                                <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-secondary)" }}>
+                                <label className="block text-sm font-body-strong mb-1" style={{ color: "var(--text-secondary)" }}>
                                     {field.label}
                                 </label>
                                 {renderField(field)}

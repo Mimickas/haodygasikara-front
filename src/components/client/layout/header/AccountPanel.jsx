@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
-import { initiales } from "../../../../constants/client/compte";
+import { findMesReservationsApi } from "../../../../api/client/cricuitApi";
 import { useAuth } from "../../../../hooks/useAuth";
+import Avatar from "../../compte/Avatar";
 
 /**
  * Espace voyageur.
@@ -55,7 +57,7 @@ function Rangee({ compte, titre, texte, action, vers, onClose }) {
     const contenu = (
         <>
             <div className="col-span-2">
-                <span className="font-title text-5xl leading-none tabular-nums" style={{ color: "var(--border-strong)" }}>
+                <span className="font-body-strong text-5xl leading-none tabular-nums" style={{ color: "var(--border-strong)" }}>
                     {String(compte).padStart(2, "0")}
                 </span>
             </div>
@@ -107,6 +109,21 @@ function Rangee({ compte, titre, texte, action, vers, onClose }) {
 export default function AccountPanel({ onClose }) {
     const { isAuthenticated, user, logout } = useAuth();
 
+    // Le compte se lit au survol du panneau, pas au chargement de la page :
+    // l'appel ne part que lorsqu'on ouvre l'espace voyageur, et seulement
+    // connecté. Un panneau d'en-tête ne doit pas faire travailler l'API à
+    // chaque visite du site.
+    const [reservations, setReservations] = useState(0);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        let vivant = true;
+        findMesReservationsApi()
+            .then((r) => { if (vivant) setReservations((r?.data ?? []).length); })
+            .catch(() => { /* un compteur absent vaut mieux qu'un panneau cassé */ });
+        return () => { vivant = false; };
+    }, [isAuthenticated]);
+
     return (
         <div className="flex h-full">
             {/* ══ Volet image ══════════════════════════════════════════════ */}
@@ -124,7 +141,7 @@ export default function AccountPanel({ onClose }) {
                     className="absolute inset-0"
                     style={{
                         background:
-                            "linear-gradient(to top, rgba(16,14,11,0.94) 0%, rgba(16,14,11,0.58) 40%, rgba(16,14,11,0.12) 100%)",
+                            "linear-gradient(to top, rgba(37,26,18,0.94) 0%, rgba(37,26,18,0.58) 40%, rgba(37,26,18,0.12) 100%)",
                     }}
                 />
                 <div
@@ -132,7 +149,7 @@ export default function AccountPanel({ onClose }) {
                     style={{
                         height: "38%",
                         background:
-                            "linear-gradient(to bottom, rgba(16,14,11,0.62) 0%, rgba(16,14,11,0.22) 45%, rgba(16,14,11,0) 100%)",
+                            "linear-gradient(to bottom, rgba(37,26,18,0.62) 0%, rgba(37,26,18,0.22) 45%, rgba(37,26,18,0) 100%)",
                     }}
                 />
 
@@ -145,17 +162,16 @@ export default function AccountPanel({ onClose }) {
                             Espace voyageur
                         </p>
                         {isAuthenticated && (
-                            <span
-                                className="shrink-0 rounded-full flex items-center justify-center font-body-strong text-[11px]"
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    color: "var(--text-inverse)",
-                                    border: "1px solid rgba(247,245,240,0.4)",
-                                }}
-                            >
-                                {initiales(user)}
-                            </span>
+                            // Sur la photographie, le monogramme est encre en
+                            // clair et le cercle reste vide : un aplat opaque
+                            // ferait une pastille posee sur l'image.
+                            <Avatar
+                                user={user}
+                                taille={40}
+                                bordure="rgba(245,240,230,0.4)"
+                                fond="transparent"
+                                couleurTexte="var(--text-inverse)"
+                            />
                         )}
                     </div>
 
@@ -182,7 +198,7 @@ export default function AccountPanel({ onClose }) {
                         <div
                             data-panel-item
                             className="mt-9 pt-6 flex items-end justify-between gap-8"
-                            style={{ borderTop: "1px solid rgba(247,245,240,0.22)" }}
+                            style={{ borderTop: "1px solid rgba(245,240,230,0.22)" }}
                         >
                             {isAuthenticated ? (
                                 <>
@@ -201,16 +217,34 @@ export default function AccountPanel({ onClose }) {
                                         </p>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={logout}
-                                        className="shrink-0 font-body-strong text-[10px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
-                                        style={{ color: "var(--text-inverse-muted)" }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-ocre)")}
-                                        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-inverse-muted)")}
-                                    >
-                                        Déconnexion
-                                    </button>
+                                    {/* Les deux gestes du compte au meme endroit,
+                                        sous l'adresse : c'est la qu'on les
+                                        cherche, et le filet les separe deja du
+                                        reste. Un quatrieme « 00 » dans les
+                                        rangees aurait fait passer les reglages
+                                        pour un contenu du carnet. */}
+                                    <div className="shrink-0 flex items-end gap-7">
+                                        <Link
+                                            to="/mon-compte"
+                                            onClick={onClose}
+                                            className="font-body-strong text-[10px] uppercase tracking-[0.3em] transition-colors duration-300"
+                                            style={{ color: "var(--text-inverse-secondary)" }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-ocre)")}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-inverse-secondary)")}
+                                        >
+                                            Paramètres
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            onClick={logout}
+                                            className="font-body-strong text-[10px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
+                                            style={{ color: "var(--text-inverse-muted)" }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-ocre)")}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-inverse-muted)")}
+                                        >
+                                            Déconnexion
+                                        </button>
+                                    </div>
                                 </>
                             ) : (
                                 <p
@@ -246,6 +280,19 @@ export default function AccountPanel({ onClose }) {
                             >
                                 Où en sont vos voyages.
                             </h3>
+                        </div>
+
+                        <div data-panel-item>
+                            <Rangee
+                                compte={reservations}
+                                titre="Mes réservations"
+                                texte={reservations > 0
+                                    ? "Suivez l'état de chaque demande, de l'envoi à la confirmation."
+                                    : "Aucune réservation pour l'instant. Choisissez une date de départ sur un circuit."}
+                                action="Voir mes réservations"
+                                vers="/mes-reservations"
+                                onClose={onClose}
+                            />
                         </div>
 
                         <div data-panel-item>

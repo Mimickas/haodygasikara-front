@@ -57,7 +57,7 @@ export default function FooterClient() {
                 
             </div>
             <div>
-                <div className="mt-2 p-6 text-center" style={{ borderTop: "1px solid rgba(0,0,0,0.28)" }}>
+                <div className="mt-2 p-6 text-center" style={{ borderTop: "1px solid rgba(24,16,10,0.28)" }}>
                     <p className="font-body text-xs" style={{ color: "var(--text-muted)" }}>
                         © 2025 Haodygasikara — Le voyage est un partage
                     </p>

@@ -3,8 +3,8 @@ import { FaUser } from "react-icons/fa6";
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
 import { useHeaderTextColor } from "../../../../hooks/design/animations/useHeaderTextColor";
-import { initiales } from "../../../../constants/client/compte";
 import { useAuth } from "../../../../hooks/useAuth";
+import Avatar from "../../compte/Avatar";
 import MenuPanel from "./MenuPanel";
 import AccountPanel from "./AccountPanel";
 
@@ -31,11 +31,32 @@ export default function HeaderClient() {
     // sinon le X et le bouton compte restent blancs sur blanc.
     const barColor = ouvert ? "var(--text-primary)" : textColor;
 
+    // La hauteur mesuree sert a DEUX endroits : ici (le panneau se pose
+    // dessous) et dans la mise en page (le contenu demarre dessous). Elle
+    // descend donc dans une variable CSS plutot que d'etre recopiee en dur —
+    // un changement de padding sur la barre suivrait sinon a un seul endroit.
+    //
+    // ResizeObserver, et pas seulement `resize` sur la fenetre : la barre
+    // change de hauteur SANS que la fenetre bouge. A la connexion, le bouton
+    // compte passe de « Se connecter » au monogramme et au prenom, et la barre
+    // gagne 8 px — mesure : 85 → 93. Avec un simple ecouteur de
+    // redimensionnement, la variable restait a 85 et le contenu des pages sans
+    // hero repassait sous la barre.
     useEffect(() => {
-        const measure = () => setHeaderHeight(scopeRef.current?.offsetHeight ?? 84);
+        const barre = scopeRef.current;
+        if (!barre) return;
+
+        const measure = () => {
+            const hauteur = barre.offsetHeight || 84;
+            setHeaderHeight(hauteur);
+            document.documentElement.style.setProperty("--entete-hauteur", `${hauteur}px`);
+        };
+
         measure();
-        window.addEventListener("resize", measure);
-        return () => window.removeEventListener("resize", measure);
+
+        const observateur = new ResizeObserver(measure);
+        observateur.observe(barre);
+        return () => observateur.disconnect();
     }, []);
 
     // Déploiement : le panneau gagne en hauteur et pousse la page vers le bas.
@@ -47,8 +68,26 @@ export default function HeaderClient() {
         const main = document.querySelector("main");
         const hauteur = window.innerHeight - (scopeRef.current?.offsetHeight ?? 84);
 
-        const overflowAvant = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
+        // ── Bloquer le defilement SANS decaler la page ─────────────────
+        // A l'ouverture, la barre de defilement disparaissait et la page
+        // s'elargissait de 12 px : tout sautait vers la droite.
+        //
+        // `scrollbar-gutter: stable` (index.css) est cense l'eviter, et ne le
+        // fait pas ici : il ne reserve la gouttiere que tant qu'une barre peut
+        // s'afficher. Des que `overflow` passe a `hidden`, plus de barre, plus
+        // de gouttiere. Mesure a l'appui : clientWidth 1588 → 1600.
+        //
+        // On compense donc la largeur reprise par un padding de meme valeur,
+        // mesuree juste avant le blocage plutot que codee en dur — elle depend
+        // du systeme et du navigateur.
+        const racine = document.documentElement;
+        const largeurBarre = window.innerWidth - racine.clientWidth;
+
+        const overflowAvant = racine.style.overflow;
+        const paddingAvant = racine.style.paddingRight;
+
+        racine.style.overflow = "hidden";
+        if (largeurBarre > 0) racine.style.paddingRight = `${largeurBarre}px`;
 
         const tl = gsap.timeline();
         tl.fromTo(panel, { height: 0 }, { height: hauteur, duration: OPEN_DURATION, ease: PANEL_EASE });
@@ -56,7 +95,8 @@ export default function HeaderClient() {
 
         return () => {
             tl.kill();
-            document.body.style.overflow = overflowAvant;
+            racine.style.overflow = overflowAvant;
+            racine.style.paddingRight = paddingAvant;
         };
     }, [ouvert]);
 
@@ -199,14 +239,10 @@ export default function HeaderClient() {
                     >
                         {isAuthenticated ? (
                             <>
-                                <span
-                                    className="shrink-0 rounded-full overflow-hidden flex items-center justify-center"
-                                    style={{ width: 28, height: 28, backgroundColor: "var(--bg-territoires)", border: `1px solid ${barColor}` }}
-                                >
-                                    <span className="font-body-strong text-[10px]" style={{ color: "var(--text-primary)" }}>
-                                        {initiales(user)}
-                                    </span>
-                                </span>
+                                {/* La photo si le compte en a une, le monogramme
+                                    sinon — un seul composant decide, ici comme
+                                    dans l'espace voyageur. */}
+                                <Avatar user={user} taille={28} bordure={barColor} />
                                 <span>{compteOuvert ? "Fermer" : user?.prenom}</span>
                             </>
                         ) : (

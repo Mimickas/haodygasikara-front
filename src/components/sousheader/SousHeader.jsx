@@ -29,7 +29,7 @@ export default function SousHeader({ config, activeTab, onTabChange, onAction })
                         <button
                             key={index}
                             onClick={() => onAction?.(action.id)}
-                            className="text-sm font-medium cursor-pointer transition-all duration-200"
+                            className="text-sm font-body-strong cursor-pointer transition-all duration-200"
                             style={
                                 action.variant === "primary"
                                     ? {

@@ -2,14 +2,32 @@ import {
     FaStore,
     FaBell,
     FaAngleDown,
-    FaAngleUp,
     FaUser,
     FaAnglesLeft
 } from 'react-icons/fa6'
 import SidebarListMenu from './js/SidebarListMenu';
 import { Link, NavLink } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from "gsap";
+
+/* =============================================================================
+   SIDEBAR — meme doctrine que le panneau circuit (cf. index.css)
+   =============================================================================
+   Ce qui a change par rapport a la version precedente, et pourquoi :
+
+     1. LA COLONNE. Le pied etait en `position: absolute; bottom: 0`. A huit
+        entrees ca tenait ; a treize il passe par-dessus la navigation. La
+        sidebar est maintenant une vraie colonne flex : entete et bandeau en
+        shrink-0, navigation en flex-1 qui defile (scroll-fine, deja dans la
+        charte), pied en shrink-0 colle en bas sans jamais recouvrir.
+     2. L'ETAT ACTIF. Un simple changement de couleur de texte ne se lit pas en
+        balayage. Un filet vertical Terre colle au bord gauche se lit, lui.
+     3. LES ANGLES. Plus aucun rayon : les lignes vont d'un bord a l'autre,
+        c'est le vide et le filet d'un pixel qui separent, jamais une ombre.
+     4. LES MICRO-TITRES. Capitales a 0.1em de chasse — au-dela, un mot cesse
+        d'etre lu et devient un motif.
+     5. UN SEUL ACCENT. var(--brand-terre), rien d'autre.
+   ========================================================================== */
 
 export default function Sidebar({ collapsed, onToggle }) {
 
@@ -61,9 +79,38 @@ export default function Sidebar({ collapsed, onToggle }) {
         }
     };
 
+    /* Repli / depli de la colonne : GSAP pose une hauteur en ligne sur les
+       conteneurs, React ne la connait pas. Sans cette resynchronisation, un
+       groupe ferme reapparait ouvert au retour du mode replie. Replie, tous
+       les groupes sont deroules — il n'y a plus de titre pour les rouvrir. */
+    useEffect(() => {
+        containerRefs.current.forEach((container, index) => {
+            if (!container) return;
+            const items = (itemRefs.current[index] || []).filter(Boolean);
+            const shown = collapsed || openMenus.includes(index);
+            gsap.set(container, { height: shown ? 'auto' : 0 });
+            gsap.set(items, { opacity: shown ? 1 : 0, y: 0 });
+        });
+        // volontairement sur `collapsed` seul : l'accordeon gere deja ses
+        // propres transitions quand la colonne est depliee.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [collapsed]);
+
+    /* Survol d'une entree : on ne repeint pas la ligne active, son fond est
+       deja pose par le style de NavLink. aria-current="page" est mis par
+       NavLink lui-meme, c'est la source de verite la moins couteuse ici. */
+    const handleEnter = (e) => {
+        if (e.currentTarget.getAttribute("aria-current") === "page") return;
+        e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+    };
+    const handleLeave = (e) => {
+        if (e.currentTarget.getAttribute("aria-current") === "page") return;
+        e.currentTarget.style.backgroundColor = "transparent";
+    };
+
     return (
         <aside
-            className="fixed left-0 top-0 h-screen flex-col z-10 hidden lg:flex"
+            className="fixed left-0 top-0 h-screen flex-col overflow-hidden z-10 hidden lg:flex"
             style={{
                 width: collapsed ? "5rem" : "17rem",
                 backgroundColor: "var(--bg-card)",
@@ -71,36 +118,57 @@ export default function Sidebar({ collapsed, onToggle }) {
                 transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
         >
-            {/* Logo + bouton de repli à côté */}
+
+            {/* ---------- ENTETE ----------
+                Hauteur calee sur celle du Header (h-17) : les deux filets d'un
+                pixel se rejoignent exactement au coin, c'est ce raccord-la qui
+                fait qu'une interface a l'air dessinee et non assemblee. */}
             <div
-                className="px-5 py-5 flex gap-4 items-center"
-                style={{ justifyContent: collapsed ? "center" : "space-between" }}
+                className="h-17 shrink-0 flex items-center gap-3 px-5"
+                style={{
+                    justifyContent: collapsed ? "center" : "space-between",
+                    borderBottom: "1px solid var(--border)",
+                }}
             >
                 {!collapsed && (
-                    <img src="/logo/logo-1-vertical.png" className='w-40' alt="Haodygasikara" />
+                    <img
+                        src="/logo/logo-2-horizontal.png"
+                        alt="Haodygasikara"
+                        className="w-auto shrink-0"
+                        style={{ height: "2.1rem" }}
+                    />
                 )}
                 <button
                     onClick={onToggle}
                     aria-label={collapsed ? "Agrandir" : "Réduire"}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+                    className="w-8 h-8 flex items-center justify-center shrink-0 transition-colors"
                     style={{ color: "var(--text-muted)" }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                    onMouseEnter={e => {
+                        e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+                        e.currentTarget.style.color = "var(--brand-terre)";
+                    }}
+                    onMouseLeave={e => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "var(--text-muted)";
+                    }}
                 >
                     <FaAnglesLeft
-                        className="text-sm"
-                        style={{ transform: collapsed ? "rotate(180deg)" : "none" }}
+                        className="text-xs"
+                        style={{
+                            transform: collapsed ? "rotate(180deg)" : "none",
+                            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        }}
                     />
                 </button>
             </div>
 
-            <div>
-                <hr style={{ borderColor: "var(--border)" }} />
-            </div>
-
-            <Link >
+            {/* ---------- BANDEAU D'ACTION ----------
+                Pleine largeur, d'un bord a l'autre, angle vif. C'est le seul
+                aplat de marque de la colonne : il ne se repete nulle part
+                ailleurs, donc il porte. */}
+            <Link className="shrink-0">
                 <div
-                    className='px-5 py-5 flex gap-4 items-center cursor-pointer transition-colors'
+                    className="h-13 flex items-center gap-3.5 px-5 cursor-pointer transition-colors"
                     style={{
                         backgroundColor: "var(--brand-terre)",
                         justifyContent: collapsed ? "center" : "flex-start",
@@ -108,44 +176,72 @@ export default function Sidebar({ collapsed, onToggle }) {
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--brand-terre-600)")}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = "var(--brand-terre)")}
                 >
-                    <div><FaStore className='text-xl' style={{ color: "#FFFFFF" }} /></div>
+                    <FaStore className="text-base shrink-0" style={{ color: "#FFFFFF" }} />
                     {!collapsed && (
-                        <div>
-                            <p className='text-xl font-bold' style={{ color: "#FFFFFF" }}>Creer un admin</p>
-                        </div>
+                        <span
+                            className="font-body-strong text-xs uppercase whitespace-nowrap"
+                            style={{ color: "#FFFFFF", letterSpacing: "0.1em" }}
+                        >
+                            Créer un admin
+                        </span>
                     )}
                 </div>
             </Link>
 
-            <div className='my-7 px-5'>
+            {/* ---------- NAVIGATION ----------
+                flex-1 + min-h-0 : sans min-h-0 un enfant flex refuse de
+                retrecir sous son contenu et la barre de defilement n'apparait
+                jamais. C'est ce qui garantit que le pied reste visible a
+                treize entrees comme a huit. */}
+            <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-fine pb-4">
                 {SidebarListMenu.map((menu, index) => {
                     const isOpen = openMenus.includes(index);
                     return (
                         <div key={index}>
-                            {!collapsed && (
-                                <div
-                                    className="inline-flex items-center gap-2 text-sm cursor-pointer transition-colors"
-                                    style={{ color: "var(--text-muted)" }}
-                                    onClick={() => toggleMenu(index)}
-                                >
-                                    <span>{menu.name}</span>
-                                    {isOpen ? (
-                                        <FaAngleUp className="text-xs" />
-                                    ) : (
-                                        <FaAngleDown className="text-xs" />
-                                    )}
-                                </div>
-                            )}
+
+                            {/* Replie : le titre disparait, un filet prend sa
+                                place. Un groupe reste un groupe meme sans son
+                                nom, a condition que le vide le dise. */}
+                            {collapsed
+                                ? index > 0 && (
+                                    <div
+                                        className="mx-6 my-3"
+                                        style={{ height: "1px", backgroundColor: "var(--border)" }}
+                                    />
+                                )
+                                : (
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleMenu(index)}
+                                        className="w-full flex items-center justify-between px-5 pt-6 pb-2.5 transition-colors cursor-pointer"
+                                        style={{ color: "var(--text-muted)" }}
+                                        onMouseEnter={e => (e.currentTarget.style.color = "var(--text-secondary)")}
+                                        onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
+                                    >
+                                        <span
+                                            className="font-body-strong text-[11px] uppercase leading-none"
+                                            style={{ letterSpacing: "0.1em" }}
+                                        >
+                                            {menu.name}
+                                        </span>
+                                        <FaAngleDown
+                                            className="text-[10px] shrink-0"
+                                            style={{
+                                                transform: isOpen ? "rotate(180deg)" : "none",
+                                                transition: "transform 0.28s ease",
+                                            }}
+                                        />
+                                    </button>
+                                )}
 
                             <div
                                 ref={(el) => (containerRefs.current[index] = el)}
-                                style={{ overflow: 'hidden', height: collapsed ? 'auto' : undefined }}
+                                style={{ overflow: 'hidden' }}
                             >
                                 {menu.items.map((item, i) => {
                                     const Icon = item.icon;
                                     return (
                                         <div
-                                            className='flex m-1 items-center flex-col'
                                             ref={(el) => (itemRefs.current[index][i] = el)}
                                             key={i}
                                         >
@@ -153,17 +249,42 @@ export default function Sidebar({ collapsed, onToggle }) {
                                                 to={item.link}
                                                 end={item.link === "/admin/haodygasikara"}
                                                 title={collapsed ? item.name : undefined}
-                                                className="flex px-3 py-3 rounded-sm items-center gap-2 w-full transition-colors"
+                                                onMouseEnter={handleEnter}
+                                                onMouseLeave={handleLeave}
+                                                className="relative flex items-center w-full"
                                                 style={({ isActive }) => ({
-                                                    color: isActive ? "var(--brand-terre)" : "var(--text-secondary)",
-                                                    fontWeight: isActive ? 600 : 400,
+                                                    height: "2.5rem",
+                                                    gap: collapsed ? "0" : "0.875rem",
+                                                    paddingLeft: collapsed ? "0" : "1.25rem",
+                                                    paddingRight: collapsed ? "0" : "1rem",
                                                     justifyContent: collapsed ? "center" : "flex-start",
+                                                    color: isActive ? "var(--brand-terre)" : "var(--text-secondary)",
+                                                    backgroundColor: isActive ? "var(--bg-hover)" : "transparent",
+                                                    transition: "background-color 0.18s ease, color 0.18s ease",
                                                 })}
                                             >
-                                                <div>
-                                                    <Icon className='text-md' />
-                                                </div>
-                                                {!collapsed && <div>{item.name}</div>}
+                                                {({ isActive }) => (
+                                                    <>
+                                                        {/* Le marqueur d'etat : un filet Terre colle au
+                                                            bord, visible aussi bien replie que deplie. */}
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className="absolute left-0 top-0 bottom-0"
+                                                            style={{
+                                                                width: "2px",
+                                                                backgroundColor: isActive ? "var(--brand-terre)" : "transparent",
+                                                            }}
+                                                        />
+                                                        <Icon className="text-base shrink-0" />
+                                                        {!collapsed && (
+                                                            <span
+                                                                className={`text-sm truncate ${isActive ? "font-body-strong" : "font-body"}`}
+                                                            >
+                                                                {item.name}
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                )}
                                             </NavLink>
                                         </div>
                                     );
@@ -172,41 +293,83 @@ export default function Sidebar({ collapsed, onToggle }) {
                         </div>
                     )
                 })}
-            </div>
+            </nav>
 
-            <div className='py-5 px-5 bottom-0 absolute w-full flex flex-col'>
-                <div
-                    className='flex items-center gap-4 mb-4'
+            {/* ---------- PIED ----------
+                Detache par un filet d'un pixel, pas par une ombre : une ombre
+                sur un fond ivoire fait une tache sale, elle desature le papier
+                au lieu de le creuser. */}
+            <div
+                className="shrink-0"
+                style={{ borderTop: "1px solid var(--border)" }}
+            >
+                <button
+                    type="button"
+                    title={collapsed ? "Notifications" : undefined}
+                    className="relative flex items-center w-full transition-colors cursor-pointer"
                     style={{
-                        color: "var(--text-secondary)",
+                        height: "2.75rem",
+                        gap: collapsed ? "0" : "0.875rem",
+                        paddingLeft: collapsed ? "0" : "1.25rem",
+                        paddingRight: collapsed ? "0" : "1rem",
                         justifyContent: collapsed ? "center" : "flex-start",
+                        color: "var(--text-secondary)",
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                    <div>
-                        <FaBell className='text-xl' />
-                    </div>
-                    {!collapsed && <div>Notifications</div>}
-                </div>
+                    <span className="relative shrink-0 flex items-center">
+                        <FaBell className="text-base" />
+                        <span
+                            aria-hidden="true"
+                            className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: "var(--brand-terre)" }}
+                        />
+                    </span>
+                    {!collapsed && (
+                        <span className="font-body text-sm truncate">Notifications</span>
+                    )}
+                </button>
 
                 {!collapsed && (
-                    <div>
-                        <p style={{ color: "var(--text-muted)" }}>Account</p>
-                    </div>
+                    <p
+                        className="font-body-strong text-[11px] uppercase leading-none px-5 pt-4 pb-2.5"
+                        style={{ color: "var(--text-muted)", letterSpacing: "0.1em" }}
+                    >
+                        Compte
+                    </p>
                 )}
 
                 <div
-                    className='flex items-center my-2 gap-4 mb-4'
-                    style={{ justifyContent: collapsed ? "center" : "flex-start" }}
+                    className="flex items-center transition-colors cursor-pointer"
+                    style={{
+                        height: "3.25rem",
+                        gap: collapsed ? "0" : "0.875rem",
+                        paddingLeft: collapsed ? "0" : "1.25rem",
+                        paddingRight: collapsed ? "0" : "1rem",
+                        marginBottom: collapsed ? "0.75rem" : "0.5rem",
+                        justifyContent: collapsed ? "center" : "flex-start",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
+                    {/* Carre plein, angle vif : le rond etait le dernier rayon
+                        de complaisance qui restait dans la colonne. */}
                     <div
-                        className='w-10 h-10 rounded-full relative shrink-0'
-                        style={{ backgroundColor: "var(--brand-terre)" }}
+                        className="w-9 h-9 flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: "var(--brand-terre)", color: "#FFFFFF" }}
+                        title={collapsed ? "Login" : undefined}
                     >
-                        <div className='flex items-center justify-center w-full h-full' style={{ color: "#FFFFFF" }}>
-                            <FaUser />
-                        </div>
+                        <FaUser className="text-sm" />
                     </div>
-                    {!collapsed && <div style={{ color: "var(--text-primary)" }}>Login</div>}
+                    {!collapsed && (
+                        <span
+                            className="font-body-strong text-sm truncate"
+                            style={{ color: "var(--text-primary)" }}
+                        >
+                            Login
+                        </span>
+                    )}
                 </div>
             </div>
         </aside>

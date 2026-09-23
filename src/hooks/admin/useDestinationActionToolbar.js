@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import createConstant from "../../constants/admin/createConstant";
-import { getPlaceByIdApi, getTagsApi } from "../../api/admin/places";
+import { getDestinationByIdApi, getTagsApi } from "../../api/admin/destinations";
 
 export function useDestinationActionToolbar() {
     const navigate = useNavigate();
@@ -34,9 +34,9 @@ export function useDestinationActionToolbar() {
     };
 
     const handleEdit = async (id) => {
-        const [tagsRes, placeRes] = await Promise.all([
+        const [tagsRes, destinationRes] = await Promise.all([
             getTagsApi(),
-            getPlaceByIdApi(id),
+            getDestinationByIdApi(id),
         ]);
 
         const tagOptions = tagsRes.data.map(t => ({ label: t.name, value: t.id }));
@@ -46,10 +46,10 @@ export function useDestinationActionToolbar() {
             )
         );
 
-        const place = placeRes.data.data;  
+        const destination = destinationRes.data.data;  
         const values = {
-            ...place,
-            tagsIds: place.tags?.map(t => t.id) ?? [],
+            ...destination,
+            tagsIds: destination.tags?.map(t => t.id) ?? [],
         };
 
         navigate(`/admin/haodygasikara/destinations/edit/${id}`, {

@@ -2,27 +2,26 @@ import { useNavigate } from "react-router-dom";
 import { createCircuit } from "../../../api/admin/circuit";
 import CreateModal from "../../../components/admin/crud/createModal/CreateModal";
 import { useCloudinaryUpload } from "../../../hooks/admin/useCloudinaryUpload";
+import { toCircuitPayload } from "../../../utils/circuitForm";
 
 export default function CircuitsCreate() {
     const navigate = useNavigate();
-    const { upload, uploading, setUploading } = useCloudinaryUpload();
+    const { upload, uploadMany, uploading, setUploading } = useCloudinaryUpload();
 
     const handleSubmit = async (formData) => {
         setUploading(true);
         try {
-            const raw = Array.isArray(formData.imageUrl) ? formData.imageUrl[0] : formData.imageUrl;
-            let imageUrl = raw ?? null;
-            if (imageUrl && typeof imageUrl !== "string") {
-                imageUrl = await upload(imageUrl, "circuits");
-            }
+            // 1. Upload images → Cloudinary (la première est la couverture)
+            const imageUrls = formData.imageUrls?.length
+                ? await uploadMany(formData.imageUrls, "circuits")
+                : [];
 
-            const payload = {
-                ...formData,
-                imageUrl,
-                isTemplate: formData.isTemplate === "true" || formData.isTemplate === true,
-            };
+            // 2. Upload vidéo → Cloudinary
+            const videoUrl = formData.videoUrl
+                ? await upload(formData.videoUrl, "circuits/videos")
+                : null;
 
-            await createCircuit(payload);
+            await createCircuit(toCircuitPayload(formData, { imageUrls, videoUrl }));
             navigate("/admin/haodygasikara/circuits");
         } catch (error) {
             console.error("Erreur création circuit :", error);

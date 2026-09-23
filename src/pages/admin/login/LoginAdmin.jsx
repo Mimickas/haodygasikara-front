@@ -67,7 +67,7 @@ export default function LoginAdmin() {
                     <div className="flex flex-col gap-4">
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium"
+                            <label className="text-sm font-body-strong"
                                    style={{ color: "var(--text-secondary)" }}>
                                 Email
                             </label>
@@ -80,7 +80,7 @@ export default function LoginAdmin() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium"
+                            <label className="text-sm font-body-strong"
                                    style={{ color: "var(--text-secondary)" }}>
                                 Mot de passe
                             </label>

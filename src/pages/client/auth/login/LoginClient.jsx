@@ -140,7 +140,7 @@ export default function LoginClient() {
                 <img src={IMG} alt="" className="absolute inset-0 w-full h-full object-cover" data-img />
                 <div
                     className="absolute inset-0"
-                    style={{ background: "linear-gradient(to top, rgba(16,14,11,0.85) 0%, rgba(16,14,11,0.15) 55%, rgba(16,14,11,0.5) 100%)" }}
+                    style={{ background: "linear-gradient(to top, rgba(37,26,18,0.85) 0%, rgba(37,26,18,0.15) 55%, rgba(37,26,18,0.5) 100%)" }}
                 />
 
                 <div data-retour className="absolute top-11 left-12 z-10" style={{ color: "var(--text-inverse)" }}>
@@ -164,8 +164,8 @@ export default function LoginClient() {
                     </h2>
 
                     <div className="mt-9">
-                        <div data-photo-rule style={{ borderTop: "1px solid rgba(247,245,240,0.25)" }} />
-                        <p data-photo-foot className="font-body text-[10px] uppercase tracking-[0.35em] pt-6" style={{ color: "rgba(247,245,240,0.7)" }}>
+                        <div data-photo-rule style={{ borderTop: "1px solid rgba(245,240,230,0.25)" }} />
+                        <p data-photo-foot className="font-body text-[10px] uppercase tracking-[0.35em] pt-6" style={{ color: "rgba(245,240,230,0.7)" }}>
                             Devis sur mesure sous 48 heures
                         </p>
                     </div>

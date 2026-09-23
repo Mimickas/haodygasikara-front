@@ -13,6 +13,12 @@ export function useSmoothScroll() {
             smoothWheel: true,
         });
 
+        // Expose : Lenis garde SA position de defilement. Sans acces a
+        // l'instance, remettre window.scrollY a zero ne sert a rien — Lenis
+        // revient a son ancienne valeur au premier cran de molette
+        // (cf. RetourEnHaut).
+        window.lenis = lenis;
+
         lenis.on("scroll", ScrollTrigger.update);
 
         const update = (time) => lenis.raf(time * 1000);
@@ -23,6 +29,7 @@ export function useSmoothScroll() {
             lenis.off("scroll", ScrollTrigger.update);
             gsap.ticker.remove(update);
             lenis.destroy();
+            if (window.lenis === lenis) delete window.lenis;
         };
     }, []);
 }

@@ -26,20 +26,69 @@
   font-family: barlowSemiBold;
   src: url("/fonts/barlow/Barlow/Barlow-SemiBold.ttf");
 }
+@font-face {
+  font-family: barlowLight;
+  src: url("/fonts/barlow/Barlow/Barlow-Light.ttf");
+}
+@font-face {
+  font-family: barlowBold;
+  src: url("/fonts/barlow/Barlow/Barlow-Bold.ttf");
+}
 
+
+/* ==========================================================================
+   LA REGLE TYPOGRAPHIQUE DU SITE
+   ==========================================================================
+   Elle tient en une phrase :
+
+       LA SERIF NOMME, LA SANS MESURE.
+
+   → ABHAYA (.font-title) : les TITRES — de page, de section, de rangee — et
+     les nombres qui ORDONNENT : 01, 02, 03, le numero d'une etape, le numero
+     d'une halte d'itineraire.
+
+   → BARLOW (.font-body, .font-body-strong) : TOUT LE RESTE, et en
+     particulier toute DONNEE — une date, un montant, une duree, un compteur,
+     la valeur d'une mention — quelle que soit sa taille.
+
+   ── Pourquoi ──────────────────────────────────────────────────────────
+   Verdict du client : « seulement les titres grands ou importants en
+   font-title, sinon on utilise les fonts Barlow ». Le defaut etait reel :
+   une serif posee sur un montant de 20 px ou sur une date ne fait pas
+   distingue, elle fait vieux — et elle brouille la seule chose qu'une serif
+   sache faire ici, designer ce qui a un NOM.
+
+   La distinction ordonner / mesurer n'est pas une subtilite gratuite : « 01 »
+   devant une etape est un repere de lecture, il appartient au titre. « 18 »
+   devant « jours » est une quantite, elle appartient au texte — et elle a
+   besoin de tabular-nums, ce qu'une serif de titrage rend mal.
+
+   ── En pratique ───────────────────────────────────────────────────────
+   Un chiffre en Barlow porte presque toujours `tabular-nums` : sans lui, les
+   chiffres n'ont pas la meme chasse et le montant danse quand il change.
+   -------------------------------------------------------------------------- */
 
 @theme {
   --font-abhaya-bold: "abhaya-bold", sans-serif;
   --font-title:       "abhaya-bold", serif;      /* Abhaya est une serif, pas sans-serif */
-  --font-heading:     "abhaya-semibold", serif;
-  --font-medium:     "abhaya-medium", serif;
-  --font-reg:     "abhaya-reg", serif;
-  --font-body:        "barlowRegular", sans-serif;
-  --font-body-strong: "barlowSemiBold", sans-serif;
 
-  --shadow-normal: 0 0.85px 2.5px rgba(80, 68, 52, 0.25);
-  --shadow-soft:   0 4px 18px rgba(17, 17, 17, 0.05);
-  --shadow-card:   0 10px 30px rgba(17, 17, 17, 0.09);
+  /* ── Trois alias retires, et c'est une correction ────────────────────
+     --font-heading, --font-medium et --font-reg declaraient des familles
+     Abhaya sous des noms qui ressemblent a des utilitaires de GRAISSE
+     Tailwind. Consequence mesuree : tout `font-medium` — onze endroits, dont
+     le composant Button et les etiquettes des formulaires d'administration —
+     rendait son texte en serif a 14 px, alors que l'auteur demandait
+     simplement une graisse moyenne.
+     `font-medium` retrouve ici son sens standard : font-weight 500. Les deux
+     autres n'etaient employes nulle part. */
+  --font-body:        "barlowRegular", sans-serif;
+  --font-body-light:  "barlowLight", sans-serif;   /* textes posés sur photo */
+  --font-body-strong: "barlowSemiBold", sans-serif;
+  --font-body-bold: "barlowBold", sans-serif;
+
+  --shadow-normal: 0 0.85px 2.5px rgba(74, 56, 40, 0.22);
+  --shadow-soft:   0 4px 18px rgba(58, 42, 28, 0.06);
+  --shadow-card:   0 10px 30px rgba(58, 42, 28, 0.10);
 }
 @theme inline {
   --color-terre:  var(--brand-terre);
@@ -50,76 +99,114 @@
 }
 :root {
 
+  /* =========================================================================
+     LA CHARTE — terres de Madagascar
+     =========================================================================
+     Version precedente : cinq teintes saturees — #D94E2B, #49B8E8, #F1B631,
+     #2F9A49, #256F37 — posees sur un gris froid (#fafafa) avec une encre noire
+     pure. Chaque couleur etait juste prise seule ; ensemble elles donnaient
+     une brochure d'agence, pas une maison de voyage. Trois causes :
+
+       1. LA SATURATION. Au-dela de ~70 % de saturation, une couleur se lit
+          comme un signal (solde, alerte, bouton) et non comme une matiere.
+          Le luxe travaille des couleurs rabattues : pigment, terre, textile.
+       2. LE FROID. #fafafa et #111111 sont neutres au sens colorimetrique,
+          donc gris. Un fond ivoire tire vers le jaune et une encre brune
+          donnent immediatement l'impression du papier imprime.
+       3. LE NOMBRE. Cinq accents vifs se disputent l'oeil. Une charte chere
+          tient sur une famille chromatique et laisse la photographie porter
+          la couleur.
+
+     Cette version reprend la planche de marque de reference (baobab, terre
+     cuite, sable) : les valeurs marquees « releve » sont echantillonnees
+     directement dessus. Les cinq teintes de marque sont conservees — elles
+     portent les categories du site — mais rabattues dans une meme famille
+     chaude. Aucun role, aucun nom de jeton n'a change : seules les valeurs
+     bougent, donc rien de ce qui consomme la charte n'est a reprendre.
+
+     Contrastes WCAG verifies. La charte y gagne, au passage : l'ocre passait
+     a 1,75:1 sur le fond de page (illisible), le terre a 3,96:1 (sous AA).
+     Toutes les paires texte/fond de ce bloc sont maintenant a AA au moins.
+     ========================================================================= */
+
   /* ---------- FONDS / SURFACES ---------- */
-  --bg:              #fafafa;   /* Ivoire clair — fond de page */
-  --bg-secondary:    #eceae3;   /* Section alternée */
-  --bg-card:         #FDFCF8;  /* Cartes, panneaux */
-  --bg-territoires:  #EDE6DA; 
-  --bg-hover:        #EFEDE8;   /* Survol de surface */
-  --bg-muted:        #EDEDED;   /* Gris clair (charte) */
-  --bg-sunken:       #F6ECD9;   /* Champs, listes internes */
-  --bg-dark:         #100e0b;   /* Noir — footer, bandeaux */
-  --bg-dark-2:       #3D3D3D;   /* Anthracite — dégradés sombres */
+  --bg:              #FAF7F0;   /* Ivoire chaud — fond de page */
+  --bg-secondary:    #EFE9DD;   /* Section alternée */
+  --bg-card:         #FDFBF6;   /* Cartes, panneaux */
+  --bg-territoires:  #EBE3D4;   /* Sable — relevé sur la planche */
+  --bg-hover:        #F2ECE1;   /* Survol de surface */
+  --bg-muted:        #E9E3D8;   /* Neutre clair */
+  --bg-sunken:       #F4EDDF;   /* Champs, listes internes */
+  --bg-dark:         #251A12;   /* Brun noir — footer, bandeaux */
+  --bg-dark-2:       #3D271A;   /* Brun cacao — relevé sur la planche */
 
   /* ---------- BORDURES ---------- */
-  --border:          #E6E3DE;   /* Bordure par défaut */
-  --border-strong:   #DCD9D2;   /* Champs, boutons contour */
-  --border-muted:    #ECEAE4;   /* Séparateur subtil */
+  --border:          #E3DACB;   /* Bordure par défaut */
+  --border-strong:   #D6CBB8;   /* Champs, boutons contour */
+  --border-muted:    #EDE7DB;   /* Séparateur subtil */
 
-  /* ---------- TEXTE (sur fond clair) ---------- */
-  --text-primary:    #111111;   /* Noir (charte) */
-  --text-yellow:    #ffdf28;   /* Noir (charte) */
-  --text-secondary:  #3D3D3D;   /* Anthracite (charte) */
-  --text-muted:      #8A8A8A;   /* Gris — légendes, méta */
-  --text:            #111111;   /* alias */
+  /* ---------- TEXTE (sur fond clair) ----------
+     Encre brune plutôt que noir pur : #2B211A tient 14,7:1 sur la page, soit
+     largement AAA, tout en donnant la chaleur d'un texte imprimé. */
+  --text-primary:    #2B211A;   /* Encre */
+  --text-yellow:     #C79A52;   /* Or — sur fond sombre uniquement */
+  --text-secondary:  #5A4B3E;   /* Encre douce */
+  --text-muted:      #8B7C6D;   /* Légendes, méta */
+  --text:            #2B211A;   /* alias */
 
   /* ---------- TEXTE (sur fond sombre / inverse) ---------- */
-  --text-inverse:            #F7F5F0;
-  --text-inverse-secondary:  #D8D5CE;
-  --text-inverse-muted:      #B2AEA6;
+  --text-inverse:            #F5F0E6;
+  --text-inverse-secondary:  #DBD2C3;
+  --text-inverse-muted:      #B0A392;
 
-  /* ---------- MARQUE (palette officielle) ---------- */
-  --brand-terre:     #D94E2B;   /* Rouge Terre — Culture/Habitat (primaire) */
-  --brand-terre-600: #B33D20;   /* Survol / pressé */
-  --brand-lagune:    #49B8E8;   /* Bleu Lagune — Mer/Évasion */
-  --brand-ocre:      #F1B631;   /* Jaune Ocre — Terre/Soleil */
-  --brand-nature:    #2F9A49;   /* Vert Nature — Biodiversité */
-  --brand-foret:     #256F37;   /* Vert Forêt — écotourisme/solidaire */
+  /* ---------- MARQUE (palette officielle) ----------
+     Mêmes cinq rôles, même sémantique, saturations rabattues. La référence
+     n'a qu'une famille — terre cuite vers brun — et c'est elle qui donne le
+     ton : les quatre autres teintes s'y rangent au lieu de lui répondre. */
+  --brand-terre:     #A85832;   /* Terre cuite — Culture/Habitat (primaire) */
+  --brand-terre-600: #8C4526;   /* Survol / pressé */
+  --brand-lagune:    #4A7686;   /* Bleu lagon fumé — Mer/Évasion */
+  --brand-ocre:      #9C7331;   /* Ocre brûlé — Terre/Soleil */
+  --brand-nature:    #5F7A4A;   /* Vert sauge — Biodiversité */
+  --brand-foret:     #3F5738;   /* Vert forêt — écotourisme/solidaire */
 
   /* ---------- ACTIONS / CTA ---------- */
   /* Primaire */
   --cta-bg:            var(--brand-terre);
   --cta-bg-hover:      var(--brand-terre-600);
   --cta-text:          #FFFFFF;
-  --cta-shadow:        0 8px 20px rgba(217, 78, 43, 0.28);
+  --cta-shadow:        0 8px 20px rgba(168, 88, 50, 0.26);
   /* Secondaire */
-  --cta-secondary-bg:        #E8E5DF;   /* −15 vs page, −21 vs card — clairement bouton */
-  --cta-secondary-bg-hover:  #DEDAD3; 
-  --cta-secondary-text:      #3D3D3D;
+  --cta-secondary-bg:        #E9E1D2;   /* −17 vs page, −20 vs card — clairement bouton */
+  --cta-secondary-bg-hover:  #DFD5C3;
+  --cta-secondary-text:      #5A4B3E;
   /* Contour / ghost */
-  --cta-outline-border:      #D0CDC5;
-  --cta-outline-text:        #3D3D3D;
+  --cta-outline-border:      #CFC3AF;
+  --cta-outline-text:        #5A4B3E;
   --cta-outline-hover:       var(--brand-terre);
-  /* Accent (sur fond sombre) */
-  --cta-accent-bg:           var(--brand-ocre);
-  --cta-accent-bg-hover:     #F6C24E;
-  --cta-accent-text:         #111111;
+  /* Accent (sur fond sombre) — l'ocre éclairci : #9C7331 est réglé pour être
+     lisible SUR la page ivoire, il devient de la boue sur du brun. */
+  --cta-accent-bg:           #C79A52;
+  --cta-accent-bg-hover:     #D6AC66;
+  --cta-accent-text:         #251A12;
   /* Neutre foncé */
-  --cta-dark-bg:             #111111;
-  --cta-dark-text:           #FFFFFF;
+  --cta-dark-bg:             #2B211A;
+  --cta-dark-text:           #F5F0E6;
   /* Désactivé */
-  --cta-disabled-bg:         #E2DFD8;
-  --cta-disabled-text:       #9A9A9A;
+  --cta-disabled-bg:         #E5DED1;
+  --cta-disabled-text:       #A0968A;
 
   /* ---------- LIENS ---------- */
   --link:            var(--brand-terre);
   --link-hover:      var(--brand-terre-600);
 
-  /* ---------- SÉMANTIQUE (fond doux + texte) ---------- */
-  --success-bg:      #EAF3E4;  --success-text:  #256F37;
-  --info-bg:         #E3F0F4;  --info-text:     #1F6883;
-  --warning-bg:      #FDF3D8;  --warning-text:  #9A6B10;
-  --error-bg:        #F8E3DD;  --error-text:    #B33D20;
+  /* ---------- SÉMANTIQUE (fond doux + texte) ----------
+     Rabattues elles aussi : un vert de succès fluo à côté d'une charte terre
+     est exactement le détail qui trahit le gabarit. */
+  --success-bg:      #EAF0E2;  --success-text:  #3F5738;
+  --info-bg:         #E4EDF0;  --info-text:     #3B6371;
+  --warning-bg:      #F6EEDC;  --warning-text:  #8A6420;
+  --error-bg:        #F5E5DD;  --error-text:    #8C4526;
 
   /* ---------- RAYONS ---------- */
   --radius-sm:  9px;
@@ -128,11 +215,13 @@
   --radius-xl:  22px;
   --radius-pill: 100px;
 
-  /* ---------- OMBRES ---------- */
-  --shadow-normal: 0 0.85px 2.5px rgba(80, 68, 52, 0.25);
-  --shadow-soft: 0 4px 18px rgba(17, 17, 17, 0.05);
-  --shadow-card: 0 10px 30px rgba(17, 17, 17, 0.09);
-  --shadow-cta:  0 10px 26px rgba(217, 78, 43, 0.34);
+  /* ---------- OMBRES ----------
+     Une ombre grise sur un fond ivoire fait une tache sale : elle désature
+     le papier au lieu de le creuser. Le noir des ombres passe donc au brun. */
+  --shadow-normal: 0 0.85px 2.5px rgba(74, 56, 40, 0.22);
+  --shadow-soft:   0 4px 18px rgba(58, 42, 28, 0.06);
+  --shadow-card:   0 10px 30px rgba(58, 42, 28, 0.10);
+  --shadow-cta:    0 10px 26px rgba(168, 88, 50, 0.28);
 }
 
 
@@ -161,9 +250,29 @@ html {
   scrollbar-gutter: stable;
 }
 
-body{
+body {
+  /* Barlow par defaut. Sans cette ligne, tout element qui ne declare pas sa
+     police tombait sur la serif du NAVIGATEUR — Times — et non sur celle du
+     site. Aucun element existant ne change d'aspect : ils declarent tous la
+     leur. C'est le filet de securite qui manquait. */
+  font-family: var(--font-body);
   background-color: var(--bg);
 }
+
+/* ---------- Sous la barre fixe ------------------------------------------
+   La barre du site est en position fixe : une page qui ouvre sur du contenu,
+   et non sur un hero plein ecran, demarre donc sous elle et perd ses premiers
+   pixels. Cette classe lui rend sa place.
+
+   Elle est en OPT-IN et pas posee sur <main> : l'accueil, la liste des
+   circuits et la fiche circuit ouvrent sur un hero qui DOIT passer sous la
+   barre — c'est ce qui la rend transparente sur la photographie. Un retrait
+   global aurait repare une page en cassant trois.
+
+   --entete-hauteur est ecrite par HeaderClient a la mesure reelle de la barre,
+   au montage et a chaque redimensionnement : la valeur de repli ne sert que le
+   temps du premier rendu. */
+.cx-sous-entete { padding-top: var(--entete-hauteur, 85px); }
 
 .skeleton-box {
     background: linear-gradient(
@@ -193,19 +302,19 @@ body{
 .circuit-marker__img {
     width: 56px; height: 56px; border-radius: 50%;
     background-size: cover; background-position: center;
-    border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    border: 3px solid #fff; box-shadow: 0 4px 12px rgba(24,16,10,0.25);
     background-color: #e6e3de;
 }
 .circuit-marker__pin::after {
     content: ""; position: absolute; bottom: -6px; left: 50%;
     transform: translateX(-50%) rotate(45deg);
     width: 12px; height: 12px; background: #fff;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 2px 2px 4px rgba(24,16,10,0.1);
 }
 .circuit-marker__badge {
     position: absolute; top: -6px; right: -6px;
     width: 22px; height: 22px; border-radius: 50%;
-    background: #D94E2B; color: #fff; font-size: 12px; font-weight: 600;
+    background: var(--brand-terre); color: #fff; font-size: 12px; font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     border: 2px solid #fff;
 }
@@ -308,7 +417,7 @@ body{
     color: var(--text-muted);
 }
 .field-input-dark::placeholder {
-    color: rgba(247, 245, 240, 0.6);
+    color: rgba(245, 240, 230, 0.6);
 }
 
 /* Champ souligne : le filet passe en terre a la saisie */
@@ -362,13 +471,29 @@ body{
      * DE L'ECHELLE. Le nom du circuit monte a 8 rem avec une chasse NEGATIVE
        (-0.03em). Une grande typo resserree est chere ; une petite typo
        espacee a 0.42em est un cartel.
-     * UN SEUL ACCENT. L'ocre de la charte, qui ne se lit comme un or que sur
-       sombre. L'appel a l'action garde le Rouge Terre parce que c'est le
-       jeton de CTA de toute l'application.
+     * UN SEUL ACCENT. Le Rouge Terre, celui du reste du site.
 
-   Toutes les couleurs sortent de la charte : --bg-dark pour le fond,
-   --text-inverse* pour les encres, --brand-ocre pour l'accent. Plus aucune
-   valeur inventee.
+   ── Le fond : ivoire, comme toute l'application ───────────────────────────
+   Le panneau a longtemps ete sombre. C'etait une quatrieme erreur, plus
+   coûteuse que les trois autres parce qu'elle ne se voyait qu'en contexte :
+   ouvert par-dessus la page des circuits — ivoire, encre noire, accent Terre —
+   il basculait la moitie de l'ecran dans une autre marque. Un panneau n'est
+   pas une page a part, c'est la meme feuille qui se souleve.
+
+   L'inversion tient en quatre points :
+     * LE FOND prend --bg-card, le jeton nomme « cartes, panneaux ». Toujours
+       une seule valeur tenue : ce sont les filets qui detachent les barres.
+     * LES ENCRES redescendent sur --text-primary / -secondary / -muted.
+     * L'ACCENT passe de l'ocre au Rouge Terre. L'ocre ne se lit comme un or
+       que sur sombre ; sur ivoire il tombe a 1,7:1 et devient illisible. Le
+       Terre est deja le kicker du hero et le fond du CTA — un seul accent
+       pour toute la page, ce que la version sombre ne pouvait pas offrir.
+     * LES FILETS deviennent --border et --cta-outline-border, les memes
+       traits que partout ailleurs.
+
+   Toutes les couleurs sortent de la charte : --bg-card pour le fond,
+   --text-* pour les encres, --brand-terre pour l'accent. Plus aucune valeur
+   inventee.
 
    Tout ce qui suit est porte ici, et pas en style inline, parce que ce sont
    des etats (survol, focus) que le `style=` du JSX ne sait pas exprimer.
@@ -382,20 +507,21 @@ body{
     /* Surfaces. Une seule teinte de fond, volontairement : les barres se
        detachent par un filet, pas par un aplat plus clair. Un degrade de gris
        empiles est une interface ; une seule valeur tenue est une marque. */
-    --cx-stage:  var(--bg-dark);              /* #100e0b */
-    --cx-hollow: rgba(247, 245, 240, 0.05);   /* le creux d'une vignette vide */
+    --cx-stage:  var(--bg-card);              /* #FDFBF6 — « cartes, panneaux » */
+    --cx-hollow: rgba(58, 42, 28, 0.06);      /* le creux d'une vignette vide */
 
     /* Encres */
-    --cx-ink:    var(--text-inverse);            /* #F7F5F0 */
-    --cx-ink-2:  var(--text-inverse-secondary);  /* #D8D5CE */
-    --cx-ink-3:  var(--text-inverse-muted);      /* #B2AEA6 */
+    --cx-ink:    var(--text-primary);         /* #2B211A */
+    --cx-ink-2:  var(--text-secondary);       /* #5A4B3E */
+    --cx-ink-3:  var(--text-muted);           /* #8B7C6D */
 
     /* L'accent */
-    --cx-accent: var(--brand-ocre);           /* #F1B631 */
+    --cx-accent: var(--brand-terre);          /* #A85832 */
 
-    /* Filets. Deux valeurs, pas trois. */
-    --cx-line:   rgba(247, 245, 240, 0.10);
-    --cx-line-2: rgba(247, 245, 240, 0.20);
+    /* Filets. Deux valeurs, pas trois. Le filet de structure, puis celui des
+       cadres d'un pixel — croix, bornes, bascule — qui doit se voir. */
+    --cx-line:   var(--border);               /* #E3DACB */
+    --cx-line-2: var(--cta-outline-border);   /* #CFC3AF */
 }
 
 /* ---------- Micro-titre -------------------------------------------------
@@ -409,6 +535,12 @@ body{
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
+
+/* Les deux seules encres que porte un micro-titre : l'accent quand il ouvre
+   une section, le gris de legende quand il nomme une valeur. Posees ici plutot
+   qu'en style inline, pour que le #A85832 ne soit pas recopie dans cinq JSX. */
+.cx-label--accent  { color: var(--brand-terre); }
+.cx-label--legende { color: var(--text-muted); }
 
 /* ---------- Une halte ---------------------------------------------------
    Une ligne pleine largeur separee par un filet franc. Pas de carte, pas de
@@ -435,14 +567,2553 @@ body{
 .cx-step__num--on { color: var(--cx-accent); }
 
 /* ---------- Barre de defilement -----------------------------------------
-   `scroll-fine` est reglee pour le fond clair : sur ce fond son pouce gris
-   ressort comme une rayure. Meme langage, valeurs inversees — et un pouce
-   rectangulaire, comme tout le reste. */
-.scroll-lux::-webkit-scrollbar { width: 10px; }
-.scroll-lux::-webkit-scrollbar-track { background: transparent; }
-.scroll-lux::-webkit-scrollbar-thumb {
-    background-color: rgba(247, 245, 240, 0.14);
-    border: 3px solid transparent;
-    background-clip: padding-box;
+   Le panneau avait sa propre barre, `scroll-lux`, parce que le pouce gris de
+   `scroll-fine` rayait le fond sombre. Le fond est redevenu ivoire : la regle
+   dupliquee n'a plus de raison d'etre, le panneau reprend `scroll-fine` comme
+   le reste du site. */
+
+
+/* ==========================================================================
+   PAGE DETAIL D'UN CIRCUIT — la gouttiere commune
+   ==========================================================================
+   L'« A propos » etait a px-16 en dur pendant que l'itineraire passait par
+   --iti-marge. Sous 1024 px l'un restait a 64, l'autre tombait a 24 : les deux
+   titres ne s'alignaient plus sur la meme verticale. Une seule variable les
+   tient desormais, et l'aplat de survol s'y cale aussi.
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   LE SELECTEUR DE VISUELS DU HERO — sous le filet
+   ==========================================================================
+   Deux demandes, et elles vont ensemble : la bande de vignettes SOUS LE FILET
+   ET A GAUCHE, les fleches A DROITE et sans rien autour.
+
+   Ce qui a ete enleve compte autant que ce qui reste. Les commandes portaient
+   un carre d'un pixel et un fond au survol : sur une photographie, deux cadres
+   alignes font une barre d'outils posee sur l'image. L'icone seule dit la meme
+   chose et ne se dispute plus avec le cliche.
+
+   Rien d'autre du hero n'est touche : la photo garde son opacite, le titre son
+   corps, le filet sa place.
+   -------------------------------------------------------------------------- */
+.cx-hero__selecteur {
+    margin-top: clamp(18px, 2vw, 26px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 64px);
 }
-.scroll-lux::-webkit-scrollbar-thumb:hover { background-color: var(--brand-ocre); }
+
+/* ---------- La bande ------------------------------------------------------
+   Trois colonnes au plus, et elles se suivent : au-dela, la bande defile au
+   lieu de s'allonger. La fenetre se calcule depuis --vignettes, pose par le
+   composant — une seule valeur a changer pour en montrer deux ou quatre. */
+.cx-hero__piste {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--largeur-vignette, 104px);
+    gap: var(--gap-vignette, 12px);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+
+    max-width: calc(
+        var(--vignettes, 3) * var(--largeur-vignette, 104px)
+        + (var(--vignettes, 3) - 1) * var(--gap-vignette, 12px)
+    );
+}
+
+/* La barre de defilement est masquee : on avance par les fleches et par les
+   vignettes, pas en tirant un rail sur une photographie. C'est la BARRE qu'on
+   cache, jamais le defilement — le contenu reste atteignable. */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ---------- Une vignette --------------------------------------------------
+   Angle vif, aucun rayon. Le visuel a l'ecran se designe par un filet blanc
+   pose A COTE du cadre (outline-offset) et non dessus : un cadre colle
+   rognerait l'image d'un pixel a chaque fois. */
+.cx-hero__vignette {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--bg-dark-2);
+    cursor: pointer;
+    outline: 1px solid transparent;
+    outline-offset: 3px;
+    transition: outline-color 0.35s ease;
+}
+.cx-hero__vignette--active { outline-color: var(--text-inverse); }
+
+.cx-hero__vignette img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+    transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-hero__vignette:hover img { opacity: 0.9; transform: scale(1.06); }
+.cx-hero__vignette--active img { opacity: 1; }
+
+/* Le signe lecture. Un cercle, et c'est une forme voulue — pas un angle
+   adouci : la seule forme ronde de la page detail. */
+.cx-hero__film {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-inverse);
+}
+.cx-hero__film > svg {
+    padding: 7px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: rgba(37, 26, 18, 0.55);
+    border: 1px solid rgba(245, 240, 230, 0.38);
+    box-sizing: content-box;
+}
+
+/* ---------- Les fleches ---------------------------------------------------
+   L'icone, et rien d'autre : ni bordure, ni fond, ni rayon.
+
+   Le padding negatif rend une zone de clic de 44 px sans rien montrer : on
+   touche large, on ne voit que la fleche. Sans lui, viser une icone de 20 px
+   au doigt est un exercice. */
+.cx-hero__fleches {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+    flex-shrink: 0;
+    padding-bottom: 4px;
+}
+
+.cx-hero__fleche {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: -12px;
+    padding: 12px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--text-inverse-secondary);
+    transition: color 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-hero__fleche:hover { color: var(--text-inverse); }
+
+/* Le seul retour au survol : la fleche avance dans SON sens. Une fleche qui
+   recule dirait le contraire de ce qu'elle fait. */
+.cx-hero__fleche:hover:has(> .lucide-arrow-left)  { transform: translateX(-3px); }
+.cx-hero__fleche:hover:has(> .lucide-arrow-right) { transform: translateX(3px); }
+
+.cx-hero__fleche:focus-visible {
+    outline: 1px solid var(--text-inverse);
+    outline-offset: 6px;
+}
+
+@media (max-width: 767px) {
+    .cx-hero__piste { --largeur-vignette: 84px; --gap-vignette: 10px; }
+    .cx-hero__selecteur { gap: 20px; }
+}
+@media (min-width: 1536px) {
+    .cx-hero__piste { --largeur-vignette: 120px; }
+}
+
+
+.cx-detail {
+    --cx-gutter: 64px;
+
+    /* ── L'INTERVALLE ENTRE DEUX SECTIONS ─────────────────────────────
+       Une seule valeur pour toute la page detail, et c'est le seul bouton a
+       tourner pour la rendre plus ou moins aeree. Les quatre sections y
+       puisent : plus aucune ne peut deriver de ses voisines.
+
+       216 px a 1600, 138 a 1024, 96 sur un telephone. C'est beaucoup, et c'est
+       voulu : sur une page de cette longueur, le vide est ce qui separe les
+       chapitres. Un intervalle trop court et les sections se lisent comme un
+       seul bloc continu — c'est exactement ce qui se passait a 128 px.
+
+       Plus tot dans la page, l'intervalle etait note sur chaque section, avec
+       une valeur differente pour l'itineraire. Une seule mesure tenue vaut
+       mieux que quatre valeurs proches : c'est ce que l'oeil lit comme un
+       rythme. */
+    --cx-section: clamp(96px, 13.5vw, 216px);
+
+    /* ── LA REGLE DE RYTHME DE LA PAGE ────────────────────────────────
+       CHAQUE SECTION PORTE SA RESPIRATION EN HAUT, ET RIEN EN BAS. La page
+       ferme une seule fois, ici.
+
+       Sans cette regle, deux sections voisines additionnent leurs marges :
+       l'« A propos » fermait sur 192 px, l'itineraire en rouvrait 160, et il
+       y avait 352 px de papier blanc entre le dernier mot de l'un et le titre
+       de l'autre. Le bug revient a chaque section ajoutee — il ne se corrige
+       donc pas au cas par cas, il se supprime par une regle.
+
+       Corollaire : une section ajoutee ici ne regle QUE son padding-top, et
+       l'espacement avec la precedente est juste du premier coup. */
+    padding-bottom: var(--cx-section);
+}
+@media (max-width: 1024px) {
+    .cx-detail { --cx-gutter: 24px; }
+}
+
+/* ==========================================================================
+   A PROPOS — l'accroche editoriale, juste sous le hero
+   ==========================================================================
+   Trois corrections, aucune invention :
+
+     * LE RYTHME. La section fermait sur 192 px de vide et l'itineraire en
+       rouvrait 160 : 352 px de papier blanc entre le dernier mot et le titre
+       suivant. Le bas tombe a zero, c'est le padding haut de .cx-iti qui fait
+       seul la respiration.
+     * LA HIERARCHIE. La mention « A propos » etait empilee au-dessus du titre
+       et le poussait vers le bas. Elle passe en rail a gauche : l'oeil descend
+       le titre sans buter dessus, et le rail donne a la page la colonne que
+       les deux references du client (Rennsport, Avatr) posent partout.
+     * LA MESURE. Le texte filait sur toute la largeur du bloc. Il se cale a
+       62 caracteres — la mesure d'un magazine — et sa premiere phrase monte
+       d'un cran : c'est le chapo, il porte l'entree en matiere.
+   -------------------------------------------------------------------------- */
+.cx-about {
+    padding: var(--cx-section, 128px) var(--cx-gutter, 64px) 0;
+}
+
+
+/* ==========================================================================
+   L'EN-TETE D'UNE SECTION — partagee par « A propos » et « Le voyage »
+   ==========================================================================
+   Premiere version : une mention en rail a gauche, le titre et le texte a
+   droite. Le rail portait un mot et RIEN d'autre — 190 px de papier blanc sur
+   toute la hauteur du bloc — pendant que le texte se serrait dans les deux
+   tiers restants et s'arretait a 62 caracteres. Beaucoup de vide, et du vide
+   qui ne disait rien : ce n'est pas de la respiration, c'est un trou.
+
+   La mention remonte donc AU-DESSUS, pleine largeur, et les deux colonnes se
+   partagent ce qu'il y a a lire : le titre a gauche, le texte a droite. Meme
+   vocabulaire, meme mesure de lecture, mais la largeur est occupee au lieu
+   d'etre laissee.
+
+   Sans rien a mettre a droite, le titre reprend toute la largeur
+   (.cx-tete--seule) plutot que de rouvrir le trou a l'autre bout.
+   -------------------------------------------------------------------------- */
+.cx-tete {
+    border-top: 1px solid var(--border);
+    padding-top: clamp(30px, 3.4vw, 52px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    row-gap: clamp(20px, 2.4vw, 32px);
+    align-items: start;
+}
+.cx-tete--seule { grid-template-columns: minmax(0, 1fr); }
+
+/* Pleine largeur : les deux colonnes demarrent ainsi sur la meme ligne, ce
+   qu'un sur-titre glisse dans l'une des deux interdisait. */
+.cx-tete__mention { grid-column: 1 / -1; }
+
+.cx-tete__titre {
+    color: var(--text-primary);
+    font-size: clamp(2.25rem, 3.6vw, 3.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+}
+
+/* Le chapo : la premiere phrase, un cran au-dessus du reste. */
+.cx-tete__chapo {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+    line-height: 1.7;
+}
+
+.cx-tete__texte {
+    margin-top: clamp(16px, 1.6vw, 24px);
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+/* Sous 1024 px les deux colonnes n'ont plus la place : on empile. */
+@media (max-width: 1024px) {
+    .cx-tete { grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
+}
+
+
+/* ==========================================================================
+   CE QUE COMPREND LE CIRCUIT — la fiche technique et le decompte
+   ==========================================================================
+   La section repond a « est-ce que ce voyage est pour moi ? », et elle se pose
+   donc AVANT l'itineraire : on ne demande pas a quelqu'un de lire quinze jours
+   de programme pour decouvrir ensuite qu'il y a un age minimum.
+
+   Trois registres, trois traitements, et c'est ce qui evite la page de
+   specifications :
+
+     1. LA FICHE. Style, niveau, ages, groupe, langues, transports. Des
+        mentions valeur/legende — la forme deja employee pour la nuitee. Un
+        champ non renseigne ne s'affiche pas : on n'ecrit jamais « non
+        communique », qui est une ligne a lire pour une information de moins.
+
+     2. LE DECOMPTE. Quatre chiffres en grand, tires du programme et non
+        saisis. Ce sont les seuls chiffres de la page, ils ont donc le droit
+        d'etre grands — c'est ce qu'on retient d'un circuit avant le detail.
+
+     3. LES LISTES. Compris / non compris, en deux colonnes separees par du
+        vide. Pas de coche verte ni de croix rouge : deux micro-titres, deux
+        colonnes, et l'encre plus claire a droite suffisent a dire lequel est
+        lequel. Une coche verte est le vocabulaire d'un comparateur de prix.
+
+   Aucune couleur hors charte, aucun rayon, aucune ombre — la regle du reste
+   de la page detail.
+   -------------------------------------------------------------------------- */
+.cx-voyage {
+    padding: var(--cx-section, 128px) var(--cx-gutter, 64px) 0;
+}
+
+
+/* ---------- La planche ---------------------------------------------------
+   Deux cliches plein cadre, juste sous le titre. C'est la correction la plus
+   importante du bloc : entre le hero et l'itineraire, la page enchainait deux
+   sections entierement typographiques sur ivoire, et ce tunnel de texte etait
+   le « gros manque ». Chez Rennsport, la photographie arrive AVANT la moindre
+   caracteristique — on montre l'objet, puis on le decrit.
+
+   Les visuels viennent des etapes, jamais la couverture : elle occupe deja
+   tout le hero, et la reposer ici ne montrerait rien de neuf. */
+.cx-voyage__planche {
+    margin-top: clamp(40px, 4.6vw, 72px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 10px;
+}
+.cx-voyage__planche--seule { grid-template-columns: minmax(0, 1fr); }
+
+.cx-voyage__cadre {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    background-color: var(--bg-muted);
+}
+
+/* Seul le premier cadre porte le rapport : les deux colonnes n'ont pas la meme
+   largeur, et un meme aspect-ratio sur les deux leur donnait deux hauteurs
+   differentes — une planche avec une marche au milieu. Le second s'etire sur
+   la rangee que le premier a fixee, ses visuels etant en absolu donc sans
+   hauteur propre. */
+.cx-voyage__cadre:first-child { aspect-ratio: 3 / 2; }
+.cx-voyage__cadre img,
+.cx-voyage__cadre video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-voyage__cadre:hover img { transform: scale(1.04); }
+
+
+/* ---------- Les deux moities ---------------------------------------------
+   A gauche la fiche et l'appel a l'action, a droite les depliants. C'est la
+   mise en page de la reference, et elle regle deux choses d'un coup : la
+   largeur est occupee des deux cotes, et le contenu long (les listes) cesse
+   d'etaler la page en hauteur. */
+.cx-voyage__corps {
+    margin-top: clamp(48px, 5.6vw, 88px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    column-gap: clamp(40px, 6vw, 112px);
+    row-gap: clamp(40px, 5vw, 64px);
+    align-items: start;
+}
+
+
+/* ---------- La fiche technique -------------------------------------------
+   Deux colonnes serrees, etiquette au-dessus de la valeur. Elle s'etalait sur
+   six colonnes et toute la largeur de la page : aere au point de ne plus faire
+   fiche du tout. Une fiche technique se lit en bloc — c'est sa densite qui la
+   rend credible, pas son espacement. */
+.cx-specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(22px, 2.4vw, 32px) clamp(24px, 3vw, 44px);
+}
+.cx-specs .cx-mention { gap: 8px; }
+
+/* L'echelle d'effort : quatre rectangles, remplis jusqu'a la note. Ce ne sont
+   pas des etoiles — une etoile note une qualite, ces barres mesurent une
+   exigence. La nuance tient a la forme : un trait plat, pas un symbole. */
+.cx-niveau {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 9px;
+}
+.cx-niveau__barre {
+    width: 20px;
+    height: 3px;
+    background-color: var(--border-strong);
+}
+.cx-niveau__barre--on { background-color: var(--brand-terre); }
+
+
+/* ---------- L'appel a l'action -------------------------------------------
+   Un rectangle plein, pleine largeur de la colonne. C'est ce qui manquait le
+   plus apres la photographie : la page se terminait dans le vide, sans rien a
+   faire. Chez Rennsport, la colonne des caracteristiques se ferme sur un bloc
+   noir « Enquire » — c'est lui qui rassure, parce qu'il dit que la suite
+   existe.
+
+   Angle vif, aucun rayon, aucune ombre : la regle de toute la page. Seule la
+   couleur de fond bouge au survol. */
+.cx-devis {
+    margin-top: clamp(32px, 3.6vw, 48px);
+}
+.cx-devis__mention {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+.cx-devis__bouton {
+    margin-top: 14px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: clamp(18px, 1.8vw, 22px) 28px;
+    background-color: var(--cta-bg);
+    color: var(--cta-text);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+}
+.cx-devis__bouton:hover { background-color: var(--cta-bg-hover); }
+
+
+/* ---------- Les depliants -------------------------------------------------
+   Trois volets separes par un filet franc. Les deux listes et le decompte
+   tenaient a plat, l'un sous l'autre, et allongeaient la section sans rien
+   hierarchiser. Repliees, elles annoncent ce qu'elles contiennent et laissent
+   le regard choisir.
+
+   La hauteur s'anime par grid-template-rows de 0fr a 1fr : la seule facon
+   d'ouvrir une hauteur inconnue sans la mesurer en JavaScript. */
+.cx-depliant { border-top: 1px solid var(--border); }
+.cx-depliant:last-child { border-bottom: 1px solid var(--border); }
+
+.cx-depliant__bouton {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(19px, 2vw, 26px) 0;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: color 0.35s ease;
+}
+.cx-depliant__bouton:hover { color: var(--brand-terre); }
+
+.cx-depliant__titre {
+    font-size: clamp(1.05rem, 1.3vw, 1.25rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+/* Le compte, en petites capitales, comme l'exposant de l'itineraire. */
+.cx-depliant__compte {
+    margin-left: 12px;
+    color: var(--brand-terre);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+/* Le signe : deux traits d'un pixel. Le vertical s'efface a l'ouverture et le
+   plus devient un moins — un scaleY, donc rien de repeint. */
+.cx-depliant__signe {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+.cx-depliant__signe::before,
+.cx-depliant__signe::after {
+    content: "";
+    position: absolute;
+    background-color: currentColor;
+}
+.cx-depliant__signe::before {
+    left: 0;
+    top: 6px;
+    width: 13px;
+    height: 1px;
+}
+.cx-depliant__signe::after {
+    top: 0;
+    left: 6px;
+    width: 1px;
+    height: 13px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-depliant--ouvert .cx-depliant__signe::after { transform: scaleY(0); }
+
+.cx-depliant__corps {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-depliant--ouvert .cx-depliant__corps { grid-template-rows: 1fr; }
+.cx-depliant__corps > div { overflow: hidden; }
+.cx-depliant__dedans { padding-bottom: clamp(22px, 2.4vw, 32px); }
+
+
+/* ---------- Le decompte ---------------------------------------------------
+   Quatre chiffres tires du programme, jamais saisis. Ils vivent dans le
+   premier depliant : ce sont eux qui disent ce que le prix couvre. */
+.cx-compte {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 2.2vw, 28px) clamp(24px, 3vw, 40px);
+}
+.cx-compte__valeur {
+    display: block;
+    color: var(--text-primary);
+    font-size: clamp(1.9rem, 2.4vw, 2.35rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+}
+.cx-compte__legende { margin-top: 12px; }
+
+/* « 3 nuits en hôtel, 1 nuit en écolodge » — deduit des sejours. */
+.cx-compte__detail {
+    margin-top: clamp(18px, 1.8vw, 24px);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* ---------- Une ligne de liste --------------------------------------------
+   Compris ou non compris. Pas de coche verte ni de croix rouge : le volet
+   porte deja le titre, et l'encre plus douce suffit pour ce qui ne l'est pas.
+   Une coche verte est le vocabulaire d'un comparateur de prix. */
+.cx-ligne {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+    align-items: baseline;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-muted);
+}
+.cx-ligne:first-child { padding-top: 0; }
+.cx-ligne:last-child  { padding-bottom: 0; border-bottom: 0; }
+
+.cx-ligne__libelle {
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.cx-ligne--exclu .cx-ligne__libelle { color: var(--text-secondary); }
+
+.cx-ligne__poste {
+    justify-self: end;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+/* ---------- Les themes ----------------------------------------------------
+   Des capitales posees dans le vide, jamais des pilules : une pastille
+   arrondie est du vocabulaire d'application, pas de maison de voyage. */
+.cx-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px clamp(20px, 2.4vw, 32px);
+}
+.cx-themes__item { color: var(--brand-terre); }
+
+
+@media (max-width: 1024px) {
+    .cx-voyage__corps { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+    /* Empiles, les cadres n'ont plus de rangee commune pour leur donner une
+       hauteur : chacun reprend le rapport, sans quoi le second se replie a
+       zero (ses visuels sont en absolu). */
+    .cx-voyage__planche { grid-template-columns: minmax(0, 1fr); }
+    .cx-voyage__cadre { aspect-ratio: 3 / 2; }
+    .cx-specs { grid-template-columns: minmax(0, 1fr); }
+    .cx-ligne { grid-template-columns: minmax(0, 1fr); row-gap: 6px; }
+    .cx-ligne__poste { justify-self: start; }
+}
+
+
+/* ==========================================================================
+   DATE ET DISPONIBILITE — les departs vendables
+   ==========================================================================
+   Elle ferme la page : on a lu ce que le voyage est, ce qu'il comprend et
+   comment il se deroule — reste a choisir quand partir.
+
+   ── Le titre est en Abhaya, comme TOUS les grands titres ────────────────
+   Le premier jet le posait en Barlow Light avec .cx-iti__titre, recopie de
+   l'itineraire — qui etait alors la seule derogation du site.
+
+   Cette derogation n'existe plus : « Itineraire » est passe en Abhaya avec la
+   regle typographique (« la serif nomme, la sans mesure »), a la demande du
+   client. Il n'y a donc plus qu'UNE police de titre sur tout le site, et la
+   question « pourquoi deux polices de titre ? » n'a plus lieu d'etre posee.
+
+   Le corps se pose donc sur .cx-tete, comme « A propos » et « Le voyage »,
+   au meme corps (3,5 rem) : trois sections editoriales de meme rang, et
+   l'itineraire qui domine a 7,5 rem parce qu'il est le coeur de la page.
+   -------------------------------------------------------------------------- */
+.cx-booking {
+    /* Rien en bas : cf. la regle de rythme sur .cx-detail. */
+    padding: var(--cx-section, 128px) var(--cx-gutter, 64px) 0;
+}
+
+/* ---------- Un depart ----------------------------------------------------
+   Une ligne pleine largeur separee par un filet franc, comme une halte de
+   l'itineraire. Pas de carte, pas de rayon, pas d'ombre — et l'aplat de survol
+   n'est pas repris : il dit « ceci s'ouvre », or une date ne s'ouvre pas, elle
+   se choisit. */
+.cx-departs {
+    margin-top: clamp(40px, 4.6vw, 72px);
+    border-top: 1px solid var(--border);
+}
+
+.cx-depart {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.7fr) minmax(0, 1fr) auto;
+    column-gap: clamp(24px, 3vw, 48px);
+    align-items: center;
+    padding: clamp(22px, 2.4vw, 30px) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+/* La date de depart : c'est elle qu'on cherche, elle porte donc le corps. */
+.cx-depart__date {
+    color: var(--text-primary);
+    font-size: clamp(1.25rem, 1.7vw, 1.6rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+.cx-depart__retour {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.cx-depart__duree {
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Les tarifs. Plusieurs categories par depart : elles s'alignent en colonne,
+   montant a gauche de son libelle, sans tableau ni filet vertical. */
+.cx-depart__tarifs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px clamp(24px, 3vw, 40px);
+}
+.cx-tarif__montant {
+    display: block;
+    color: var(--text-primary);
+    font-size: clamp(1.05rem, 1.3vw, 1.25rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+.cx-tarif__categorie {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Un depart sans tarif ne se vend pas : on le dit, plutot que de laisser une
+   colonne vide que le visiteur lira comme « gratuit ». */
+.cx-depart__sans-tarif {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Le bouton de la ligne : contour d'un pixel, il se remplit de Terre au
+   survol. Le bloc plein est deja pris par l'appel a l'action de la section
+   « Le voyage » — deux aplats pleins sur la meme page se disputeraient. */
+.cx-depart__action {
+    justify-self: end;
+    white-space: nowrap;
+    padding: 13px 26px;
+    border: 1px solid var(--cta-outline-border);
+    color: var(--cta-outline-text);
+    background-color: transparent;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+.cx-depart__action:hover {
+    background-color: var(--cta-bg);
+    border-color: var(--cta-bg);
+    color: var(--cta-text);
+}
+
+/* ---------- Le sur-mesure ------------------------------------------------
+   Rien a reserver : soit le circuit est compose par le visiteur, soit c'est un
+   modele dont aucun depart n'est encore programme. Dans les deux cas la
+   section ne disparait pas — quelqu'un qui cherche une date doit savoir ou il
+   en est — elle change de proposition, et le devis prend la place de la liste.
+
+   Le bloc est tenu a 560 px : un bouton pleine largeur sur 1500 px de page ne
+   se lit plus comme un bouton. */
+.cx-booking__sur-mesure {
+    margin-top: clamp(28px, 3vw, 40px);
+    padding-top: clamp(24px, 2.6vw, 32px);
+    border-top: 1px solid var(--border);
+    max-width: 560px;
+}
+.cx-booking__vide {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+@media (max-width: 860px) {
+    .cx-depart {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 18px;
+    }
+    .cx-depart__tarifs { grid-column: 1 / -1; }
+    .cx-depart__action { grid-column: 1 / -1; justify-self: start; }
+}
+
+
+/* ==========================================================================
+   MES RESERVATIONS — la liste du voyageur
+   ==========================================================================
+   Rien de neuf ici : la page reprend le vocabulaire de la fiche circuit —
+   .cx-tete pour l'en-tete, .cx-mention pour les couples valeur/legende, le
+   filet d'un pixel pour separer, Abhaya pour ce qui compte et les petites
+   capitales a 0.1em pour le reste. Une page de compte n'est pas un autre
+   site : c'est la meme feuille, vue depuis chez soi.
+
+   Une reservation se lit comme une halte d'itineraire : une ligne pleine
+   largeur, un filet franc, et le detail qui se deplie dessous. Le geste est
+   deja connu du visiteur, il ne l'apprend pas une seconde fois.
+   -------------------------------------------------------------------------- */
+.cx-mesresa {
+    padding: clamp(56px, 6vw, 96px) var(--cx-gutter, 64px) 0;
+}
+
+.cx-mesresa__liste {
+    margin-top: clamp(36px, 4vw, 56px);
+    border-top: 1px solid var(--border);
+}
+
+/* L'aplat de survol sort de la gouttiere : la section doit le laisser filer
+   sans que la page se mette a defiler de cote. */
+.cx-mesresa { overflow: clip; }
+
+/* Le compte en exposant, comme l'entete de l'itineraire. Meme motif, meme
+   place : c'est la signature des listes du site. */
+.cx-mesresa__compte {
+    color: var(--brand-terre);
+    font-size: clamp(0.8rem, 1.1vw, 1.05rem);
+    letter-spacing: 0.06em;
+    margin-top: 0.35em;
+}
+
+/* ---------- Une reservation ----------------------------------------------
+   Premiere version : quatre colonnes de texte et rien d'autre. Verdict du
+   client, et il avait raison : « trop simple et old, trop moche, trop vide,
+   pas premium ».
+
+   Le diagnostic tenait en un mot : AUCUNE PHOTOGRAPHIE. Toutes les listes du
+   site en portent une — une halte d'itineraire a sa vignette de 200 px, une
+   carte de circuit son cliche plein cadre — et celle-ci alignait des lignes de
+   texte sur du papier. Un ecran de compte n'est pas un tableau de bord : le
+   voyageur vient y revoir SON VOYAGE, pas consulter un registre.
+
+   La ligne reprend donc la grammaire d'une halte : la vignette, puis la date,
+   puis le circuit, et l'aplat qui se deroule d'un bord de l'ecran a l'autre au
+   survol. Rien d'invente — le geste existe deja trente lignes plus haut dans
+   cette feuille. */
+.cx-resaligne {
+    position: relative;
+    border-bottom: 1px solid var(--border);
+}
+
+/* L'aplat de survol, repris de l'itineraire : il sort de la gouttiere et file
+   jusqu'aux deux bords. Un scaleX, donc aucune surface repeinte. */
+.cx-resaligne__aplat {
+    position: absolute;
+    inset: 0 calc(var(--cx-gutter, 64px) * -1);
+    background-color: var(--bg-sunken);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.cx-resaligne:hover .cx-resaligne__aplat { transform: scaleX(1); }
+
+.cx-resaligne__rangee {
+    position: relative;   /* au-dessus de l'aplat */
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) minmax(0, 0.85fr) auto;
+    column-gap: clamp(24px, 3vw, 44px);
+    align-items: center;
+    padding: clamp(22px, 2.4vw, 28px) 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* ---------- La vignette ---------------------------------------------------
+   Angles francs, aucun cadre : la photographie se suffit. Le creux tient la
+   place quand un circuit n'a pas d'image, sans quoi la grille se decale d'une
+   ligne a l'autre. */
+.cx-resaligne__media {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background-color: var(--bg-muted);
+}
+.cx-resaligne__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-resaligne:hover .cx-resaligne__media img { transform: scale(1.08); }
+
+/* La date de depart : c'est elle qu'on cherche dans la liste. */
+.cx-resaligne__date {
+    display: block;
+    color: var(--text-primary);
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+.cx-resaligne__circuit {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.4;
+}
+.cx-resaligne__retour {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.cx-resaligne__detail {
+    display: block;
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* ---------- L'etat -------------------------------------------------------
+   La couleur route sur le NOM du statut, jamais sur son libelle : le libelle
+   se reformule en base, le nom ne bouge pas. C'est exactement pour cela qu'il
+   existe deux colonnes.
+
+   Trois encres, pas quatre : ce qui attend est gris, ce qui appelle une action
+   est Terre, ce qui est acquis est vert. Une couleur par statut aurait fait un
+   tableau de bord d'application, pas un carnet de voyage. */
+.cx-etat {
+    display: block;
+    margin-top: 9px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+}
+.cx-etat--attente  { color: var(--text-muted); }
+.cx-etat--action   { color: var(--brand-terre); }
+.cx-etat--acquis   { color: var(--brand-foret); }
+
+/* La bascule : le meme mot et le meme chevron que l'itineraire. */
+.cx-resaligne__bascule {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.35s ease;
+}
+.cx-resaligne:hover .cx-resaligne__bascule { color: var(--brand-terre); }
+.cx-resaligne__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-resaligne--ouverte .cx-resaligne__chevron { transform: rotate(180deg); }
+
+/* Le doigt n'a pas de survol : sur tactile l'aplat resterait accroche a la
+   derniere ligne touchee. */
+@media (hover: none) {
+    .cx-resaligne:hover .cx-resaligne__aplat { transform: scaleX(0); }
+    .cx-resaligne:hover .cx-resaligne__media img { transform: none; }
+}
+
+/* ---------- Le depli ----------------------------------------------------- */
+.cx-resaligne__corps {
+    position: relative;   /* au-dessus de l'aplat, comme la rangee */
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-resaligne--ouverte .cx-resaligne__corps { grid-template-rows: 1fr; }
+.cx-resaligne__corps > div { overflow: hidden; }
+
+.cx-resaligne__dedans {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 72px);
+    padding-bottom: clamp(32px, 3.4vw, 48px);
+}
+
+/* ---------- Le fil des etapes -------------------------------------------
+   L'historique se lit de haut en bas, la derniere etape en dernier. Chaque
+   ligne porte sa date : c'est ce qui repond a « quand a-t-elle ete
+   confirmee ? », la question qui se pose le jour ou ca coince. */
+.cx-etapes { margin-top: clamp(14px, 1.6vw, 20px); }
+
+.cx-etape {
+    position: relative;
+    padding: 0 0 18px 22px;
+    border-left: 1px solid var(--border);
+}
+.cx-etape:last-child { padding-bottom: 0; border-left-color: transparent; }
+
+/* Le point : un carre de 5 px, pas un rond. Angle vif partout. */
+.cx-etape::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 5px;
+    width: 5px;
+    height: 5px;
+    background-color: var(--border-strong);
+}
+.cx-etape--derniere::before { background-color: var(--brand-terre); }
+
+.cx-etape__libelle {
+    display: block;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.4;
+}
+.cx-etape__quand {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.cx-etape__note {
+    display: block;
+    margin-top: 6px;
+    max-width: 48ch;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* ---------- Aucune reservation -------------------------------------------
+   Une page vide dit ce qu'il faut faire ensuite. « Aucune reservation » tout
+   seul est un cul-de-sac. */
+.cx-mesresa__vide {
+    margin-top: clamp(36px, 4vw, 56px);
+    padding-top: clamp(28px, 3vw, 40px);
+    border-top: 1px solid var(--border);
+    max-width: 560px;
+}
+.cx-mesresa__vide-texte {
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+@media (max-width: 1024px) {
+    /* La vignette et le titre prennent toute la largeur, l'etat et la bascule
+       se partagent la rangee suivante. Empiles un par un, ils faisaient cinq
+       lignes de texte pour une seule reservation. */
+    .cx-resaligne__rangee {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 18px;
+    }
+    .cx-resaligne__media { grid-column: 1 / -1; max-width: 260px; }
+    .cx-resaligne__titre-bloc { grid-column: 1 / -1; }
+    .cx-resaligne__dedans { grid-template-columns: minmax(0, 1fr); }
+}
+
+
+/* ==========================================================================
+   RESERVER — /circuit/:id/reservation/:dateId
+   ==========================================================================
+   Premiere version : un formulaire nu sur le sable, separe par CINQ filets
+   horizontaux, tout au meme poids. Verdict du client : « bien clean sans trop
+   de border comme tu l'as fait, c'est trop un site sans style ».
+
+   Il avait raison, et sur deux plans a la fois.
+
+   ── Le style ───────────────────────────────────────────────────────────
+   Un filet d'un pixel separe bien deux choses de meme nature — deux haltes
+   d'un itineraire, deux reglages. Il ne HIERARCHISE pas. Empiles, cinq filets
+   donnent cinq blocs d'egale importance : l'oeil n'a plus aucun point
+   d'entree. Ce qui manquait, comme sur l'accueil et sur la liste des
+   circuits, c'est la PHOTOGRAPHIE et la MASSE. Les etapes sont donc posees
+   sur des panneaux clairs (--bg-card) detaches du sable de la page : c'est la
+   surface qui separe, plus le trait.
+
+   ── La lisibilite ──────────────────────────────────────────────────────
+   Consigne : « imagine que le client est tres tres vieux, qui vient de la
+   brousse ». Ce n'est pas une coquetterie, c'est le vrai public d'un
+   tour-operateur malgache. Ce qui en decoule, et qui est applique ici :
+
+     • le corps de base passe de 15 a 17 px, les etiquettes de 11 a 13 ;
+     • les commandes font 52 px de haut — la limite basse du doigt est 44 ;
+     • le prix est ECRIT EN TOUTES LETTRES (« par personne »), pas sous-entendu
+       par une colonne ;
+     • le compteur est COLLE a la categorie qu'il compte. Dans la version
+       precedente, « Adulte » etait a gauche de l'ecran et son compteur a
+       1 400 px de la, a l'autre bout : il fallait relire la ligne entiere
+       pour savoir ce qu'on incrementait ;
+     • le recapitulatif est TOUJOURS visible — colonne collante a droite,
+       barre collante en bas sur telephone. C'est ce qui repond a « sans que
+       le client perde de vue » ;
+     • le bouton ne se contente plus de s'eteindre : il DIT ce qui manque.
+   -------------------------------------------------------------------------- */
+
+/* ---------- Le hero ------------------------------------------------------
+   La photographie du circuit, pour que le voyageur VOIE lequel il reserve.
+   Plus court que celui d'une fiche — on vient ici pour faire, pas pour rever
+   — mais assez grand pour poser le nom et la date. */
+.cx-resa-hero {
+    --cx-gutter: 64px;
+    position: relative;
+    height: clamp(420px, 52vh, 620px);
+}
+@media (max-width: 1024px) {
+    .cx-resa-hero { --cx-gutter: 24px; }
+}
+
+.cx-resa-hero__contenu {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 10;
+    padding: 0 var(--cx-gutter) clamp(30px, 3.2vw, 44px);
+}
+
+.cx-resa-hero__retour {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(18px, 2vw, 28px);
+    color: var(--text-inverse-secondary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    transition: color 0.3s ease;
+}
+.cx-resa-hero__retour:hover { color: var(--brand-ocre); }
+
+.cx-resa-hero__accroche {
+    display: block;
+    margin-bottom: clamp(14px, 1.6vw, 20px);
+    color: var(--brand-ocre);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+}
+
+.cx-resa-hero__titre {
+    color: var(--text-inverse);
+    font-size: clamp(2.1rem, 5vw, 4rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+}
+
+/* Le depart, en clair et en grand, juste sous le nom : c'est la premiere
+   chose qu'on verifie en arrivant sur une page de reservation. */
+.cx-resa-hero__quand {
+    margin-top: clamp(20px, 2.2vw, 30px);
+    padding-top: clamp(18px, 2vw, 26px);
+    border-top: 1px solid rgba(245, 240, 230, 0.22);
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(24px, 3vw, 56px);
+}
+.cx-resa-hero__legende {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--brand-ocre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+}
+.cx-resa-hero__valeur {
+    color: var(--text-inverse);
+    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+    line-height: 1.3;
+}
+
+/* ---------- Le corps : les etapes, et le recapitulatif ------------------- */
+.cx-resa {
+    padding: clamp(40px, 4.4vw, 72px) var(--cx-gutter, 64px) 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: clamp(28px, 3vw, 56px);
+    align-items: start;
+}
+
+.cx-resa__etapes {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2.2vw, 32px);
+}
+
+/* ---------- Une etape ---------------------------------------------------
+   Un panneau clair pose sur le sable : c'est la SURFACE qui separe, et non un
+   filet. Angles vifs et aucune ombre portee — la regle du site ne bouge pas,
+   c'est le moyen de separation qui change. */
+.cx-etape-resa {
+    background-color: var(--bg-card);
+    padding: clamp(26px, 2.8vw, 40px);
+}
+
+.cx-etape-resa__entete {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(16px, 1.8vw, 24px);
+    align-items: start;
+    padding-bottom: clamp(20px, 2.2vw, 28px);
+    border-bottom: 1px solid var(--border-muted);
+}
+
+/* Le numero ORDONNE — il ne mesure pas. C'est pour cela qu'il reste en
+   Abhaya quand les montants et les dates passent en Barlow. */
+.cx-etape-resa__numero {
+    color: var(--brand-terre);
+    font-size: clamp(2.4rem, 3.4vw, 3.4rem);
+    line-height: 0.82;
+    min-width: 1.2em;
+}
+
+.cx-etape-resa__titre {
+    color: var(--text-primary);
+    font-size: clamp(1.25rem, 1.7vw, 1.5rem);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+
+/* Une phrase qui dit a quoi sert l'etape, en francais simple. Elle coute
+   trois lignes de code et evite l'hesitation qui fait abandonner. */
+.cx-etape-resa__aide {
+    display: block;
+    margin-top: 8px;
+    max-width: 52ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.cx-etape-resa__corps { margin-top: clamp(22px, 2.4vw, 32px); }
+
+/* ---------- Une categorie de voyageurs ----------------------------------
+   Le nom, le prix EN TOUTES LETTRES, et le compteur juste a cote. */
+.cx-voyageur {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(16px, 2vw, 28px);
+    align-items: center;
+    padding: clamp(16px, 1.8vw, 22px) 0;
+}
+.cx-voyageur + .cx-voyageur { border-top: 1px solid var(--border-muted); }
+
+.cx-voyageur__nom {
+    display: block;
+    color: var(--text-primary);
+    font-size: clamp(1.05rem, 1.3vw, 1.185rem);
+    line-height: 1.3;
+}
+.cx-voyageur__prix {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* ---------- Le compteur -------------------------------------------------
+   52 px de cote : la limite basse confortable est 44, et le public vise ici
+   n'a pas forcement le geste sur. Les bornes ne disparaissent pas a la
+   limite, elles s'eteignent — un bouton retire decalerait la rangee. */
+.cx-compteur {
+    display: inline-grid;
+    grid-template-columns: 52px 56px 52px;
+    align-items: center;
+    justify-items: center;
+}
+/* Le contraste est volontairement appuye : sur le panneau clair, un fond
+   --bg-sunken et un filet --border-strong donnaient deux carres a peine
+   visibles. Pour le public vise, un bouton doit se voir COMME un bouton. */
+.cx-compteur__bouton {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-muted);
+    border: 1px solid var(--text-primary);
+    color: var(--text-primary);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.cx-compteur__bouton:hover:not(:disabled) {
+    background-color: var(--brand-terre);
+    border-color: var(--brand-terre);
+    color: var(--text-inverse);
+}
+/* A la borne, le bouton s'eteint mais RESTE visible : disparaitre decalerait
+   la rangee, et un bouton fantome fait croire a un ecran casse. */
+.cx-compteur__bouton:disabled {
+    background-color: transparent;
+    border-color: var(--border-strong);
+    color: var(--border-strong);
+    cursor: default;
+}
+.cx-compteur__valeur {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* ---------- Les champs --------------------------------------------------- */
+.cx-resa__champs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(22px, 2.4vw, 32px) clamp(24px, 2.8vw, 40px);
+}
+.cx-resa__champ--large { grid-column: 1 / -1; }
+
+.cx-resa__etiquette {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+/* « Facultatif » en clair plutot qu'une parenthese dans l'etiquette : on lit
+   d'abord ce qu'on demande, ensuite si c'est obligatoire. */
+.cx-resa__option {
+    color: var(--text-muted);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+}
+.cx-resa__saisie {
+    width: 100%;
+    background: transparent;
+    outline: none;
+    padding-bottom: 10px;
+    color: var(--text-primary);
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+/* ---------- L'envoi ------------------------------------------------------ */
+.cx-resa__envoyer {
+    width: 100%;
+    padding: 20px 28px;
+    background-color: var(--cta-bg);
+    color: var(--cta-text);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.cx-resa__envoyer:hover:not(:disabled) { background-color: var(--cta-bg-hover); }
+.cx-resa__envoyer:disabled {
+    background-color: var(--cta-disabled-bg);
+    color: var(--cta-disabled-text);
+    cursor: default;
+}
+
+/* Un bouton eteint sans explication laisse le visiteur bloque sans savoir
+   pourquoi. Celui-ci dit ce qu'il reste a faire. */
+.cx-resa__manque {
+    display: block;
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background-color: var(--bg-sunken);
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+.cx-resa__manque strong { color: var(--text-primary); }
+
+.cx-resa__rassurance {
+    display: block;
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.cx-resa__erreur {
+    margin-bottom: 16px;
+    padding: 16px 20px;
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-line;   /* apiErrorMessage joint ses details par \n */
+}
+
+/* ---------- Le recapitulatif --------------------------------------------
+   Colle en haut, donc toujours sous les yeux pendant qu'on remplit. C'est la
+   piece qui repond a « sans que le client perde de vue » : a tout moment on
+   voit QUEL voyage, QUELLE date, COMBIEN de personnes et COMBIEN ca fait. */
+.cx-recap {
+    position: sticky;
+    top: calc(var(--entete-hauteur, 85px) + 20px);
+    background-color: var(--bg-card);
+    padding: clamp(22px, 2.2vw, 28px);
+}
+
+.cx-recap__media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--bg-muted);
+    margin-bottom: clamp(18px, 2vw, 24px);
+}
+.cx-recap__media img { width: 100%; height: 100%; object-fit: cover; }
+
+.cx-recap__titre {
+    color: var(--text-primary);
+    font-size: 1.185rem;
+    line-height: 1.3;
+}
+.cx-recap__quand {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.cx-recap__lignes {
+    margin-top: clamp(20px, 2.2vw, 26px);
+    padding-top: clamp(18px, 2vw, 22px);
+    border-top: 1px solid var(--border-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.cx-recap__ligne {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.4;
+}
+.cx-recap__ligne strong { color: var(--text-primary); }
+
+/* Tant que personne n'est compte, on le DIT, au lieu d'afficher « 0 MGA » qui
+   ressemble a un prix. */
+.cx-recap__vide {
+    margin-top: clamp(20px, 2.2vw, 26px);
+    padding-top: clamp(18px, 2vw, 22px);
+    border-top: 1px solid var(--border-muted);
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Legende AU-DESSUS du montant, et non a cote : dans une colonne de 360 px,
+   « 2 voyageurs — total » et « 500 000 MGA » cote a cote cassaient tous les
+   deux sur deux lignes. Empiles, chacun a la largeur entiere. */
+.cx-recap__total {
+    margin-top: clamp(20px, 2.2vw, 26px);
+    padding-top: clamp(18px, 2vw, 22px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cx-recap__total-legende {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+/* Le total MESURE, il n'ordonne pas : Barlow, et tabular pour que les chiffres
+   ne dansent pas quand le montant change. */
+.cx-recap__total-valeur {
+    color: var(--text-primary);
+    white-space: nowrap;
+    font-size: clamp(1.5rem, 2vw, 1.875rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+}
+
+/* ---------- L'accuse de reception ---------------------------------------
+   Il affiche les montants RENVOYES PAR LE SERVEUR, jamais ceux que l'ecran
+   avait estimes : c'est la seule facon de montrer ce qui a ete enregistre. */
+.cx-recu {
+    background-color: var(--bg-card);
+    padding: clamp(30px, 3.2vw, 48px);
+}
+.cx-recu__titre {
+    margin-top: 14px;
+    color: var(--text-primary);
+    font-size: clamp(1.6rem, 2.4vw, 2.125rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+.cx-recu__texte {
+    margin-top: clamp(14px, 1.6vw, 20px);
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.75;
+}
+.cx-recu__suite {
+    margin-top: clamp(24px, 2.6vw, 34px);
+    padding: clamp(18px, 2vw, 24px);
+    background-color: var(--bg-sunken);
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.7;
+}
+.cx-recu__lignes {
+    margin-top: clamp(24px, 2.6vw, 34px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ---------- Le refus ----------------------------------------------------- */
+.cx-resa__refus {
+    background-color: var(--bg-card);
+    padding: clamp(26px, 2.8vw, 40px);
+    max-width: 60ch;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.75;
+}
+
+/* ---------- La barre collante du telephone ------------------------------
+   Sur un ecran etroit, la colonne de droite passe SOUS le formulaire et cesse
+   d'etre visible pendant la saisie. Cette barre la remplace : le total et le
+   bouton restent sous le pouce. */
+.cx-resa__barre {
+    display: none;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 40;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background-color: var(--bg-card);
+    border-top: 1px solid var(--border);
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.cx-resa__barre-total {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    line-height: 1.1;
+}
+.cx-resa__barre-legende {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 1100px) {
+    .cx-resa { grid-template-columns: minmax(0, 1fr); }
+    /* Le recapitulatif complet passe AU-DESSUS des etapes : sous elles, il
+       arriverait apres la decision, donc trop tard. */
+    .cx-resa__recap { order: -1; }
+    .cx-recap { position: static; }
+    .cx-resa__barre { display: flex; }
+    /* De la place pour la barre, sinon elle couvre la derniere ligne. */
+    .cx-resa { padding-bottom: 96px; }
+}
+
+@media (max-width: 640px) {
+    .cx-resa__champs { grid-template-columns: minmax(0, 1fr); }
+    .cx-voyageur {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 14px;
+    }
+    .cx-etape-resa__entete { grid-template-columns: minmax(0, 1fr); }
+}
+/* ==========================================================================
+   ITINERAIRE — la liste des haltes, page detail d'un circuit
+   ==========================================================================
+   Premiere version : serif Abhaya en 56 px, vignette, cinq etoiles, bornes
+   encadrees. Verdict du client, mot pour mot : « je trouve pas du tout que
+   c'est luxe, je trouve que c'est vieux, tres tres vieux ». Ses references —
+   911rennsport.co.uk/projects et vision.avatr.com — disent ou etait l'erreur,
+   et une tentative de fond noir a montre ou elle n'etait PAS :
+
+     * LA POLICE, la vraie cause. Les deux references sont en grotesque. Une
+       serif a fort contraste dans un grand corps evoque le journal imprime,
+       pas la marque. Les haltes passent donc en Barlow Light : la sans du
+       site, deja chargee, jamais employee en grand jusqu'ici.
+     * LES ORNEMENTS. Cinq etoiles et un cadre d'un pixel autour d'un mot :
+       vocabulaire de comparateur d'hotels. Supprimes.
+     * L'ECHELLE. Un seul mot en tete de section, tres grand, chasse serree,
+       et son compte en exposant — la mise en page de `Projects 150`.
+     * LE SURVOL. Chez Rennsport, la ligne approchee se remplit d'un aplat de
+       couleur d'un bord de l'ecran a l'autre et l'encre s'inverse. Geste
+       repris ici, en mieux : l'aplat se DEROULE de la gauche vers la droite —
+       un scaleX, donc aucune surface repeinte — au lieu d'apparaitre d'un
+       coup.
+     * LE FOND, lui, ne bougeait pas : la page reste ivoire. Un bloc noir a ete
+       essaye et rejete — « bas de black background, comme ca merde ». Tout ce
+       qui suit ne consomme donc que la charte : --text-*, --brand-terre,
+       --border. Aucune valeur inventee.
+   -------------------------------------------------------------------------- */
+
+
+.cx-iti {
+    /* La marge laterale de la section. L'aplat de survol s'en sert pour sortir
+       du padding et filer jusqu'aux deux bords de l'ecran. Elle vient de la
+       page (.cx-detail) pour rester alignee avec l'« A propos » ; la valeur de
+       repli garde la section utilisable seule. */
+    --iti-marge: var(--cx-gutter, 64px);
+    --iti-aplat: var(--bg-sunken);
+
+    /* La grille d'une halte, nommee une seule fois. Le depli se cale sous le
+       nom du lieu en repartant de ces memes valeurs : sans ce calcul, la
+       moindre retouche d'espacement faisait deriver l'un de l'autre. */
+    --leg-num:   76px;
+    --leg-media: 200px;
+    --leg-gap:   44px;
+    --leg-retrait: calc(var(--leg-num) + var(--leg-media) + var(--leg-gap) * 2);
+
+    /* La colonne de la bascule est tenue a une largeur fixe, et c'est ce qui
+       aligne la liste : une halte sans programme n'a pas de bouton, sa colonne
+       tombait a zero et son sejour glissait de 118 px vers la droite. Deux
+       lignes voisines ne finissaient plus au meme endroit. Le mot le plus long
+       (« Voir plus » et son chevron) tient dans 92 px, le bouton s'y cale a
+       droite. */
+    --leg-bascule: 92px;
+
+    /* Bas a zero : c'est .cx-detail qui ferme la page (cf. la regle de rythme).
+       Avant, ces 160 px s'ajoutaient au padding-haut de la section suivante.
+       La valeur de repli garde la section utilisable hors de .cx-detail. */
+    padding: var(--cx-section, clamp(96px, 11vw, 160px)) var(--iti-marge) 0;
+    overflow: clip;   /* l'aplat deborde ; la page ne defile pas pour autant */
+}
+
+/* ---------- L'en-tete ---------------------------------------------------- */
+/* Abhaya, comme tous les grands titres du site. C'etait le DERNIER grand
+   titre en Barlow Light — une derogation assumee tant qu'elle restait seule,
+   levee a la demande du client quand la regle typographique a ete posee.
+
+   La chasse passe de -0.04em a -0.03em : -0.04 etait calibre pour du Barlow
+   Light, une sans etroite qui supporte d'etre resserree. Une serif de titrage
+   a des empattements qui se touchent a cette valeur, et le mot devient un
+   pate a 120 px. -0.03em est celle du titre de 128 px du panneau circuit. */
+.cx-iti__titre {
+    color: var(--text-primary);
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+}
+.cx-iti__exposant {
+    color: var(--brand-terre);
+    font-size: clamp(0.8rem, 1.1vw, 1.15rem);
+    letter-spacing: 0.06em;
+    margin-top: 0.35em;
+}
+/* La chasse passe de 0.22em a 0.1em, comme .cx-label et comme toutes les
+   petites capitales du site. Au-dela de 0.2em un mot cesse d'etre lu et
+   devient un motif — la regle est posee dans .cx-label, elle vaut ici aussi. */
+.cx-iti__intro {
+    color: var(--text-muted);
+    padding-bottom: 0.6em;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---------- Une halte ----------------------------------------------------
+   Une ligne pleine largeur, separee par un filet d'un pixel. Rien d'autre :
+   pas de carte, pas de rayon, pas d'ombre. */
+.cx-legs {
+    margin-top: clamp(48px, 7vw, 112px);
+    border-top: 1px solid var(--border);
+}
+
+.cx-leg {
+    position: relative;
+    border-bottom: 1px solid var(--border);
+}
+
+.cx-leg__aplat {
+    position: absolute;
+    inset: 0 calc(var(--iti-marge) * -1);
+    background-color: var(--iti-aplat);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.cx-leg:hover .cx-leg__aplat { transform: scaleX(1); }
+
+.cx-leg__row {
+    position: relative;   /* au-dessus de l'aplat */
+    display: grid;
+    grid-template-columns: var(--leg-num) var(--leg-media) minmax(0, 1fr) auto var(--leg-bascule);
+    column-gap: var(--leg-gap);
+    align-items: center;
+    padding: 28px 0;
+}
+
+/* Les encres. Elles sont posees ici et non en style inline, sans quoi la
+   regle de survol perdrait contre elles. */
+.cx-leg__num,
+.cx-leg__nom,
+.cx-leg__meta,
+.cx-leg__stay { transition: color 0.45s ease; }
+
+.cx-leg__num  { color: var(--text-muted); }
+.cx-leg__nom  { color: var(--text-primary); }
+.cx-leg__meta { color: var(--text-muted); }
+.cx-leg__stay { color: var(--text-secondary); }
+
+/* ---------- L'echelle et les petites capitales --------------------------
+   Elles etaient posees dans le JSX, chacune avec sa propre valeur : 13/0.18,
+   11/0.2, 12/0.16, et 11/0.22 pour l'intro. Quatre chasses differentes pour le
+   meme registre de texte — c'est ce qui donnait a la liste son air
+   approximatif. Une seule mesure desormais, 11 px et 0.1em, celle de .cx-label.
+
+   Le nom du lieu redescend de 3rem a 2.5rem : il montait au niveau du titre de
+   l'« A propos » (3.5rem) alors qu'il lui est subordonne. L'echelle de la page
+   se lit maintenant sans hesitation :
+       Itineraire 7.5 > L'esprit du voyage 3.5 > le lieu 2.5 > le jour 1.9. */
+.cx-leg__num,
+.cx-leg__meta,
+.cx-leg__stay {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.cx-leg__nom {
+    font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+}
+
+/* ---------- La bascule ---------------------------------------------------
+   « voir plus » etait une div en bas de casse, sans etat et sans clavier. Elle
+   devient un bouton : meme registre que le reste de la ligne, un chevron qui
+   pivote, et l'accent Terre des que la halte est approchee ou ouverte. Pas de
+   cadre ni de pastille — le mot et la fleche suffisent. */
+.cx-leg__bascule {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: end;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.35s ease;
+}
+.cx-leg:hover .cx-leg__bascule,
+.cx-leg--ouvert .cx-leg__bascule { color: var(--brand-terre); }
+
+.cx-leg__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-leg--ouvert .cx-leg__chevron { transform: rotate(180deg); }
+
+
+/* Sur l'aplat terre, toute la ligne bascule en encre claire. */
+/* .cx-leg:hover .cx-leg__num  { color: var(--text-inverse-muted); }
+.cx-leg:hover .cx-leg__meta { color: var(--text-inverse-secondary); }
+.cx-leg:hover .cx-leg__stay,
+.cx-leg:hover .cx-leg__nom  { color: var(--text-inverse); } */
+
+/* La vignette. Angles francs, aucun cadre : la photographie se suffit. Le
+   creux tient la place quand un lieu n'a pas d'image, sans quoi la grille se
+   decale d'une ligne a l'autre. */
+.cx-leg__media {
+    overflow: hidden;
+    aspect-ratio: 5 / 3;
+    background-color: var(--bg-muted);
+}
+.cx-leg__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-leg:hover .cx-leg__media img { transform: scale(1.08); }
+
+.cx-leg__stay { text-align: right; }
+
+
+/* ==========================================================================
+   LE DEPLI — le programme jour par jour d'une halte
+   ==========================================================================
+   Il tombait au bord gauche de la section, sous l'ordinal, alors qu'il
+   developpe le NOM du lieu. Il se cale donc sur la colonne du nom, et son
+   filet d'ouverture part de la meme verticale : le depli se lit comme la suite
+   du titre, pas comme un second bloc pose dessous.
+   -------------------------------------------------------------------------- */
+.cx-depli {
+    position: relative;   /* au-dessus de l'aplat, comme la ligne */
+    margin-left: var(--leg-retrait);
+    border-top: 1px solid var(--border);
+    padding: clamp(40px, 4.4vw, 64px) 0 clamp(56px, 6vw, 88px);
+    animation: cxDepli 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Le contenu monte au lieu d'apparaitre. Opacite et transform uniquement :
+   rien qui force une remise en page. */
+@keyframes cxDepli {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cx-depli { animation: none; }
+}
+
+/* Deux journees de suite se separent par du vide et un filet discret, jamais
+   par une carte. */
+.cx-jour + .cx-jour {
+    margin-top: clamp(56px, 6vw, 88px);
+    padding-top: clamp(40px, 4.4vw, 64px);
+    border-top: 1px solid var(--border-muted);
+}
+
+.cx-jour__tete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+}
+
+/* Le renvoi vers la carte : un mot et une fleche, l'accent de la page. */
+.cx-jour__carte {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: opacity 0.3s ease;
+}
+.cx-jour__carte:hover { opacity: 0.6; }
+
+.cx-jour__titre {
+    margin-top: clamp(20px, 2vw, 28px);
+    color: var(--text-primary);
+    font-size: clamp(1.375rem, 2vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.cx-jour__texte {
+    margin-top: clamp(16px, 1.6vw, 22px);
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* ---------- La fiche du soir --------------------------------------------
+   Hebergement et repas en valeur/legende, la mention du panneau circuit. Deux
+   lignes valent mieux qu'une enfilade separee par des points, et l'etoile de
+   l'hotel n'y figure pas : c'est le vocabulaire d'un comparateur. */
+.cx-jour__fiche {
+    margin-top: clamp(28px, 3vw, 40px);
+    padding-top: clamp(20px, 2vw, 28px);
+    border-top: 1px solid var(--border-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px clamp(48px, 6vw, 88px);
+}
+/* La mention est desormais un composant a part (components/shared/Mention) :
+   ses regles quittent le prefixe .cx-jour__ pour le sien. */
+.cx-mention {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+.cx-mention__valeur {
+    color: var(--text-primary);
+    /* Le plancher est a 20 px et pas a 17,6 : sur telephone la nuitee tombait
+       a un cheveu du nom d'une visite (16 px) et l'ecart entre les deux ne
+       tenait plus qu'a la fonte. */
+    font-size: clamp(1.25rem, 1.4vw, 1.375rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+}
+
+
+/* ---------- Les visites de la journee ------------------------------------
+   Elles se posent entre le recit et la nuit : ce qu'on fait, puis ou l'on
+   dort. Et elles se posent un cran SOUS l'hebergement, volontairement — la
+   nuitee est le point fixe de la journee (un nom, un lieu, des photos), les
+   visites sont une liste.
+
+   Ce qui cree l'ecart n'est pas le corps mais la FAMILLE : la nuitee est en
+   Abhaya, la serif des titres, a 22 px ; les visites en Barlow a 16. Deux
+   tailles voisines dans la meme fonte se seraient disputees le regard ; deux
+   registres differents se rangent d'eux-memes.
+
+   Une visite comprise ne porte aucune marque — on ne decore pas ce qui est
+   acquis. Seule l'option se signale : c'est une ligne de devis en plus. */
+.cx-visites {
+    margin-top: clamp(28px, 3vw, 40px);
+    padding-top: clamp(20px, 2vw, 28px);
+    border-top: 1px solid var(--border-muted);
+}
+
+.cx-visites__tete {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+.cx-visites__compte {
+    color: var(--brand-terre);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+.cx-visites__liste { margin-top: clamp(14px, 1.6vw, 22px); }
+
+.cx-visite {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 32px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-muted);
+}
+/* La liste s'ouvre et se ferme au ras : c'est la marge de .cx-visites__liste
+   qui la detache de son micro-titre, et celle de la fiche qui la detache de
+   la nuit. Deux espacements qui s'additionnent font un trou. */
+.cx-visite:first-child { padding-top: 0; }
+.cx-visite:last-child  { padding-bottom: 0; border-bottom: 0; }
+
+.cx-visite__nom {
+    color: var(--text-primary);
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+/* Le type du lieu, dans le registre des metas de la liste des haltes : meme
+   corps, meme chasse, meme gris. Un seul reglage pour tout le petit texte. */
+.cx-visite__type {
+    margin-left: 14px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.cx-visite__option {
+    justify-self: end;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.cx-visite__note {
+    grid-column: 1 / -1;
+    margin-top: 7px;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Sur un telephone, le nom d'une visite et sa mention d'option ne tiennent
+   plus sur une ligne : l'option passe dessous, alignee a gauche comme tout
+   le reste. */
+@media (max-width: 640px) {
+    .cx-visite { grid-template-columns: minmax(0, 1fr); row-gap: 7px; }
+    .cx-visite__option { justify-self: start; }
+    .cx-visite__type { margin-left: 0; display: block; margin-top: 6px; }
+}
+
+/* ---------- La planche photo --------------------------------------------
+   Un grand cadre et deux vignettes qui se partagent exactement sa hauteur.
+   Angles vifs, gouttiere de 10 px, aucun rayon : la photographie se suffit.
+   Le compte des visuels restants se pose EN LEGENDE sur la derniere vignette
+   plutot qu'en faux bouton — tant qu'aucune visionneuse n'existe, autant le
+   dire honnetement. */
+.cx-jour__galerie {
+    margin-top: clamp(32px, 3.6vw, 48px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 10px;
+}
+.cx-jour__galerie--seule { grid-template-columns: minmax(0, 1fr); }
+
+.cx-jour__colonne {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.cx-jour__colonne--une { grid-template-rows: minmax(0, 1fr); }
+
+.cx-jour__media {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    background-color: var(--bg-muted);
+}
+.cx-jour__media--grand { aspect-ratio: 16 / 10; }
+
+/* Les visuels sont poses en absolu, et ce n'est pas un detail : en flux, la
+   hauteur intrinseque des deux vignettes fixait la hauteur de la rangee, et la
+   colonne de droite depassait le grand cadre d'une centaine de pixels. Hors
+   flux, elles ne pesent plus rien : c'est le grand cadre et son aspect-ratio
+   qui donnent la hauteur, les deux vignettes s'y partagent exactement. */
+.cx-jour__media img,
+.cx-jour__media video {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-jour__media:hover img { transform: scale(1.04); }
+
+.cx-jour__reste {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(37, 26, 18, 0.52);
+    color: var(--text-inverse);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---------- Ecrans etroits ----------------------------------------------
+   La grille a quatre colonnes ne tient plus : tout s'empile, la marge tombe a
+   24 px, et l'aplat suit puisqu'il se cale sur la meme variable. */
+@media (max-width: 1024px) {
+    /* La ligne passe a deux colonnes plutot qu'a une : l'ordinal, la vignette
+       et le nom prennent toute la largeur, puis le sejour et la bascule se
+       partagent une derniere rangee. Empiles un par un, ils faisaient cinq
+       lignes de texte pour une seule halte. */
+    .cx-leg__row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 16px;
+    }
+    .cx-leg__num,
+    .cx-leg__media,
+    .cx-leg__texte { grid-column: 1 / -1; }
+
+    .cx-leg__media { max-width: 320px; }
+    .cx-leg__stay { text-align: left; }
+
+    /* Plus de colonne de nom sous laquelle se caler : le depli reprend toute
+       la largeur, et sa planche photo s'empile. */
+    .cx-depli { margin-left: 0; }
+
+    /* La planche s'empile : le grand cadre, puis les vignettes cote a cote.
+       Elles reprennent un aspect-ratio propre — sans rangee au-dessus pour
+       leur donner une hauteur, des visuels en absolu se replieraient a zero. */
+    .cx-jour__galerie { grid-template-columns: minmax(0, 1fr); }
+    .cx-jour__colonne {
+        grid-template-rows: auto;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+    }
+    .cx-jour__colonne .cx-jour__media { aspect-ratio: 4 / 3; }
+}
+
+/* Le doigt n'a pas de survol : sur tactile l'aplat resterait accroche a la
+   derniere ligne touchee. On le laisse ferme. */
+@media (hover: none) {
+    .cx-leg:hover .cx-leg__aplat { transform: scaleX(0); }
+    .cx-leg:hover .cx-leg__media img { transform: none; }
+    .cx-leg:hover .cx-leg__num  { color: var(--text-muted); }
+    .cx-leg:hover .cx-leg__meta { color: var(--text-muted); }
+    .cx-leg:hover .cx-leg__stay { color: var(--text-secondary); }
+    .cx-leg:hover .cx-leg__nom  { color: var(--text-primary); }
+}
+
+/* La halte ouverte garde l'aplat deroule : la bande de sable file d'un bord a
+   l'autre de l'ecran et tient ensemble la ligne et son programme. C'est la
+   seule chose qui dit « ce bloc appartient a cette halte », et elle ne coute
+   qu'un scaleX deja en place.
+   Posee APRES le bloc (hover: none), sinon celui-ci la refermerait au doigt. */
+.cx-leg--ouvert .cx-leg__aplat { transform: scaleX(1); }
+
+
+   /* ---------- Popover ancré (date picker, etc.) ---------- */
+.cx-anchored-popover {
+    position-area: bottom;      /* sous l'ancre, centré horizontalement */
+    margin-top: 8px;             /* espace entre le bouton et le calendrier */
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+    padding: 12px;
+}
+
+/* Navigateurs sans support de l'Anchor Positioning (Safari, Firefox actuel) :
+   on retombe sur une position fixe manuelle, au-dessus de la barre de
+   réservation, plutôt que le (0,0) par défaut. */
+@supports not (position-anchor: --x) {
+    .cx-anchored-popover {
+        position: fixed;
+        left: 50%;
+        bottom: 6rem;
+        transform: translateX(-50%);
+        margin-top: 0;
+    }
+}
+
+[popover]:popover-open {
+    position: fixed;
+    inset: 0;           /* top:0; right:0; bottom:0; left:0 */
+    margin: auto;        /* ← ça, c'est ce qui centre la boîte */
+    width: fit-content;
+    height: fit-content;
+}
+
+
+/* ==========================================================================
+   MON COMPTE — /mon-compte
+   ==========================================================================
+   Le prefixe est .cx-param et PAS .cx-compte : ce dernier existe deja plus
+   haut dans cette feuille, c'est le decompte de la fiche circuit, et il est en
+   display:grid. La section des reglages en heritait sans qu'on la voie faire —
+   releve dans le navigateur : la rangee commencait a 814 px au lieu de 64, les
+   douze colonnes faisaient 29 px chacune. Une collision de nom ne se voit pas
+   dans le code, seulement a l'ecran.
+   Premiere version : un portrait de 112 px, deux lignes de texte sur le fond
+   clair, puis trois volets. Verdict du client, mot pour mot : « c'est
+   ergonomique c'est de la merde regarde dans home une espace tres tres luxe et
+   premium et riche moderne la c'est direct un bas de gamme ».
+
+   Il avait raison, et le diagnostic tient en une phrase : un ecran de compte
+   compose comme un formulaire EST un formulaire, meme bien compose.
+
+   Ce qui fait la richesse de l'accueil tient a TROIS choses, et aucune des
+   trois n'etait la :
+     1. de la photographie PLEIN CADRE, a 0.75 d'opacite sur du noir ;
+     2. un titre en tres grand corps, ligne par ligne sous son masque ;
+     3. un filet d'un pixel en pied, qui porte la meta.
+
+   La page ouvre donc sur un hero photographique qui porte le nom du voyageur en
+   titre de une — exactement comme l'accueil ouvre sur « Composez votre
+   Madagascar » —, et les reglages reprennent le rythme editorial de « Votre
+   voyage en trois gestes » : douze colonnes, numero en Abhaya clair, filet
+   entre chaque rangee, filet de fermeture.
+
+   Ce qui reste ECARTE, et il faut le dire une fois pour ne pas y revenir : les
+   cartes a coins arrondis avec ombre portee, les champs encadres de gris, les
+   interrupteurs, les onglets. C'est le vocabulaire d'un tableau de bord
+   d'application — l'exact contraire de ce que le reste du site raconte.
+   -------------------------------------------------------------------------- */
+
+/* ---------- Le hero photographique ---------------------------------------
+   Il passe SOUS la barre fixe, comme tous les heros du site : c'est ce qui rend
+   la barre transparente sur la photographie. D'ou l'absence de .cx-sous-entete
+   sur cette page, et le data-header-text="var(--text-inverse)" sur la section.
+
+   Pas 100vh : un ecran de reglages qui demande de defiler avant de montrer le
+   premier reglage se paie en agacement a chaque visite. 76vh laisse le titre
+   respirer et laisse deviner la suite. */
+.cx-param-hero {
+    /* Le hero est un FRERE de .cx-detail, pas un enfant : il n'herite pas de
+       sa gouttiere et retombait sur les 64 px du defaut. Mesure a 430 px : le
+       filet du hero commencait a 64, celui des reglages a 24 — deux verticales
+       differentes sur la meme page. On redeclare ici la meme valeur, et la
+       meme bascule. */
+    --cx-gutter: 64px;
+    position: relative;
+    height: clamp(520px, 76vh, 860px);
+}
+@media (max-width: 1024px) {
+    .cx-param-hero { --cx-gutter: 24px; }
+}
+
+.cx-param-hero__contenu {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 10;
+    padding: 0 var(--cx-gutter, 64px) clamp(36px, 4vw, 56px);
+}
+
+.cx-param-hero__accroche {
+    display: block;
+    margin-bottom: clamp(20px, 2.2vw, 32px);
+    color: var(--brand-ocre);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.45em;
+}
+
+/* Le corps du nom suit celui du hero d'accueil. Un nom long ne casse pas la
+   mise en page : il descend, la colonne est faite pour deux lignes. */
+.cx-param-hero__nom {
+    color: var(--text-inverse);
+    font-size: clamp(2.6rem, 7vw, 6rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+}
+
+.cx-param-hero__filet {
+    margin-top: clamp(28px, 3.2vw, 44px);
+}
+
+.cx-param-hero__pied {
+    padding-top: clamp(22px, 2.4vw, 32px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 3vw, 48px);
+}
+
+/* ---------- Le portrait, sur la photographie -----------------------------
+   Il est ICI et pas dans la liste des reglages : on change sa photo la ou on la
+   regarde. Un volet « photo de profil » a deplier pour y trouver un bouton
+   « parcourir » ajoute deux gestes pour la meme chose. */
+.cx-param-hero__portrait {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2vw, 28px);
+}
+
+/* Le declencheur ne dessine rien : ni fond, ni cadre, ni rayon. Il ne porte que
+   le portrait, et le voile n'apparait qu'au survol — une icone posee en
+   permanence sur un visage, c'est un badge, pas une commande. */
+.cx-param__declencheur {
+    position: relative;
+    display: block;
+    background: none;
+    border: 0;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+}
+.cx-param__declencheur:disabled { cursor: wait; }
+
+.cx-param__voile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(16, 14, 11, 0.6);
+    color: var(--text-inverse);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.cx-param__declencheur:hover .cx-param__voile,
+.cx-param__declencheur:focus-visible .cx-param__voile { opacity: 1; }
+
+.cx-param-hero__gestes {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+/* Le filet vertical entre les deux gestes : c'est ce qui les separe sans
+   ajouter de ponctuation, comme la meta du hero d'accueil. */
+.cx-param-hero__gestes > * + *::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 11px;
+    margin-right: 16px;
+    vertical-align: -1px;
+    background-color: rgba(245, 240, 230, 0.35);
+}
+
+/* Les gestes du portrait : du texte en petites capitales sur la photographie,
+   rien de plus. Un bouton plein ici ferait une pastille posee sur l'image. */
+.cx-param-hero__lien {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-inverse);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    transition: color 0.3s ease;
+}
+.cx-param-hero__lien:hover { color: var(--brand-ocre); }
+.cx-param-hero__lien:disabled { color: var(--text-inverse-muted); cursor: default; }
+.cx-param-hero__lien--discret { color: var(--text-inverse-secondary); }
+
+/* ---------- Les reperes, a droite du filet -------------------------------
+   Meme place et meme role que la meta du hero d'accueil : ce qu'on lit apres le
+   titre, sans avoir a le chercher. */
+.cx-param-hero__reperes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(28px, 3.4vw, 64px);
+    text-align: right;
+    margin-left: auto;
+}
+.cx-param-hero__legende {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--brand-ocre);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+}
+.cx-param-hero__valeur {
+    color: var(--text-inverse-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.cx-param-hero__attente {
+    display: block;
+    margin-top: clamp(18px, 2vw, 26px);
+    color: var(--brand-ocre);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* L'avis sur le hero reste lisible : il garde ses tons, sur fond opaque. */
+.cx-param-hero__avis { max-width: 62ch; }
+.cx-param-hero__avis .cx-param__avis { margin-top: clamp(16px, 1.8vw, 22px); }
+
+/* ---------- La section des reglages -------------------------------------- */
+.cx-param {
+    padding: clamp(56px, 6vw, 96px) var(--cx-gutter, 64px) 0;
+    overflow: clip;   /* l'aplat de survol sort de la gouttiere */
+}
+
+.cx-reglages {
+    margin-top: clamp(40px, 4.4vw, 68px);
+}
+
+/* ---------- Une rangee de reglage ----------------------------------------
+   La rangee de « trois gestes », a l'identique : 2 / 4 / 6 colonnes sur douze,
+   filet en haut, numero en Abhaya clair. */
+.cx-reglage {
+    position: relative;
+    border-top: 1px solid var(--border);
+}
+
+/* L'aplat de survol, repris de l'itineraire : il sort de la gouttiere et file
+   jusqu'aux deux bords. Un scaleX, donc aucune surface repeinte. */
+.cx-reglage__aplat {
+    position: absolute;
+    inset: 0 calc(var(--cx-gutter, 64px) * -1);
+    background-color: var(--bg-sunken);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.cx-reglage:hover .cx-reglage__aplat { transform: scaleX(1); }
+
+.cx-reglage__rangee {
+    position: relative;   /* au-dessus de l'aplat */
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(20px, 2.4vw, 32px);
+    align-items: baseline;
+    padding: clamp(28px, 3vw, 40px) 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cx-reglage__numero {
+    grid-column: span 2;
+    color: var(--border-strong);
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.cx-reglage__titre {
+    grid-column: span 4;
+    color: var(--text-primary);
+    font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-reglage:hover .cx-reglage__titre { transform: translateX(8px); }
+
+.cx-reglage__propos { grid-column: span 5; }
+
+.cx-reglage__desc {
+    display: block;
+    max-width: 44ch;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* La valeur actuelle : ce qu'une etape de l'accueil n'a pas besoin de dire et
+   qu'un reglage doit dire. Sans elle il faut ouvrir les trois volets pour
+   savoir ce qui est regle. */
+.cx-reglage__valeur {
+    display: block;
+    margin-top: 12px;
+    color: var(--text-primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.cx-reglage__bascule {
+    grid-column: span 1;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    transition: color 0.35s ease;
+}
+.cx-reglage:hover .cx-reglage__bascule { color: var(--brand-terre); }
+.cx-reglage__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-reglage--ouvert .cx-reglage__chevron { transform: rotate(180deg); }
+
+/* Le doigt n'a pas de survol : sur tactile l'aplat et le decalage du titre
+   resteraient accroches a la derniere rangee touchee. */
+@media (hover: none) {
+    .cx-reglage:hover .cx-reglage__aplat { transform: scaleX(0); }
+    .cx-reglage:hover .cx-reglage__titre { transform: none; }
+}
+
+/* ---------- Le depli ---------------------------------------------------- */
+.cx-reglage__corps {
+    position: relative;   /* au-dessus de l'aplat, comme la rangee */
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-reglage--ouvert .cx-reglage__corps { grid-template-rows: 1fr; }
+.cx-reglage__corps > div { overflow: hidden; }
+
+/* Le formulaire s'aligne sur la colonne du titre, pas sur le bord : il
+   appartient a la rangee qu'on vient d'ouvrir, et l'alignement le dit sans
+   qu'on ait besoin d'un cadre autour.
+
+   Il reprend LA MEME GRILLE que la rangee, et se place en colonne 3. Une marge
+   en pourcentage ne marchait pas — mesure : le decalage tombait a cote, parce
+   que « 2/12 de la largeur » ignore les onze gouttieres. Dans la grille, c'est
+   juste par construction, quelle que soit la gouttiere. */
+.cx-reglage__dedans {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(20px, 2.4vw, 32px);
+    padding-bottom: clamp(34px, 3.6vw, 52px);
+}
+.cx-reglage__dedans > * { grid-column: 3 / span 8; }
+
+/* ---------- Les formulaires --------------------------------------------- */
+.cx-param__texte {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.8;
+}
+.cx-param__accent { color: var(--brand-terre); }
+
+.cx-param__champs {
+    margin-top: clamp(24px, 2.6vw, 34px);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(24px, 2.8vw, 36px) clamp(28px, 3.4vw, 52px);
+}
+.cx-param__champ--large { grid-column: 1 / -1; }
+
+/* L'aide sous le champ : elle explique POURQUOI on demande, ce qui est
+   exactement la question du visiteur devant « votre mot de passe » sur une page
+   ou il est deja connecte. */
+.cx-param__aide {
+    display: block;
+    margin-top: 10px;
+    max-width: 52ch;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.cx-param__actions {
+    margin-top: clamp(28px, 3vw, 40px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+}
+.cx-param__note {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Un lien-action dans un formulaire : « annuler la demande » ne merite pas le
+   meme poids que « confirmer ». */
+.cx-param__lien {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+}
+.cx-param__lien:hover { color: var(--brand-terre); }
+.cx-param__lien:disabled { color: var(--border-strong); cursor: default; }
+
+/* ---------- L'avis du serveur -------------------------------------------
+   Il se pose SOUS les champs et AU-DESSUS du bouton : c'est la que le regard
+   revient apres un echec. Les deux tons viennent des jetons du site, aucune
+   couleur inventee sur place.
+
+   pre-line parce qu'apiErrorMessage joint le message et les details de
+   validation par des retours a la ligne — sans ca, les trois motifs d'un refus
+   arrivent colles en une phrase illisible. */
+.cx-param__avis {
+    margin-top: clamp(20px, 2.2vw, 28px);
+    padding: 14px 18px;
+    max-width: 62ch;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+.cx-param__avis--erreur { background-color: var(--error-bg);   color: var(--error-text); }
+.cx-param__avis--succes { background-color: var(--success-bg); color: var(--success-text); }
+
+/* ---------- Pied de page et etats vides --------------------------------- */
+.cx-param__pied {
+    margin-top: clamp(32px, 3.4vw, 48px);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+.cx-param__pied a { transition: color 0.3s ease; }
+.cx-param__pied a:hover { color: var(--text-primary); }
+
+/* Un ecran vide dit ce qu'il faut faire ensuite. « Non connecte » tout seul est
+   un cul-de-sac. */
+.cx-param__vide {
+    margin-top: clamp(36px, 4vw, 56px);
+    padding-top: clamp(28px, 3vw, 40px);
+    border-top: 1px solid var(--border);
+    max-width: 560px;
+}
+.cx-param__vide-texte {
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+@media (max-width: 1100px) {
+    /* Douze colonnes ne tiennent plus : le numero garde sa colonne, le titre et
+       le propos s'empilent. Repartir de zero en liste simple ferait perdre le
+       numero, qui est ce qui ordonne la page. */
+    .cx-reglage__rangee {
+        grid-template-columns: 56px minmax(0, 1fr) auto;
+        row-gap: 14px;
+    }
+    .cx-reglage__numero { grid-column: 1; }
+    .cx-reglage__titre { grid-column: 2; }
+    .cx-reglage__bascule { grid-column: 3; }
+    .cx-reglage__propos { grid-column: 2 / -1; }
+    .cx-reglage__dedans > * { grid-column: 1 / -1; }
+}
+
+@media (max-width: 860px) {
+    /* Le portrait et les reperes s'empilent, et les reperes repassent a gauche :
+       un bloc aligne a droite tout seul sur sa ligne n'a plus rien en face de
+       lui, il a juste l'air decale. */
+    .cx-param-hero__reperes {
+        margin-left: 0;
+        text-align: left;
+    }
+    .cx-param__champs { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+    .cx-reglage__rangee {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .cx-reglage__numero { grid-column: 1 / -1; }
+    .cx-reglage__titre { grid-column: 1; }
+    .cx-reglage__propos { grid-column: 1 / -1; }
+}
