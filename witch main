@@ -1,0 +1,293 @@
+ .claude/settings.json                              |     5 [31m-[m
+ .env.example                                       |     8 [32m+[m
+ .gitignore                                         |    67 [32m+[m[31m-[m
+ .oxlintrc.json                                     |     8 [32m+[m
+ .vscode/extensions.json                            |     1 [31m-[m
+ .vscode/settings.json                              |     7 [31m-[m
+ AGENTS.md                                          |     3 [31m-[m
+ CLAUDE.md                                          |     1 [31m-[m
+ README.md                                          |    58 [32m+[m[31m-[m
+ RECAP.md                                           |   576 [32m+[m
+ app.json                                           |    49 [31m-[m
+ app/(tabs)/_layout.tsx                             |    35 [31m-[m
+ app/(tabs)/explore.tsx                             |   112 [31m-[m
+ app/(tabs)/index.tsx                               |   235 [31m-[m
+ app/_layout.tsx                                    |    27 [31m-[m
+ app/modal.tsx                                      |    29 [31m-[m
+ assets/images/android-icon-background.png          |   Bin [31m17549[m -> [32m0[m bytes
+ assets/images/android-icon-foreground.png          |   Bin [31m78796[m -> [32m0[m bytes
+ assets/images/android-icon-monochrome.png          |   Bin [31m4140[m -> [32m0[m bytes
+ assets/images/favicon.png                          |   Bin [31m1129[m -> [32m0[m bytes
+ assets/images/icon.png                             |   Bin [31m393493[m -> [32m0[m bytes
+ assets/images/partial-react-logo.png               |   Bin [31m5075[m -> [32m0[m bytes
+ assets/images/react-logo.png                       |   Bin [31m6341[m -> [32m0[m bytes
+ assets/images/react-logo@2x.png                    |   Bin [31m14225[m -> [32m0[m bytes
+ assets/images/react-logo@3x.png                    |   Bin [31m21252[m -> [32m0[m bytes
+ assets/images/splash-icon.png                      |   Bin [31m17547[m -> [32m0[m bytes
+ components/external-link.tsx                       |    25 [31m-[m
+ components/haptic-tab.tsx                          |    18 [31m-[m
+ components/hello-wave.tsx                          |    19 [31m-[m
+ components/parallax-scroll-view.tsx                |    79 [31m-[m
+ components/themed-text.tsx                         |    60 [31m-[m
+ components/themed-view.tsx                         |    14 [31m-[m
+ components/ui/collapsible.tsx                      |    45 [31m-[m
+ components/ui/icon-symbol.ios.tsx                  |    32 [31m-[m
+ components/ui/icon-symbol.tsx                      |    41 [31m-[m
+ constants/theme.ts                                 |    53 [31m-[m
+ deploiement/api.env.example                        |    49 [32m+[m
+ deploiement/haodygasikara-api.service              |    30 [32m+[m
+ deploiement/nginx.conf                             |    54 [32m+[m
+ docs/deploiement.md                                |   233 [32m+[m
+ docs/guide-utilisateur.md                          |   245 [32m+[m
+ eslint.config.js                                   |    10 [31m-[m
+ finaal.txt                                         |   786 [32m+[m
+ hooks/use-color-scheme.ts                          |     1 [31m-[m
+ hooks/use-color-scheme.web.ts                      |    21 [31m-[m
+ hooks/use-theme-color.ts                           |    21 [31m-[m
+ index.html                                         |    13 [32m+[m
+ modiffinal01.txt                                   |     7 [32m+[m
+ package-lock.json                                  | 14930 [32m++++[m[31m---------------[m
+ package.json                                       |    78 [32m+[m[31m-[m
+ public/favicon.svg                                 |     1 [32m+[m
+ public/fonts/AbhayaLibre-Bold.ttf                  |   Bin [31m0[m -> [32m527476[m bytes
+ public/fonts/OFL.txt                               |    93 [32m+[m
+ public/fonts/barlow/Barlow/Barlow-Regular.ttf      |   Bin [31m0[m -> [32m98812[m bytes
+ public/fonts/barlow/Barlow/Barlow-SemiBold.ttf     |   Bin [31m0[m -> [32m103016[m bytes
+ public/fonts/barlow/Barlow/OFL.txt                 |    93 [32m+[m
+ ...l-streaming-into-river-surrounded-by-greens.jpg |   Bin [31m0[m -> [32m686456[m bytes
+ public/img/home/circuit/1-1920.webp                |   Bin [31m0[m -> [32m147008[m bytes
+ public/img/home/circuit/1-2880.webp                |   Bin [31m0[m -> [32m259870[m bytes
+ public/img/home/circuit/1.webp                     |   Bin [31m0[m -> [32m1122314[m bytes
+ public/img/home/circuit/2-1920.webp                |   Bin [31m0[m -> [32m239290[m bytes
+ public/img/home/circuit/2-2880.webp                |   Bin [31m0[m -> [32m453238[m bytes
+ public/img/home/circuit/2.webp                     |   Bin [31m0[m -> [32m1355350[m bytes
+ public/img/home/circuit/3-1920.webp                |   Bin [31m0[m -> [32m563822[m bytes
+ public/img/home/circuit/3-2880.webp                |   Bin [31m0[m -> [32m1178454[m bytes
+ public/img/home/circuit/3.webp                     |   Bin [31m0[m -> [32m3065932[m bytes
+ ...sy-be-madagascar-vintage-light-filter-1920.webp |   Bin [31m0[m -> [32m572012[m bytes
+ ...rom-nosy-be-madagascar-vintage-light-filter.jpg |   Bin [31m0[m -> [32m907294[m bytes
+ public/img/home/firstHero/1-1920.webp              |   Bin [31m0[m -> [32m157738[m bytes
+ public/img/home/firstHero/1-2880.webp              |   Bin [31m0[m -> [32m267896[m bytes
+ public/img/home/firstHero/1.webp                   |   Bin [31m0[m -> [32m1051926[m bytes
+ public/img/home/firstHero/2-1920.webp              |   Bin [31m0[m -> [32m824840[m bytes
+ public/img/home/firstHero/2-2880.webp              |   Bin [31m0[m -> [32m1689254[m bytes
+ public/img/home/firstHero/2.webp                   |   Bin [31m0[m -> [32m4563232[m bytes
+ public/img/home/firstHero/3-1920.webp              |   Bin [31m0[m -> [32m323396[m bytes
+ public/img/home/firstHero/3-2880.webp              |   Bin [31m0[m -> [32m627968[m bytes
+ public/img/home/firstHero/3.webp                   |   Bin [31m0[m -> [32m2442056[m bytes
+ public/img/home/regions/cote-est-canal-foret.webp  |   Bin [31m0[m -> [32m135576[m bytes
+ .../img/home/regions/grand-sud-piste-baobabs.webp  |   Bin [31m0[m -> [32m271746[m bytes
+ .../regions/hautes-terres-rizieres-village.webp    |   Bin [31m0[m -> [32m543430[m bytes
+ .../img/home/regions/nord-village-de-pecheurs.webp |   Bin [31m0[m -> [32m345996[m bytes
+ .../elle-leontiev-Wtv8wbxk-M4-unsplash-1920.webp   |   Bin [31m0[m -> [32m251664[m bytes
+ .../elle-leontiev-Wtv8wbxk-M4-unsplash-2880.webp   |   Bin [31m0[m -> [32m488832[m bytes
+ .../login/elle-leontiev-Wtv8wbxk-M4-unsplash.jpg   |   Bin [31m0[m -> [32m1093542[m bytes
+ public/img/logo/logo-1-vertical.png                |   Bin [31m0[m -> [32m112538[m bytes
+ public/img/logo/logo-2-horizontal.png              |   Bin [31m0[m -> [32m99650[m bytes
+ public/img/viewcircuit/hero/1-1920.webp            |   Bin [31m0[m -> [32m496820[m bytes
+ public/img/viewcircuit/hero/1-2880.webp            |   Bin [31m0[m -> [32m1056732[m bytes
+ public/img/viewcircuit/hero/1.webp                 |   Bin [31m0[m -> [32m5423822[m bytes
+ public/img/viewcircuit/hero/2-1920.webp            |   Bin [31m0[m -> [32m296008[m bytes
+ public/img/viewcircuit/hero/2-2880.webp            |   Bin [31m0[m -> [32m831112[m bytes
+ public/img/viewcircuit/hero/2.webp                 |   Bin [31m0[m -> [32m4702866[m bytes
+ public/img/viewcircuit/hero/3-1920.webp            |   Bin [31m0[m -> [32m255024[m bytes
+ public/img/viewcircuit/hero/3-2880.webp            |   Bin [31m0[m -> [32m517934[m bytes
+ public/img/viewcircuit/hero/3.webp                 |   Bin [31m0[m -> [32m3810880[m bytes
+ scripts/reset-project.js                           |   112 [31m-[m
+ src/api/admin/categoryPoiApi.js                    |    17 [32m+[m
+ src/api/admin/circuit.js                           |    37 [32m+[m
+ src/api/admin/circuitsVoyageursApi.js              |    14 [32m+[m
+ src/api/admin/demandeDevisApi.js                   |    52 [32m+[m
+ src/api/admin/destinations.js                      |    22 [32m+[m
+ src/api/admin/mailApi.js                           |    14 [32m+[m
+ src/api/admin/poiApi.js                            |    27 [32m+[m
+ src/api/admin/suggestionsApi.js                    |    15 [32m+[m
+ src/api/admin/tag.js                               |    17 [32m+[m
+ src/api/admin/tagGroupApi.js                       |    17 [32m+[m
+ src/api/admin/uploadApi.js                         |    29 [32m+[m
+ src/api/admin/utilisateursApi.js                   |     8 [32m+[m
+ src/api/authApi.js                                 |    77 [32m+[m
+ src/api/axiosInstance.js                           |   117 [32m+[m
+ src/api/client/composerApi.js                      |    92 [32m+[m
+ src/api/client/compteApi.js                        |   100 [32m+[m
+ src/api/client/cricuitApi.js                       |    27 [32m+[m
+ src/api/client/devisApi.js                         |    35 [32m+[m
+ src/api/client/tagsApi.js                          |     6 [32m+[m
+ src/components/ProtectedRoute.jsx                  |    54 [32m+[m
+ .../admin/crud/createModal/ChampProgramme.jsx      |   397 [32m+[m
+ .../admin/crud/createModal/CreateModal.jsx         |    82 [32m+[m
+ .../admin/crud/createModal/InclusionsField.jsx     |    69 [32m+[m
+ .../admin/crud/createModal/MultiSelectField.jsx    |    33 [32m+[m
+ src/components/admin/crud/form/ChampFormulaire.jsx |   154 [32m+[m
+ src/components/admin/crud/form/ChampRecherche.jsx  |   225 [32m+[m
+ src/components/admin/crud/form/FormModal.jsx       |   120 [32m+[m
+ .../admin/crud/rowActions/RowActions.jsx           |    44 [32m+[m
+ src/components/admin/layout/header/Header.jsx      |   127 [32m+[m
+ src/components/admin/shared/kpiCard/KpiCard.jsx    |    69 [32m+[m
+ src/components/admin/ui/acces/CadreAccesAdmin.jsx  |    29 [32m+[m
+ .../admin/ui/confirmation/ModaleConfirmation.jsx   |    29 [32m+[m
+ .../admin/ui/confirmation/useConfirmation.jsx      |    33 [32m+[m
+ src/components/admin/ui/erreur/BandeauErreur.jsx   |    13 [32m+[m
+ src/components/admin/ui/erreur/BandeauMail.jsx     |    50 [32m+[m
+ src/components/admin/ui/tableau/DataTable.jsx      |   155 [32m+[m
+ src/components/admin/ui/tableau/Pagination.jsx     |    22 [32m+[m
+ src/components/admin/ui/toolbar/Toolbar.jsx        |    76 [32m+[m
+ src/components/client/auth/CadreAuthCentre.jsx     |   108 [32m+[m
+ src/components/client/cardCircuit/CircuitCard.jsx  |   103 [32m+[m
+ src/components/client/compte/Avatar.jsx            |    65 [32m+[m
+ src/components/client/form/ChampDateNaissance.jsx  |    77 [32m+[m
+ src/components/client/form/ChampTelephone.jsx      |   142 [32m+[m
+ src/components/client/layout/BarreDeChargement.jsx |    45 [32m+[m
+ src/components/client/layout/RetourEnHaut.jsx      |    40 [32m+[m
+ .../client/layout/cursor/CursorClient.jsx          |   105 [32m+[m
+ .../client/layout/footer/FooterClient.jsx          |    43 [32m+[m
+ .../client/layout/header/AccountPanel.jsx          |   204 [32m+[m
+ .../client/layout/header/HeaderClient.jsx          |   295 [32m+[m
+ .../client/layout/header/LienPanneau.jsx           |    29 [32m+[m
+ src/components/client/layout/header/MenuPanel.jsx  |    52 [32m+[m
+ src/components/sidebar/Sidebar.jsx                 |   383 [32m+[m
+ src/components/sidebar/js/SidebarListMenu.js       |    45 [32m+[m
+ src/components/ui/button/Button.jsx                |    31 [32m+[m
+ src/components/ui/input/InputComponent.jsx         |    15 [32m+[m
+ src/components/upload/ImageUploadField.jsx         |    89 [32m+[m
+ src/components/upload/VideoUploadField.jsx         |    54 [32m+[m
+ src/components/upload/ZoneDepot.jsx                |    34 [32m+[m
+ src/constants/admin/createConstant.js              |   201 [32m+[m
+ src/constants/admin/dataTableConstant.jsx          |    85 [32m+[m
+ src/constants/client/circuitFilters.js             |     7 [32m+[m
+ src/constants/client/composer.js                   |    30 [32m+[m
+ src/constants/client/compte.js                     |     6 [32m+[m
+ src/constants/client/contact.js                    |     8 [32m+[m
+ src/constants/client/devis.js                      |    57 [32m+[m
+ src/constants/client/erreursAuth.js                |    33 [32m+[m
+ src/constants/client/indicatifs.js                 |    95 [32m+[m
+ src/functions/composer/brouillon.js                |    33 [32m+[m
+ src/functions/composer/itineraire.js               |   136 [32m+[m
+ src/functions/devis/hebergements.js                |    33 [32m+[m
+ src/functions/devis/visites.js                     |    65 [32m+[m
+ src/hooks/admin/useCategoryPoi.js                  |    17 [32m+[m
+ src/hooks/admin/useChampsFormulaire.js             |    85 [32m+[m
+ src/hooks/admin/useCircuitActionToolbar.js         |   155 [32m+[m
+ src/hooks/admin/useCloudinaryUpload.js             |    36 [32m+[m
+ src/hooks/admin/useDestinationActionToolbar.js     |    58 [32m+[m
+ src/hooks/admin/useFormulaireAdmin.js              |    29 [32m+[m
+ src/hooks/admin/useListeAdmin.js                   |    59 [32m+[m
+ src/hooks/admin/usePoi.js                          |    66 [32m+[m
+ src/hooks/admin/useSuppressionAdmin.jsx            |    33 [32m+[m
+ src/hooks/admin/useTags.js                         |    53 [32m+[m
+ src/hooks/admin/useTagsGroup.js                    |     7 [32m+[m
+ src/hooks/client/auth/useConnexionGoogle.js        |    95 [32m+[m
+ src/hooks/client/composer/useComposer.js           |   287 [32m+[m
+ src/hooks/client/composer/useGlisserAjout.js       |   155 [32m+[m
+ src/hooks/client/devis/useDemandeVivante.js        |    29 [32m+[m
+ .../circuit/useCircuitDetailAnimations.js          |   191 [32m+[m
+ .../design/animations/circuit/useCircuitHero.js    |    62 [32m+[m
+ .../design/animations/composer/useComposerIntro.js |    71 [32m+[m
+ .../design/animations/composer/useEnvolEtape.js    |    62 [32m+[m
+ .../animations/composer/useGalerieVivante.js       |    83 [32m+[m
+ .../design/animations/compte/useCompteHero.js      |    98 [32m+[m
+ src/hooks/design/animations/home/firstHero.js      |    78 [32m+[m
+ .../design/animations/login/useAuthTransition.js   |   140 [32m+[m
+ src/hooks/design/animations/useHeaderTextColor.js  |    43 [32m+[m
+ src/hooks/design/recalageScroll.js                 |    87 [32m+[m
+ src/hooks/design/useAssetsLoader.js                |    41 [32m+[m
+ src/hooks/design/useCardEnter.js                   |   100 [32m+[m
+ src/hooks/design/useCircuitReveal.js               |   182 [32m+[m
+ src/hooks/design/usePrechargement.js               |    48 [32m+[m
+ src/hooks/design/useRevelation.js                  |    93 [32m+[m
+ src/hooks/design/useSmoothScroll.js                |    35 [32m+[m
+ src/hooks/useAuth.js                               |    85 [32m+[m
+ src/hooks/useCompteARebours.js                     |    50 [32m+[m
+ src/hooks/useReorderDrag.js                        |   220 [32m+[m
+ src/index.css                                      |  5377 [32m+++++++[m
+ src/layout/AdminLayout.jsx                         |    39 [32m+[m
+ src/layout/AppLayout.jsx                           |    37 [32m+[m
+ src/main.jsx                                       |    11 [32m+[m
+ src/pages/PageNotFound.jsx                         |    35 [32m+[m
+ src/pages/admin/PageAdminNotFound.jsx              |    23 [32m+[m
+ src/pages/admin/circuit/CircuitEdit.jsx            |    46 [32m+[m
+ src/pages/admin/circuit/Circuits.jsx               |   111 [32m+[m
+ src/pages/admin/circuit/CircuitsCreate.jsx         |    43 [32m+[m
+ .../admin/circuitsVoyageurs/CircuitsVoyageurs.jsx  |   291 [32m+[m
+ src/pages/admin/dashboard/Dashboard.jsx            |   327 [32m+[m
+ src/pages/admin/destinations/DestinationCreate.jsx |    53 [32m+[m
+ src/pages/admin/destinations/DestinationEdit.jsx   |    57 [32m+[m
+ src/pages/admin/destinations/Destinations.jsx      |   109 [32m+[m
+ src/pages/admin/devis/DemandesDevis.jsx            |   516 [32m+[m
+ src/pages/admin/login/LoginAdmin.jsx               |    84 [32m+[m
+ src/pages/admin/poi/CategoryPois.jsx               |   144 [32m+[m
+ src/pages/admin/poi/Pois.jsx                       |   192 [32m+[m
+ src/pages/admin/register/RegisterAdmin.jsx         |    96 [32m+[m
+ src/pages/admin/tags/Tags.jsx                      |   130 [32m+[m
+ src/pages/admin/tags/TagsGroup.jsx                 |   129 [32m+[m
+ src/pages/admin/utilisateurs/Utilisateurs.jsx      |   211 [32m+[m
+ src/pages/client/auth/login/LoginClient.jsx        |   341 [32m+[m
+ .../client/auth/motDePasse/MotDePasseOublie.jsx    |    61 [32m+[m
+ .../auth/motDePasse/ReinitialiserMotDePasse.jsx    |    85 [32m+[m
+ .../client/auth/verification/VerificationEmail.jsx |   271 [32m+[m
+ src/pages/client/circuitDetail/CircuitDetail.jsx   |    97 [32m+[m
+ .../components/apropos/CircuitApropos.jsx          |    44 [32m+[m
+ .../components/hero/CircuitDetailHero.jsx          |   212 [32m+[m
+ .../components/itineraire/CircuitItineraire.jsx    |    73 [32m+[m
+ .../components/itineraire/EtapeLigne.jsx           |   117 [32m+[m
+ .../components/itineraire/Journee.jsx              |    92 [32m+[m
+ .../components/itineraire/JourneeVisites.jsx       |    54 [32m+[m
+ .../components/itineraire/PlanchePhoto.jsx         |    69 [32m+[m
+ .../components/recap/BoutonPersonnaliser.jsx       |    39 [32m+[m
+ .../components/recap/CircuitRecap.jsx              |   176 [32m+[m
+ .../circuitDetail/components/recap/Decompte.jsx    |    58 [32m+[m
+ .../circuitDetail/components/recap/Depliant.jsx    |    39 [32m+[m
+ .../components/recap/FicheTechnique.jsx            |    87 [32m+[m
+ .../components/recap/ListeInclusions.jsx           |    28 [32m+[m
+ .../circuitDetail/components/shared/Mention.jsx    |    15 [32m+[m
+ src/pages/client/composer/Composer.jsx             |   150 [32m+[m
+ .../client/composer/components/ActionsVoyage.jsx   |    58 [32m+[m
+ .../composer/components/AlertesCoherence.jsx       |    23 [32m+[m
+ src/pages/client/composer/components/Atlas.jsx     |    80 [32m+[m
+ .../client/composer/components/BandeauAnnuler.jsx  |    23 [32m+[m
+ .../composer/components/CarteDestination.jsx       |    56 [32m+[m
+ .../client/composer/components/CarteParcours.jsx   |   228 [32m+[m
+ src/pages/client/composer/components/Catalogue.jsx |   113 [32m+[m
+ .../client/composer/components/ChampDates.jsx      |   117 [32m+[m
+ .../client/composer/components/EtapeItineraire.jsx |    88 [32m+[m
+ .../composer/components/FicheDestination.jsx       |   113 [32m+[m
+ .../composer/components/FiltresEtiquettes.jsx      |    34 [32m+[m
+ .../client/composer/components/Itineraire.jsx      |   164 [32m+[m
+ .../client/composer/components/JaugeNuits.jsx      |    38 [32m+[m
+ .../client/composer/components/PanneauVoyage.jsx   |   155 [32m+[m
+ .../client/composer/components/TriCatalogue.jsx    |    46 [32m+[m
+ src/pages/client/demandeDevis/DemandeDevis.jsx     |   491 [32m+[m
+ .../demandeDevis/components/ChoixHebergements.jsx  |    61 [32m+[m
+ .../demandeDevis/components/ChoixVisites.jsx       |    95 [32m+[m
+ src/pages/client/home/Home.jsx                     |   330 [32m+[m
+ src/pages/client/mesCircuits/MesCircuits.jsx       |   174 [32m+[m
+ src/pages/client/mesDevis/MesDevis.jsx             |   392 [32m+[m
+ src/pages/client/monCompte/MonCompte.jsx           |   228 [32m+[m
+ src/pages/client/monCompte/components/Avis.jsx     |    18 [32m+[m
+ .../client/monCompte/components/BlocEmail.jsx      |   195 [32m+[m
+ .../client/monCompte/components/BlocIdentite.jsx   |    77 [32m+[m
+ .../client/monCompte/components/BlocMotDePasse.jsx |   142 [32m+[m
+ .../monCompte/components/BlocPreferences.jsx       |   126 [32m+[m
+ src/pages/client/monCompte/components/Champ.jsx    |    46 [32m+[m
+ .../client/monCompte/components/HeroCompte.jsx     |   282 [32m+[m
+ src/pages/client/monCompte/components/Reglage.jsx  |    61 [32m+[m
+ src/pages/client/viewCircuit/ViewCircuit.jsx       |   200 [32m+[m
+ .../components/filters/CircuitFilters.jsx          |    65 [32m+[m
+ .../viewCircuit/components/hero/CircuitHero.jsx    |   161 [32m+[m
+ src/providers/AuthProvider.jsx                     |    41 [32m+[m
+ src/routes/router.jsx                              |   101 [32m+[m
+ src/store/authStore.js                             |    40 [32m+[m
+ src/utils/Compressimage.js                         |    23 [32m+[m
+ src/utils/apiError.js                              |     8 [32m+[m
+ src/utils/auth.js                                  |    66 [32m+[m
+ src/utils/circuit.js                               |   140 [32m+[m
+ src/utils/circuitForm.js                           |   148 [32m+[m
+ src/utils/exportCsv.js                             |    37 [32m+[m
+ src/utils/format.js                                |    42 [32m+[m
+ src/utils/geo.js                                   |    11 [32m+[m
+ src/utils/image.js                                 |    64 [32m+[m
+ src/utils/telecharger.js                           |    29 [32m+[m
+ src/utils/validationChamps.js                      |   107 [32m+[m
+ tsconfig.json                                      |    17 [31m-[m
+ vite.config.js                                     |    17 [32m+[m
+ 292 files changed, 28501 insertions(+), 13608 deletions(-)
