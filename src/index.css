@@ -1,0 +1,5377 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: abhaya-bold;
+  src: url("/fonts/AbhayaLibre-Bold.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: barlowRegular;
+  src: url("/fonts/barlow/Barlow/Barlow-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: barlowSemiBold;
+  src: url("/fonts/barlow/Barlow/Barlow-SemiBold.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* ==========================================================================
+   LA REGLE TYPOGRAPHIQUE DU SITE
+   ==========================================================================
+   Elle tient en une phrase :
+
+       LA SERIF NOMME, LA SANS MESURE.
+
+   → ABHAYA (.font-title) : les TITRES — de page, de section, de rangee — et
+     les nombres qui ORDONNENT : 01, 02, 03, le numero d'une etape, le numero
+     d'une halte d'itineraire.
+
+   → BARLOW (.font-body, .font-body-strong) : TOUT LE RESTE, et en
+     particulier toute DONNEE — une date, un montant, une duree, un compteur,
+     la valeur d'une mention — quelle que soit sa taille.
+
+   ── Pourquoi ──────────────────────────────────────────────────────────
+   Verdict du client : « seulement les titres grands ou importants en
+   font-title, sinon on utilise les fonts Barlow ». Le defaut etait reel :
+   une serif posee sur un montant de 20 px ou sur une date ne fait pas
+   distingue, elle fait vieux — et elle brouille la seule chose qu'une serif
+   sache faire ici, designer ce qui a un NOM.
+
+   La distinction ordonner / mesurer n'est pas une subtilite gratuite : « 01 »
+   devant une etape est un repere de lecture, il appartient au titre. « 18 »
+   devant « jours » est une quantite, elle appartient au texte — et elle a
+   besoin de tabular-nums, ce qu'une serif de titrage rend mal.
+
+   ── En pratique ───────────────────────────────────────────────────────
+   Un chiffre en Barlow porte presque toujours `tabular-nums` : sans lui, les
+   chiffres n'ont pas la meme chasse et le montant danse quand il change.
+   -------------------------------------------------------------------------- */
+
+@theme {
+  --font-title:       "abhaya-bold", serif;      /* Abhaya est une serif, pas sans-serif */
+
+  /* ── Trois alias retires, et c'est une correction ────────────────────
+     --font-heading, --font-medium et --font-reg declaraient des familles
+     Abhaya sous des noms qui ressemblent a des utilitaires de GRAISSE
+     Tailwind. Consequence mesuree : tout `font-medium` — onze endroits, dont
+     le composant Button et les etiquettes des formulaires d'administration —
+     rendait son texte en serif a 14 px, alors que l'auteur demandait
+     simplement une graisse moyenne.
+     `font-medium` retrouve ici son sens standard : font-weight 500. Les deux
+     autres n'etaient employes nulle part. */
+  --font-body:        "barlowRegular", sans-serif;
+  --font-body-strong: "barlowSemiBold", sans-serif;
+}
+
+:root {
+
+  /* =========================================================================
+     LA CHARTE — terres de Madagascar
+     =========================================================================
+     Version precedente : cinq teintes saturees — #D94E2B, #49B8E8, #F1B631,
+     #2F9A49, #256F37 — posees sur un gris froid (#fafafa) avec une encre noire
+     pure. Chaque couleur etait juste prise seule ; ensemble elles donnaient
+     une brochure d'agence, pas une maison de voyage. Trois causes :
+
+       1. LA SATURATION. Au-dela de ~70 % de saturation, une couleur se lit
+          comme un signal (solde, alerte, bouton) et non comme une matiere.
+          Le luxe travaille des couleurs rabattues : pigment, terre, textile.
+       2. LE FROID. #fafafa et #111111 sont neutres au sens colorimetrique,
+          donc gris. Un fond ivoire tire vers le jaune et une encre brune
+          donnent immediatement l'impression du papier imprime.
+       3. LE NOMBRE. Cinq accents vifs se disputent l'oeil. Une charte chere
+          tient sur une famille chromatique et laisse la photographie porter
+          la couleur.
+
+     Cette version reprend la planche de marque de reference (baobab, terre
+     cuite, sable) : les valeurs marquees « releve » sont echantillonnees
+     directement dessus. Les cinq teintes de marque sont conservees — elles
+     portent les categories du site — mais rabattues dans une meme famille
+     chaude. Aucun role, aucun nom de jeton n'a change : seules les valeurs
+     bougent, donc rien de ce qui consomme la charte n'est a reprendre.
+
+     Contrastes WCAG verifies. La charte y gagne, au passage : l'ocre passait
+     a 1,75:1 sur le fond de page (illisible), le terre a 3,96:1 (sous AA).
+     Toutes les paires texte/fond de ce bloc sont maintenant a AA au moins.
+     ========================================================================= */
+
+  /* ---------- FONDS / SURFACES ---------- */
+  --bg:              #FAF7F0;   /* Ivoire chaud — fond de page */
+  --bg-secondary:    #EFE9DD;   /* Section alternée */
+  --bg-card:         #FDFBF6;   /* Cartes, panneaux */
+  --bg-territoires:  #EBE3D4;   /* Sable — relevé sur la planche */
+  --bg-hover:        #F2ECE1;   /* Survol de surface */
+  --bg-muted:        #E9E3D8;   /* Neutre clair */
+  --bg-sunken:       #F4EDDF;   /* Champs, listes internes */
+  --bg-dark:         #251A12;   /* Brun noir — footer, bandeaux */
+  --bg-dark-2:       #3D271A;   /* Brun cacao — relevé sur la planche */
+
+  /* ---------- BORDURES ---------- */
+  --border:          #E3DACB;   /* Bordure par défaut */
+  --border-strong:   #D6CBB8;   /* Champs, boutons contour */
+  --border-muted:    #EDE7DB;   /* Séparateur subtil */
+
+  /* ---------- TEXTE (sur fond clair) ----------
+     Encre brune plutôt que noir pur : #2B211A tient 14,7:1 sur la page, soit
+     largement AAA, tout en donnant la chaleur d'un texte imprimé. */
+  --text-primary:    #2B211A;   /* Encre */
+  --text-yellow:     #C79A52;   /* Or — sur fond sombre uniquement */
+  --text-secondary:  #5A4B3E;   /* Encre douce */
+  --text-muted:      #8B7C6D;   /* Légendes, méta */
+  --text:            #2B211A;   /* alias */
+
+  /* ---------- TEXTE (sur fond sombre / inverse) ---------- */
+  --text-inverse:            #F5F0E6;
+  --text-inverse-secondary:  #DBD2C3;
+  --text-inverse-muted:      #B0A392;
+
+  /* ---------- MARQUE (palette officielle) ----------
+     Mêmes cinq rôles, même sémantique, saturations rabattues. La référence
+     n'a qu'une famille — terre cuite vers brun — et c'est elle qui donne le
+     ton : les quatre autres teintes s'y rangent au lieu de lui répondre. */
+  --brand-terre:     #A85832;   /* Terre cuite — Culture/Habitat (primaire) */
+  --brand-terre-600: #8C4526;   /* Survol / pressé */
+  --brand-lagune:    #4A7686;   /* Bleu lagon fumé — Mer/Évasion */
+  --brand-ocre:      #9C7331;   /* Ocre brûlé — Terre/Soleil */
+  --brand-nature:    #5F7A4A;   /* Vert sauge — Biodiversité */
+  --brand-foret:     #3F5738;   /* Vert forêt — écotourisme/solidaire */
+
+  /* ---------- ACTIONS / CTA ---------- */
+  /* Primaire */
+  --cta-bg:            var(--brand-terre);
+  --cta-bg-hover:      var(--brand-terre-600);
+  --cta-text:          #FFFFFF;
+  /* Contour / ghost */
+  --cta-outline-border:      #CFC3AF;
+  --cta-outline-text:        #5A4B3E;
+  --cta-outline-hover:       var(--brand-terre);
+  /* Accent (sur fond sombre) — l'ocre éclairci : #9C7331 est réglé pour être
+     lisible SUR la page ivoire, il devient de la boue sur du brun. */
+  --cta-accent-bg:           #C79A52;
+  /* Désactivé */
+  --cta-disabled-bg:         #E5DED1;
+  --cta-disabled-text:       #A0968A;
+
+  /* ---------- SÉMANTIQUE (fond doux + texte) ----------
+     Rabattues elles aussi : un vert de succès fluo à côté d'une charte terre
+     est exactement le détail qui trahit le gabarit. */
+  --success-bg:      #EAF0E2;  --success-text:  #3F5738;
+  --warning-bg:      #F6EEDC;  --warning-text:  #8A6420;
+  --error-bg:        #F5E5DD;  --error-text:    #8C4526;
+
+}
+
+html {
+  /* la gouttiere reste en place : bloquer le scroll (menu, panneau circuit)
+     ne decale plus la page de la largeur de la barre */
+  scrollbar-gutter: stable;
+}
+
+body {
+  /* Barlow par defaut. Sans cette ligne, tout element qui ne declare pas sa
+     police tombait sur la serif du NAVIGATEUR — Times — et non sur celle du
+     site. Aucun element existant ne change d'aspect : ils declarent tous la
+     leur. C'est le filet de securite qui manquait. */
+  font-family: var(--font-body);
+  background-color: var(--bg);
+}
+
+/* ---------- Sous la barre fixe ------------------------------------------
+   La barre du site est en position fixe : une page qui ouvre sur du contenu,
+   et non sur un hero plein ecran, demarre donc sous elle et perd ses premiers
+   pixels. Cette classe lui rend sa place.
+
+   Elle est en OPT-IN et pas posee sur <main> : l'accueil, la liste des
+   circuits et la fiche circuit ouvrent sur un hero qui DOIT passer sous la
+   barre — c'est ce qui la rend transparente sur la photographie. Un retrait
+   global aurait repare une page en cassant trois.
+
+   --entete-hauteur est ecrite par HeaderClient a la mesure reelle de la barre,
+   au montage et a chaque redimensionnement : la valeur de repli ne sert que le
+   temps du premier rendu. */
+.cx-sous-entete { padding-top: var(--entete-hauteur, 85px); }
+
+.skeleton-box {
+    background: linear-gradient(
+        90deg,
+        var(--bg-sunken) 25%,
+        var(--bg-hover) 37%,
+        var(--bg-sunken) 63%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/* ---------- BARRES DE DEFILEMENT ---------- */
+/* La gouttiere est peinte sur le fond de page (scrollbar-gutter: stable),
+   jamais par-dessus les sections sombres : un pouce sombre reste donc
+   lisible partout. Le liserE transparent + background-clip donne un rail
+   large a attraper mais une barre fine a l'oeil. */
+/* Chromium ignore tout le style ::-webkit-scrollbar des qu'on declare
+   scrollbar-width. On laisse donc les proprietes standard a Firefox,
+   qui n'a pas ces pseudo-elements. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-terre) var(--bg-secondary);
+  }
+}
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--brand-terre);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--brand-terre-600);
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg-secondary);
+}
+
+/* Variante des panneaux internes : meme langage, un cran plus discret */
+.scroll-fine::-webkit-scrollbar { width: 10px; }
+.scroll-fine::-webkit-scrollbar-track { background: transparent; }
+.scroll-fine::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.scroll-fine::-webkit-scrollbar-thumb:hover { background-color: var(--brand-terre); }
+
+
+/* ---------- LE CURSEUR ----------
+   Un point, un cercle, un disque qui porte un mot (cf. CursorClient). Le
+   point et le cercle s'inversent sur leur fond (difference) : lisibles sur le
+   sable, sur le noir et sur les photos. Le disque, lui, est à la couleur de la
+   marque et garde sa teinte. La forme change par transitions CSS ; la
+   position, par transform (GSAP) — la propriété `scale` de l'appui s'ajoute
+   au transform sans l'écraser. */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none;
+}
+/* on rend la main au curseur natif là où sa forme porte du sens */
+.has-custom-cursor input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.has-custom-cursor textarea,
+.has-custom-cursor [contenteditable="true"] {
+  cursor: text;
+}
+
+.curseur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 8px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background-color: #ffffff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    opacity 0.3s ease,
+    scale 0.25s ease;
+}
+.curseur--visible { opacity: 1; }
+.curseur--appui { scale: 0.85; }
+.curseur[data-etat="lien"] {
+  width: 44px;
+  height: 44px;
+  background-color: transparent;
+  border-color: #ffffff;
+}
+.curseur[data-etat="media"] {
+  width: 84px;
+  height: 84px;
+  background-color: var(--brand-terre);
+  mix-blend-mode: normal;
+}
+.curseur[data-etat="saisie"] { opacity: 0; }
+.curseur__libelle {
+  color: var(--cta-text);
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.curseur[data-etat="media"] .curseur__libelle { opacity: 1; transition-delay: 0.12s; }
+@media (prefers-reduced-motion: reduce) {
+  .curseur { transition: opacity 0.2s ease; }
+}
+
+.field-input::placeholder {
+    color: var(--text-muted);
+}
+.field-input-dark::placeholder {
+    color: rgba(245, 240, 230, 0.6);
+}
+
+/* Champ souligne : le filet passe en terre a la saisie */
+.field-line {
+    border-bottom: 1px solid var(--border-strong);
+    transition: border-color 0.3s ease;
+}
+.field-line:focus,
+.field-line:focus-within {
+    border-bottom-color: var(--brand-terre);
+}
+/* Chrome peint les champs remplis automatiquement en bleu : on repeint le
+   fond avec une ombre interne, seul moyen de reprendre la main dessus. */
+.field-line:-webkit-autofill,
+.field-line:-webkit-autofill:hover,
+.field-line:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary);
+    -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+    caret-color: var(--text-primary);
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+
+/* ==========================================================================
+   LES PETITES CAPITALES
+   ========================================================================== */
+/* ---------- Micro-titre -------------------------------------------------
+   Il portait un tiret en pseudo-element et 0.42em de chasse. Le tiret est
+   parti, la chasse tombe a 0.1em : au-dela de 0.2em un mot cesse d'etre lu
+   et devient un motif. */
+.cx-label {
+    display: inline-block;
+    line-height: 1;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Les deux seules encres que porte un micro-titre : l'accent quand il ouvre
+   une section, le gris de legende quand il nomme une valeur. Posees ici plutot
+   qu'en style inline, pour que le #A85832 ne soit pas recopie dans cinq JSX. */
+.cx-label--accent  { color: var(--brand-terre); }
+.cx-label--legende { color: var(--text-muted); }
+
+
+/* ==========================================================================
+   PAGE DETAIL D'UN CIRCUIT — la gouttiere commune
+   ==========================================================================
+   L'« A propos » etait a px-16 en dur pendant que l'itineraire passait par
+   --iti-marge. Sous 1024 px l'un restait a 64, l'autre tombait a 24 : les deux
+   titres ne s'alignaient plus sur la meme verticale. Une seule variable les
+   tient desormais, et l'aplat de survol s'y cale aussi.
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   LE SELECTEUR DE VISUELS DU HERO — sous le filet
+   ==========================================================================
+   Deux demandes, et elles vont ensemble : la bande de vignettes SOUS LE FILET
+   ET A GAUCHE, les fleches A DROITE et sans rien autour.
+
+   Ce qui a ete enleve compte autant que ce qui reste. Les commandes portaient
+   un carre d'un pixel et un fond au survol : sur une photographie, deux cadres
+   alignes font une barre d'outils posee sur l'image. L'icone seule dit la meme
+   chose et ne se dispute plus avec le cliche.
+
+   Rien d'autre du hero n'est touche : la photo garde son opacite, le titre son
+   corps, le filet sa place.
+   -------------------------------------------------------------------------- */
+.cx-hero__selecteur {
+    margin-top: clamp(18px, 2vw, 26px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 64px);
+}
+
+/* ---------- La bande ------------------------------------------------------
+   Trois colonnes au plus, et elles se suivent : au-dela, la bande defile au
+   lieu de s'allonger. La fenetre se calcule depuis --vignettes, pose par le
+   composant — une seule valeur a changer pour en montrer deux ou quatre. */
+.cx-hero__piste {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--largeur-vignette, 104px);
+    gap: var(--gap-vignette, 12px);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+
+    max-width: calc(
+        var(--vignettes, 3) * var(--largeur-vignette, 104px)
+        + (var(--vignettes, 3) - 1) * var(--gap-vignette, 12px)
+    );
+}
+
+/* La barre de defilement est masquee : on avance par les fleches et par les
+   vignettes, pas en tirant un rail sur une photographie. C'est la BARRE qu'on
+   cache, jamais le defilement — le contenu reste atteignable. */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ---------- Une vignette --------------------------------------------------
+   Angle vif, aucun rayon. Le visuel a l'ecran se designe par un filet blanc
+   pose A COTE du cadre (outline-offset) et non dessus : un cadre colle
+   rognerait l'image d'un pixel a chaque fois. */
+.cx-hero__vignette {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--bg-dark-2);
+    cursor: pointer;
+    outline: 1px solid transparent;
+    outline-offset: 3px;
+    transition: outline-color 0.35s ease;
+}
+.cx-hero__vignette--active { outline-color: var(--text-inverse); }
+
+.cx-hero__vignette img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+    transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-hero__vignette:hover img { opacity: 0.9; transform: scale(1.06); }
+.cx-hero__vignette--active img { opacity: 1; }
+
+/* Le signe lecture. Un cercle, et c'est une forme voulue — pas un angle
+   adouci : la seule forme ronde de la page detail. */
+.cx-hero__film {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-inverse);
+}
+.cx-hero__film > svg {
+    padding: 7px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: rgba(37, 26, 18, 0.55);
+    border: 1px solid rgba(245, 240, 230, 0.38);
+    box-sizing: content-box;
+}
+
+/* ---------- Les fleches ---------------------------------------------------
+   L'icone, et rien d'autre : ni bordure, ni fond, ni rayon.
+
+   Le padding negatif rend une zone de clic de 44 px sans rien montrer : on
+   touche large, on ne voit que la fleche. Sans lui, viser une icone de 20 px
+   au doigt est un exercice. */
+.cx-hero__fleches {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+    flex-shrink: 0;
+    padding-bottom: 4px;
+}
+
+.cx-hero__fleche {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: -12px;
+    padding: 12px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--text-inverse-secondary);
+    transition: color 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-hero__fleche:hover { color: var(--text-inverse); }
+
+/* Le seul retour au survol : la fleche avance dans SON sens. Une fleche qui
+   recule dirait le contraire de ce qu'elle fait. */
+.cx-hero__fleche:hover:has(> .lucide-arrow-left)  { transform: translateX(-3px); }
+.cx-hero__fleche:hover:has(> .lucide-arrow-right) { transform: translateX(3px); }
+
+.cx-hero__fleche:focus-visible {
+    outline: 1px solid var(--text-inverse);
+    outline-offset: 6px;
+}
+
+@media (max-width: 767px) {
+    .cx-hero__piste { --largeur-vignette: 84px; --gap-vignette: 10px; }
+    .cx-hero__selecteur { gap: 20px; }
+}
+@media (min-width: 1536px) {
+    .cx-hero__piste { --largeur-vignette: 120px; }
+}
+
+
+.cx-detail {
+    --cx-gutter: 64px;
+
+    /* ── L'INTERVALLE ENTRE DEUX SECTIONS ─────────────────────────────
+       Une seule valeur pour toute la page detail, et c'est le seul bouton a
+       tourner pour la rendre plus ou moins aeree. Les quatre sections y
+       puisent : plus aucune ne peut deriver de ses voisines.
+
+       216 px a 1600, 138 a 1024, 96 sur un telephone. C'est beaucoup, et c'est
+       voulu : sur une page de cette longueur, le vide est ce qui separe les
+       chapitres. Un intervalle trop court et les sections se lisent comme un
+       seul bloc continu — c'est exactement ce qui se passait a 128 px.
+
+       Plus tot dans la page, l'intervalle etait note sur chaque section, avec
+       une valeur differente pour l'itineraire. Une seule mesure tenue vaut
+       mieux que quatre valeurs proches : c'est ce que l'oeil lit comme un
+       rythme. */
+    --cx-section: clamp(96px, 13.5vw, 216px);
+
+    /* ── LA REGLE DE RYTHME DE LA PAGE ────────────────────────────────
+       CHAQUE SECTION PORTE SA RESPIRATION EN HAUT, ET RIEN EN BAS. La page
+       ferme une seule fois, ici.
+
+       Sans cette regle, deux sections voisines additionnent leurs marges :
+       l'« A propos » fermait sur 192 px, l'itineraire en rouvrait 160, et il
+       y avait 352 px de papier blanc entre le dernier mot de l'un et le titre
+       de l'autre. Le bug revient a chaque section ajoutee — il ne se corrige
+       donc pas au cas par cas, il se supprime par une regle.
+
+       Corollaire : une section ajoutee ici ne regle QUE son padding-top, et
+       l'espacement avec la precedente est juste du premier coup. */
+    padding-bottom: var(--cx-section);
+}
+@media (max-width: 1024px) {
+    .cx-detail { --cx-gutter: 24px; }
+}
+
+/* ==========================================================================
+   A PROPOS — l'accroche editoriale, juste sous le hero
+   ==========================================================================
+   Trois corrections, aucune invention :
+
+     * LE RYTHME. La section fermait sur 192 px de vide et l'itineraire en
+       rouvrait 160 : 352 px de papier blanc entre le dernier mot et le titre
+       suivant. Le bas tombe a zero, c'est le padding haut de .cx-iti qui fait
+       seul la respiration.
+     * LA HIERARCHIE. La mention « A propos » etait empilee au-dessus du titre
+       et le poussait vers le bas. Elle passe en rail a gauche : l'oeil descend
+       le titre sans buter dessus, et le rail donne a la page la colonne que
+       les deux references du client (Rennsport, Avatr) posent partout.
+     * LA MESURE. Le texte filait sur toute la largeur du bloc. Il se cale a
+       62 caracteres — la mesure d'un magazine — et sa premiere phrase monte
+       d'un cran : c'est le chapo, il porte l'entree en matiere.
+   -------------------------------------------------------------------------- */
+.cx-about {
+    padding: var(--cx-section, 128px) var(--cx-gutter, 64px) 0;
+}
+
+
+/* ==========================================================================
+   L'EN-TETE D'UNE SECTION — partagee par « A propos » et « Le voyage »
+   ==========================================================================
+   Premiere version : une mention en rail a gauche, le titre et le texte a
+   droite. Le rail portait un mot et RIEN d'autre — 190 px de papier blanc sur
+   toute la hauteur du bloc — pendant que le texte se serrait dans les deux
+   tiers restants et s'arretait a 62 caracteres. Beaucoup de vide, et du vide
+   qui ne disait rien : ce n'est pas de la respiration, c'est un trou.
+
+   La mention remonte donc AU-DESSUS, pleine largeur, et les deux colonnes se
+   partagent ce qu'il y a a lire : le titre a gauche, le texte a droite. Meme
+   vocabulaire, meme mesure de lecture, mais la largeur est occupee au lieu
+   d'etre laissee.
+
+   Sans rien a mettre a droite, le titre reprend toute la largeur
+   (.cx-tete--seule) plutot que de rouvrir le trou a l'autre bout.
+   -------------------------------------------------------------------------- */
+.cx-tete {
+    border-top: 1px solid var(--border);
+    padding-top: clamp(30px, 3.4vw, 52px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    row-gap: clamp(20px, 2.4vw, 32px);
+    align-items: start;
+}
+.cx-tete--seule { grid-template-columns: minmax(0, 1fr); }
+
+/* Pleine largeur : les deux colonnes demarrent ainsi sur la meme ligne, ce
+   qu'un sur-titre glisse dans l'une des deux interdisait. */
+.cx-tete__mention { grid-column: 1 / -1; }
+
+.cx-tete__titre {
+    color: var(--text-primary);
+    font-size: clamp(2.25rem, 3.6vw, 3.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+}
+
+/* Le chapo : la premiere phrase, un cran au-dessus du reste. */
+.cx-tete__chapo {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+    line-height: 1.7;
+}
+
+.cx-tete__texte {
+    margin-top: clamp(16px, 1.6vw, 24px);
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+/* Sous 1024 px les deux colonnes n'ont plus la place : on empile. */
+@media (max-width: 1024px) {
+    .cx-tete { grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
+}
+
+
+/* ==========================================================================
+   CE QUE COMPREND LE CIRCUIT — la fiche technique et le decompte
+   ==========================================================================
+   La section repond a « est-ce que ce voyage est pour moi ? », et elle se pose
+   donc AVANT l'itineraire : on ne demande pas a quelqu'un de lire quinze jours
+   de programme pour decouvrir ensuite qu'il y a un age minimum.
+
+   Trois registres, trois traitements, et c'est ce qui evite la page de
+   specifications :
+
+     1. LA FICHE. Style, niveau, ages, groupe, langues, transports. Des
+        mentions valeur/legende — la forme deja employee pour la nuitee. Un
+        champ non renseigne ne s'affiche pas : on n'ecrit jamais « non
+        communique », qui est une ligne a lire pour une information de moins.
+
+     2. LE DECOMPTE. Quatre chiffres en grand, tires du programme et non
+        saisis. Ce sont les seuls chiffres de la page, ils ont donc le droit
+        d'etre grands — c'est ce qu'on retient d'un circuit avant le detail.
+
+     3. LES LISTES. Compris / non compris, en deux colonnes separees par du
+        vide. Pas de coche verte ni de croix rouge : deux micro-titres, deux
+        colonnes, et l'encre plus claire a droite suffisent a dire lequel est
+        lequel. Une coche verte est le vocabulaire d'un comparateur de prix.
+
+   Aucune couleur hors charte, aucun rayon, aucune ombre — la regle du reste
+   de la page detail.
+   -------------------------------------------------------------------------- */
+.cx-voyage {
+    padding: var(--cx-section, 128px) var(--cx-gutter, 64px) 0;
+}
+
+
+/* ---------- La planche ---------------------------------------------------
+   Deux cliches plein cadre, juste sous le titre. C'est la correction la plus
+   importante du bloc : entre le hero et l'itineraire, la page enchainait deux
+   sections entierement typographiques sur ivoire, et ce tunnel de texte etait
+   le « gros manque ». Chez Rennsport, la photographie arrive AVANT la moindre
+   caracteristique — on montre l'objet, puis on le decrit.
+
+   Les visuels viennent des etapes, jamais la couverture : elle occupe deja
+   tout le hero, et la reposer ici ne montrerait rien de neuf. */
+.cx-voyage__planche {
+    margin-top: clamp(40px, 4.6vw, 72px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 10px;
+}
+.cx-voyage__planche--seule { grid-template-columns: minmax(0, 1fr); }
+
+.cx-voyage__cadre {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    background-color: var(--bg-muted);
+}
+
+/* Seul le premier cadre porte le rapport : les deux colonnes n'ont pas la meme
+   largeur, et un meme aspect-ratio sur les deux leur donnait deux hauteurs
+   differentes — une planche avec une marche au milieu. Le second s'etire sur
+   la rangee que le premier a fixee, ses visuels etant en absolu donc sans
+   hauteur propre. */
+.cx-voyage__cadre:first-child { aspect-ratio: 3 / 2; }
+.cx-voyage__cadre img,
+.cx-voyage__cadre video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-voyage__cadre:hover img { transform: scale(1.04); }
+
+
+/* ---------- Les deux moities ---------------------------------------------
+   A gauche la fiche et l'appel a l'action, a droite les depliants. C'est la
+   mise en page de la reference, et elle regle deux choses d'un coup : la
+   largeur est occupee des deux cotes, et le contenu long (les listes) cesse
+   d'etaler la page en hauteur. */
+.cx-voyage__corps {
+    margin-top: clamp(48px, 5.6vw, 88px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    column-gap: clamp(40px, 6vw, 112px);
+    row-gap: clamp(40px, 5vw, 64px);
+    align-items: start;
+}
+
+
+/* ---------- La fiche technique -------------------------------------------
+   Deux colonnes serrees, etiquette au-dessus de la valeur. Elle s'etalait sur
+   six colonnes et toute la largeur de la page : aere au point de ne plus faire
+   fiche du tout. Une fiche technique se lit en bloc — c'est sa densite qui la
+   rend credible, pas son espacement. */
+.cx-specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(22px, 2.4vw, 32px) clamp(24px, 3vw, 44px);
+}
+.cx-specs .cx-mention { gap: 8px; }
+
+/* L'echelle d'effort : quatre rectangles, remplis jusqu'a la note. Ce ne sont
+   pas des etoiles — une etoile note une qualite, ces barres mesurent une
+   exigence. La nuance tient a la forme : un trait plat, pas un symbole. */
+.cx-niveau {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 9px;
+}
+.cx-niveau__barre {
+    width: 20px;
+    height: 3px;
+    background-color: var(--border-strong);
+}
+.cx-niveau__barre--on { background-color: var(--brand-terre); }
+
+
+/* ---------- L'appel a l'action -------------------------------------------
+   Un rectangle plein, pleine largeur de la colonne. C'est ce qui manquait le
+   plus apres la photographie : la page se terminait dans le vide, sans rien a
+   faire. Chez Rennsport, la colonne des caracteristiques se ferme sur un bloc
+   noir « Enquire » — c'est lui qui rassure, parce qu'il dit que la suite
+   existe.
+
+   Angle vif, aucun rayon, aucune ombre : la regle de toute la page. Seule la
+   couleur de fond bouge au survol. */
+.cx-devis {
+    margin-top: clamp(32px, 3.6vw, 48px);
+}
+.cx-devis__mention {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+.cx-devis__bouton {
+    margin-top: 14px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: clamp(18px, 1.8vw, 22px) 28px;
+    background-color: var(--cta-bg);
+    color: var(--cta-text);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+}
+.cx-devis__bouton:hover { background-color: var(--cta-bg-hover); }
+/* Le second geste, sous l'appel principal : un contour, jamais un deuxieme aplat. */
+.cx-devis__personnaliser {
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    padding: clamp(16px, 1.6vw, 20px) 28px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: border-color 0.4s ease, color 0.4s ease;
+}
+.cx-devis__personnaliser:hover:not(:disabled) { border-color: var(--brand-terre); color: var(--brand-terre); }
+.cx-devis__personnaliser:disabled { opacity: 0.5; cursor: wait; }
+
+
+/* ---------- Les depliants -------------------------------------------------
+   Trois volets separes par un filet franc. Les deux listes et le decompte
+   tenaient a plat, l'un sous l'autre, et allongeaient la section sans rien
+   hierarchiser. Repliees, elles annoncent ce qu'elles contiennent et laissent
+   le regard choisir.
+
+   La hauteur s'anime par grid-template-rows de 0fr a 1fr : la seule facon
+   d'ouvrir une hauteur inconnue sans la mesurer en JavaScript. */
+.cx-depliant { border-top: 1px solid var(--border); }
+.cx-depliant:last-child { border-bottom: 1px solid var(--border); }
+
+.cx-depliant__bouton {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(19px, 2vw, 26px) 0;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: color 0.35s ease;
+}
+.cx-depliant__bouton:hover { color: var(--brand-terre); }
+
+.cx-depliant__titre {
+    font-size: clamp(1.05rem, 1.3vw, 1.25rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+/* Le compte, en petites capitales, comme l'exposant de l'itineraire. */
+.cx-depliant__compte {
+    margin-left: 12px;
+    color: var(--brand-terre);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+/* Le signe : deux traits d'un pixel. Le vertical s'efface a l'ouverture et le
+   plus devient un moins — un scaleY, donc rien de repeint. */
+.cx-depliant__signe {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+.cx-depliant__signe::before,
+.cx-depliant__signe::after {
+    content: "";
+    position: absolute;
+    background-color: currentColor;
+}
+.cx-depliant__signe::before {
+    left: 0;
+    top: 6px;
+    width: 13px;
+    height: 1px;
+}
+.cx-depliant__signe::after {
+    top: 0;
+    left: 6px;
+    width: 1px;
+    height: 13px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-depliant--ouvert .cx-depliant__signe::after { transform: scaleY(0); }
+
+.cx-depliant__corps {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-depliant--ouvert .cx-depliant__corps { grid-template-rows: 1fr; }
+.cx-depliant__corps > div { overflow: hidden; }
+.cx-depliant__dedans { padding-bottom: clamp(22px, 2.4vw, 32px); }
+
+
+/* ---------- Le decompte ---------------------------------------------------
+   Quatre chiffres tires du programme, jamais saisis. Ils vivent dans le
+   premier depliant : ce sont eux qui disent ce que le prix couvre. */
+.cx-compte {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 2.2vw, 28px) clamp(24px, 3vw, 40px);
+}
+.cx-compte__valeur {
+    display: block;
+    color: var(--text-primary);
+    font-size: clamp(1.9rem, 2.4vw, 2.35rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+}
+.cx-compte__legende { margin-top: 12px; }
+
+/* « 3 nuits en hôtel, 1 nuit en écolodge » — deduit des sejours. */
+.cx-compte__detail {
+    margin-top: clamp(18px, 1.8vw, 24px);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* ---------- Une ligne de liste --------------------------------------------
+   Compris ou non compris. Pas de coche verte ni de croix rouge : le volet
+   porte deja le titre, et l'encre plus douce suffit pour ce qui ne l'est pas.
+   Une coche verte est le vocabulaire d'un comparateur de prix. */
+.cx-ligne {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+    align-items: baseline;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-muted);
+}
+.cx-ligne:first-child { padding-top: 0; }
+.cx-ligne:last-child  { padding-bottom: 0; border-bottom: 0; }
+
+.cx-ligne__libelle {
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.cx-ligne--exclu .cx-ligne__libelle { color: var(--text-secondary); }
+
+.cx-ligne__poste {
+    justify-self: end;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+/* ---------- Les themes ----------------------------------------------------
+   Des capitales posees dans le vide, jamais des pilules : une pastille
+   arrondie est du vocabulaire d'application, pas de maison de voyage. */
+.cx-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px clamp(20px, 2.4vw, 32px);
+}
+.cx-themes__item { color: var(--brand-terre); }
+
+
+@media (max-width: 1024px) {
+    .cx-voyage__corps { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+    /* Empiles, les cadres n'ont plus de rangee commune pour leur donner une
+       hauteur : chacun reprend le rapport, sans quoi le second se replie a
+       zero (ses visuels sont en absolu). */
+    .cx-voyage__planche { grid-template-columns: minmax(0, 1fr); }
+    .cx-voyage__cadre { aspect-ratio: 3 / 2; }
+    .cx-specs { grid-template-columns: minmax(0, 1fr); }
+    .cx-ligne { grid-template-columns: minmax(0, 1fr); row-gap: 6px; }
+    .cx-ligne__poste { justify-self: start; }
+}
+
+
+/* ==========================================================================
+   ITINERAIRE — la liste des haltes, page detail d'un circuit
+   ==========================================================================
+   Premiere version : serif Abhaya en 56 px, vignette, cinq etoiles, bornes
+   encadrees. Verdict du client, mot pour mot : « je trouve pas du tout que
+   c'est luxe, je trouve que c'est vieux, tres tres vieux ». Ses references —
+   911rennsport.co.uk/projects et vision.avatr.com — disent ou etait l'erreur,
+   et une tentative de fond noir a montre ou elle n'etait PAS :
+
+     * LA POLICE, la vraie cause. Les deux references sont en grotesque. Une
+       serif a fort contraste dans un grand corps evoque le journal imprime,
+       pas la marque. Les haltes passent donc en Barlow Light : la sans du
+       site, deja chargee, jamais employee en grand jusqu'ici.
+     * LES ORNEMENTS. Cinq etoiles et un cadre d'un pixel autour d'un mot :
+       vocabulaire de comparateur d'hotels. Supprimes.
+     * L'ECHELLE. Un seul mot en tete de section, tres grand, chasse serree,
+       et son compte en exposant — la mise en page de `Projects 150`.
+     * LE SURVOL. Chez Rennsport, la ligne approchee se remplit d'un aplat de
+       couleur d'un bord de l'ecran a l'autre et l'encre s'inverse. Geste
+       repris ici, en mieux : l'aplat se DEROULE de la gauche vers la droite —
+       un scaleX, donc aucune surface repeinte — au lieu d'apparaitre d'un
+       coup.
+     * LE FOND, lui, ne bougeait pas : la page reste ivoire. Un bloc noir a ete
+       essaye et rejete — « bas de black background, comme ca merde ». Tout ce
+       qui suit ne consomme donc que la charte : --text-*, --brand-terre,
+       --border. Aucune valeur inventee.
+   -------------------------------------------------------------------------- */
+
+
+.cx-iti {
+    /* La marge laterale de la section. L'aplat de survol s'en sert pour sortir
+       du padding et filer jusqu'aux deux bords de l'ecran. Elle vient de la
+       page (.cx-detail) pour rester alignee avec l'« A propos » ; la valeur de
+       repli garde la section utilisable seule. */
+    --iti-marge: var(--cx-gutter, 64px);
+    --iti-aplat: var(--bg-sunken);
+
+    /* La grille d'une halte, nommee une seule fois. Le depli se cale sous le
+       nom du lieu en repartant de ces memes valeurs : sans ce calcul, la
+       moindre retouche d'espacement faisait deriver l'un de l'autre. */
+    --leg-num:   76px;
+    --leg-media: 200px;
+    --leg-gap:   44px;
+    --leg-retrait: calc(var(--leg-num) + var(--leg-media) + var(--leg-gap) * 2);
+
+    /* La colonne de la bascule est tenue a une largeur fixe, et c'est ce qui
+       aligne la liste : une halte sans programme n'a pas de bouton, sa colonne
+       tombait a zero et son sejour glissait de 118 px vers la droite. Deux
+       lignes voisines ne finissaient plus au meme endroit. Le mot le plus long
+       (« Voir plus » et son chevron) tient dans 92 px, le bouton s'y cale a
+       droite. */
+    --leg-bascule: 92px;
+
+    /* Bas a zero : c'est .cx-detail qui ferme la page (cf. la regle de rythme).
+       Avant, ces 160 px s'ajoutaient au padding-haut de la section suivante.
+       La valeur de repli garde la section utilisable hors de .cx-detail. */
+    padding: var(--cx-section, clamp(96px, 11vw, 160px)) var(--iti-marge) 0;
+    overflow: clip;   /* l'aplat deborde ; la page ne defile pas pour autant */
+}
+
+/* ---------- L'en-tete ----------------------------------------------------
+   Il reprend .cx-tete, celui de « L'esprit du voyage » : meme sur-titre, meme
+   titre, meme taille. L'itineraire etait le seul titre de la page a vivre a
+   part (7.5rem, chasse de Barlow Light) : on le lisait comme une autre police.
+   Seul ajout : le compte des etapes, en exposant. */
+.cx-iti__titre { display: flex; align-items: flex-start; gap: 12px; }
+.cx-iti__exposant {
+    color: var(--brand-terre);
+    font-size: clamp(0.8rem, 1.1vw, 1.15rem);
+    letter-spacing: 0.06em;
+    margin-top: 0.35em;
+}
+/* La chasse passe de 0.22em a 0.1em, comme .cx-label et comme toutes les
+   petites capitales du site. Au-dela de 0.2em un mot cesse d'etre lu et
+   devient un motif — la regle est posee dans .cx-label, elle vaut ici aussi. */
+.cx-iti__intro {
+    color: var(--text-muted);
+    padding-bottom: 0.6em;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---------- Une halte ----------------------------------------------------
+   Une ligne pleine largeur, separee par un filet d'un pixel. Rien d'autre :
+   pas de carte, pas de rayon, pas d'ombre. */
+.cx-legs {
+    margin-top: clamp(48px, 7vw, 112px);
+    border-top: 1px solid var(--border);
+}
+
+.cx-leg {
+    position: relative;
+    border-bottom: 1px solid var(--border);
+}
+
+.cx-leg__aplat {
+    position: absolute;
+    inset: 0 calc(var(--iti-marge) * -1);
+    background-color: var(--iti-aplat);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.cx-leg:hover .cx-leg__aplat { transform: scaleX(1); }
+
+.cx-leg__row {
+    position: relative;   /* au-dessus de l'aplat */
+    display: grid;
+    grid-template-columns: var(--leg-num) var(--leg-media) minmax(0, 1fr) auto var(--leg-bascule);
+    column-gap: var(--leg-gap);
+    align-items: center;
+    padding: 28px 0;
+}
+
+/* Les encres. Elles sont posees ici et non en style inline, sans quoi la
+   regle de survol perdrait contre elles. */
+.cx-leg__num,
+.cx-leg__nom,
+.cx-leg__meta,
+.cx-leg__stay { transition: color 0.45s ease; }
+
+.cx-leg__num  { color: var(--text-muted); }
+.cx-leg__nom  { color: var(--text-primary); }
+.cx-leg__meta { color: var(--text-muted); }
+.cx-leg__stay { color: var(--text-secondary); }
+
+/* ---------- L'echelle et les petites capitales --------------------------
+   Elles etaient posees dans le JSX, chacune avec sa propre valeur : 13/0.18,
+   11/0.2, 12/0.16, et 11/0.22 pour l'intro. Quatre chasses differentes pour le
+   meme registre de texte — c'est ce qui donnait a la liste son air
+   approximatif. Une seule mesure desormais, 11 px et 0.1em, celle de .cx-label.
+
+   Le nom du lieu redescend de 3rem a 2.5rem : il montait au niveau du titre de
+   l'« A propos » (3.5rem) alors qu'il lui est subordonne. L'echelle de la page
+   se lit maintenant sans hesitation :
+       Itineraire 7.5 > L'esprit du voyage 3.5 > le lieu 2.5 > le jour 1.9. */
+.cx-leg__meta,
+.cx-leg__stay {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Le numero ORDONNE : Abhaya pale, comme les « trois gestes » de l'accueil et
+   les etapes du createur de circuit. */
+.cx-leg__num {
+    font-size: 1.85rem;
+    line-height: 1;
+    color: var(--text-muted);
+}
+
+/* Le nom du lieu NOMME : Abhaya, un cran sous le titre de section. */
+.cx-leg__nom {
+    font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+}
+
+/* ---------- La bascule ---------------------------------------------------
+   « voir plus » etait une div en bas de casse, sans etat et sans clavier. Elle
+   devient un bouton : meme registre que le reste de la ligne, un chevron qui
+   pivote, et l'accent Terre des que la halte est approchee ou ouverte. Pas de
+   cadre ni de pastille — le mot et la fleche suffisent. */
+.cx-leg__bascule {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: end;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.35s ease;
+}
+.cx-leg:hover .cx-leg__bascule,
+.cx-leg--ouvert .cx-leg__bascule { color: var(--brand-terre); }
+
+.cx-leg__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-leg--ouvert .cx-leg__chevron { transform: rotate(180deg); }
+
+
+/* Sur l'aplat terre, toute la ligne bascule en encre claire. */
+/* .cx-leg:hover .cx-leg__num  { color: var(--text-inverse-muted); }
+.cx-leg:hover .cx-leg__meta { color: var(--text-inverse-secondary); }
+.cx-leg:hover .cx-leg__stay,
+.cx-leg:hover .cx-leg__nom  { color: var(--text-inverse); } */
+
+/* La vignette. Angles francs, aucun cadre : la photographie se suffit. Le
+   creux tient la place quand un lieu n'a pas d'image, sans quoi la grille se
+   decale d'une ligne a l'autre. */
+.cx-leg__media {
+    overflow: hidden;
+    aspect-ratio: 5 / 3;
+    background-color: var(--bg-muted);
+}
+.cx-leg__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-leg:hover .cx-leg__media img { transform: scale(1.08); }
+
+.cx-leg__stay { text-align: right; }
+
+
+/* ==========================================================================
+   LE DEPLI — le programme jour par jour d'une halte
+   ==========================================================================
+   Il tombait au bord gauche de la section, sous l'ordinal, alors qu'il
+   developpe le NOM du lieu. Il se cale donc sur la colonne du nom, et son
+   filet d'ouverture part de la meme verticale : le depli se lit comme la suite
+   du titre, pas comme un second bloc pose dessous.
+   -------------------------------------------------------------------------- */
+.cx-depli {
+    position: relative;   /* au-dessus de l'aplat, comme la ligne */
+    margin-left: var(--leg-retrait);
+    border-top: 1px solid var(--border);
+    padding: clamp(40px, 4.4vw, 64px) 0 clamp(56px, 6vw, 88px);
+    animation: cxDepli 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Le contenu monte au lieu d'apparaitre. Opacite et transform uniquement :
+   rien qui force une remise en page. */
+@keyframes cxDepli {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cx-depli { animation: none; }
+}
+
+/* Deux journees de suite se separent par du vide et un filet discret, jamais
+   par une carte. */
+.cx-jour + .cx-jour {
+    margin-top: clamp(56px, 6vw, 88px);
+    padding-top: clamp(40px, 4.4vw, 64px);
+    border-top: 1px solid var(--border-muted);
+}
+
+.cx-jour__tete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+}
+
+/* Le renvoi vers la carte : un mot et une fleche, l'accent de la page. */
+.cx-jour__carte {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: opacity 0.3s ease;
+}
+.cx-jour__carte:hover { opacity: 0.6; }
+
+/* Le trajet de la journee : les lieux traverses, dans l'ordre. Il MESURE le
+   deplacement plutot qu'il ne nomme un lieu — corps, pas serif. */
+.cx-jour__trajet {
+    margin-top: 10px;
+    color: var(--brand-terre);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.cx-jour__titre {
+    margin-top: clamp(20px, 2vw, 28px);
+    color: var(--text-primary);
+    font-size: clamp(1.375rem, 2vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.cx-jour__texte {
+    margin-top: clamp(16px, 1.6vw, 22px);
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* ---------- La fiche du soir --------------------------------------------
+   Hebergement et repas en valeur/legende, la mention du panneau circuit. Deux
+   lignes valent mieux qu'une enfilade separee par des points, et l'etoile de
+   l'hotel n'y figure pas : c'est le vocabulaire d'un comparateur. */
+.cx-jour__fiche {
+    margin-top: clamp(28px, 3vw, 40px);
+    padding-top: clamp(20px, 2vw, 28px);
+    border-top: 1px solid var(--border-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px clamp(48px, 6vw, 88px);
+}
+/* La mention est desormais un composant a part (components/shared/Mention) :
+   ses regles quittent le prefixe .cx-jour__ pour le sien. */
+.cx-mention {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+.cx-mention__valeur {
+    color: var(--text-primary);
+    /* Le plancher est a 20 px et pas a 17,6 : sur telephone la nuitee tombait
+       a un cheveu du nom d'une visite (16 px) et l'ecart entre les deux ne
+       tenait plus qu'a la fonte. */
+    font-size: clamp(1.25rem, 1.4vw, 1.375rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+}
+
+
+/* ---------- Les visites de la journee ------------------------------------
+   Elles se posent entre le recit et la nuit : ce qu'on fait, puis ou l'on
+   dort. Et elles se posent un cran SOUS l'hebergement, volontairement — la
+   nuitee est le point fixe de la journee (un nom, un lieu, des photos), les
+   visites sont une liste.
+
+   Ce qui cree l'ecart n'est pas le corps mais la FAMILLE : la nuitee est en
+   Abhaya, la serif des titres, a 22 px ; les visites en Barlow a 16. Deux
+   tailles voisines dans la meme fonte se seraient disputees le regard ; deux
+   registres differents se rangent d'eux-memes.
+
+   Une visite comprise ne porte aucune marque — on ne decore pas ce qui est
+   acquis. Seule l'option se signale : c'est une ligne de devis en plus. */
+.cx-visites {
+    margin-top: clamp(28px, 3vw, 40px);
+    padding-top: clamp(20px, 2vw, 28px);
+    border-top: 1px solid var(--border-muted);
+}
+
+.cx-visites__tete {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+.cx-visites__compte {
+    color: var(--brand-terre);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+.cx-visites__liste { margin-top: clamp(14px, 1.6vw, 22px); }
+
+.cx-visite {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 32px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-muted);
+}
+/* La liste s'ouvre et se ferme au ras : c'est la marge de .cx-visites__liste
+   qui la detache de son micro-titre, et celle de la fiche qui la detache de
+   la nuit. Deux espacements qui s'additionnent font un trou. */
+.cx-visite:first-child { padding-top: 0; }
+.cx-visite:last-child  { padding-bottom: 0; border-bottom: 0; }
+
+.cx-visite__nom {
+    color: var(--text-primary);
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+/* Le type du lieu, dans le registre des metas de la liste des haltes : meme
+   corps, meme chasse, meme gris. Un seul reglage pour tout le petit texte. */
+.cx-visite__type {
+    margin-left: 14px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.cx-visite__option {
+    justify-self: end;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.cx-visite__note {
+    grid-column: 1 / -1;
+    margin-top: 7px;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Sur un telephone, le nom d'une visite et sa mention d'option ne tiennent
+   plus sur une ligne : l'option passe dessous, alignee a gauche comme tout
+   le reste. */
+@media (max-width: 640px) {
+    .cx-visite { grid-template-columns: minmax(0, 1fr); row-gap: 7px; }
+    .cx-visite__option { justify-self: start; }
+    .cx-visite__type { margin-left: 0; display: block; margin-top: 6px; }
+}
+
+/* ---------- La planche photo --------------------------------------------
+   Un grand cadre et deux vignettes qui se partagent exactement sa hauteur.
+   Angles vifs, gouttiere de 10 px, aucun rayon : la photographie se suffit.
+   Le compte des visuels restants se pose EN LEGENDE sur la derniere vignette
+   plutot qu'en faux bouton — tant qu'aucune visionneuse n'existe, autant le
+   dire honnetement. */
+.cx-jour__galerie {
+    margin-top: clamp(32px, 3.6vw, 48px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 10px;
+}
+.cx-jour__galerie--seule { grid-template-columns: minmax(0, 1fr); }
+
+.cx-jour__colonne {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.cx-jour__colonne--une { grid-template-rows: minmax(0, 1fr); }
+
+.cx-jour__media {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    background-color: var(--bg-muted);
+}
+.cx-jour__media--grand { aspect-ratio: 16 / 10; }
+
+/* Les visuels sont poses en absolu, et ce n'est pas un detail : en flux, la
+   hauteur intrinseque des deux vignettes fixait la hauteur de la rangee, et la
+   colonne de droite depassait le grand cadre d'une centaine de pixels. Hors
+   flux, elles ne pesent plus rien : c'est le grand cadre et son aspect-ratio
+   qui donnent la hauteur, les deux vignettes s'y partagent exactement. */
+.cx-jour__media img,
+.cx-jour__media video {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-jour__media:hover img { transform: scale(1.04); }
+
+.cx-jour__reste {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(37, 26, 18, 0.52);
+    color: var(--text-inverse);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ---------- Ecrans etroits ----------------------------------------------
+   La grille a quatre colonnes ne tient plus : tout s'empile, la marge tombe a
+   24 px, et l'aplat suit puisqu'il se cale sur la meme variable. */
+@media (max-width: 1024px) {
+    /* La ligne passe a deux colonnes plutot qu'a une : l'ordinal, la vignette
+       et le nom prennent toute la largeur, puis le sejour et la bascule se
+       partagent une derniere rangee. Empiles un par un, ils faisaient cinq
+       lignes de texte pour une seule halte. */
+    .cx-leg__row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 16px;
+    }
+    .cx-leg__num,
+    .cx-leg__media,
+    .cx-leg__texte { grid-column: 1 / -1; }
+
+    .cx-leg__media { max-width: 320px; }
+    .cx-leg__stay { text-align: left; }
+
+    /* Plus de colonne de nom sous laquelle se caler : le depli reprend toute
+       la largeur, et sa planche photo s'empile. */
+    .cx-depli { margin-left: 0; }
+
+    /* La planche s'empile : le grand cadre, puis les vignettes cote a cote.
+       Elles reprennent un aspect-ratio propre — sans rangee au-dessus pour
+       leur donner une hauteur, des visuels en absolu se replieraient a zero. */
+    .cx-jour__galerie { grid-template-columns: minmax(0, 1fr); }
+    .cx-jour__colonne {
+        grid-template-rows: auto;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+    }
+    .cx-jour__colonne .cx-jour__media { aspect-ratio: 4 / 3; }
+}
+
+/* Le doigt n'a pas de survol : sur tactile l'aplat resterait accroche a la
+   derniere ligne touchee. On le laisse ferme. */
+@media (hover: none) {
+    .cx-leg:hover .cx-leg__aplat { transform: scaleX(0); }
+    .cx-leg:hover .cx-leg__media img { transform: none; }
+    .cx-leg:hover .cx-leg__num  { color: var(--text-muted); }
+    .cx-leg:hover .cx-leg__meta { color: var(--text-muted); }
+    .cx-leg:hover .cx-leg__stay { color: var(--text-secondary); }
+    .cx-leg:hover .cx-leg__nom  { color: var(--text-primary); }
+}
+
+/* La halte ouverte garde l'aplat deroule : la bande de sable file d'un bord a
+   l'autre de l'ecran et tient ensemble la ligne et son programme. C'est la
+   seule chose qui dit « ce bloc appartient a cette halte », et elle ne coute
+   qu'un scaleX deja en place.
+   Posee APRES le bloc (hover: none), sinon celui-ci la refermerait au doigt. */
+.cx-leg--ouvert .cx-leg__aplat { transform: scaleX(1); }
+
+
+
+
+/* ==========================================================================
+   L'EN-TÊTE — le menu et l'espace voyageur
+   ==========================================================================
+   Deux panneaux, une grammaire : celle de l'accueil. Pas d'image qui suit le
+   curseur, pas de photographie sous voile : la serif d'affiche, les lignes
+   filetées, la colonne de sable. Au survol, seule la couleur change.
+   -------------------------------------------------------------------------- */
+.cx-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: clamp(24px, 4vw, 40px) clamp(20px, 5vw, 64px) clamp(24px, 3vw, 36px);
+    overflow-y: auto;
+}
+.cx-menu__liens { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+.cx-menu__lien {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    padding: clamp(16px, 2.4vw, 26px) 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    transition: color 0.35s ease;
+}
+.cx-menu__lien:hover, .cx-menu__lien:focus-visible { color: var(--brand-terre); }
+.cx-menu__titre { display: block; font-size: clamp(2.4rem, 4.6vw, 4.5rem); line-height: 0.95; }
+.cx-menu__note {
+    display: block;
+    max-width: 28rem;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+.cx-menu__fleche { flex-shrink: 0; margin-bottom: 8px; font-size: 18px; color: var(--text-muted); transition: color 0.35s ease; }
+.cx-menu__lien:hover .cx-menu__fleche { color: var(--brand-terre); }
+.cx-menu__pied {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+}
+.cx-menu__pied .cx-label { margin-bottom: 14px; }
+.cx-menu__contact {
+    display: block;
+    width: fit-content;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+.cx-menu__contact--pale { color: var(--text-muted); }
+a.cx-menu__contact:hover { color: var(--brand-terre); }
+.cx-menu__promesse { display: flex; align-items: flex-end; justify-content: flex-end; }
+
+/* ── L'espace voyageur ── */
+.cx-compte-panneau { display: flex; height: 100%; min-height: 0; }
+.cx-compte-panneau__sable {
+    width: 42%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+    padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 56px);
+    background-color: var(--bg-territoires);
+    overflow-y: auto;
+}
+.cx-compte-panneau__titre {
+    color: var(--text-primary);
+    font-size: clamp(2.6rem, 4vw, 4.4rem);
+    line-height: 0.9;
+}
+.cx-compte-panneau__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px 32px;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-strong);
+}
+.cx-compte-panneau__pied .cx-label { margin-bottom: 8px; }
+.cx-compte-panneau__email { color: var(--text-secondary); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-compte-panneau__gestes { display: flex; gap: 28px; }
+.cx-compte-panneau__geste { color: var(--text-secondary); cursor: pointer; transition: color 0.3s ease; }
+.cx-compte-panneau__geste:hover { color: var(--brand-terre); }
+.cx-compte-panneau__invite { max-width: 24rem; color: var(--text-secondary); font-size: 15px; line-height: 1.8; }
+.cx-compte-panneau__carnet {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 56px);
+    background-color: var(--bg-card);
+    overflow-y: auto;
+}
+.cx-compte-panneau__tete { margin-bottom: 28px; }
+.cx-compte-panneau__tete .cx-label { margin-bottom: 12px; }
+.cx-compte-panneau__soustitre { color: var(--text-primary); font-size: clamp(1.9rem, 2.6vw, 2.9rem); line-height: 0.95; }
+.cx-compte-panneau__cta { margin-top: 32px; width: fit-content; }
+.cx-compte-panneau__gestes-invite { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 36px; margin-top: 36px; }
+
+.cx-compte-rangee {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 0.9fr) minmax(0, 1.3fr);
+    align-items: baseline;
+    gap: 12px 32px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-primary);
+}
+.cx-compte-rangee--fixe { grid-template-columns: 4.5rem minmax(0, 0.9fr) minmax(0, 1.3fr); }
+.cx-compte-rangee--fixe:last-of-type { border-bottom: 1px solid var(--border); }
+.cx-compte-rangee:not(.cx-compte-rangee--fixe) .cx-compte-rangee__titre { transition: color 0.3s ease; }
+a.cx-compte-rangee:hover .cx-compte-rangee__titre { color: var(--brand-terre); }
+.cx-compte-rangee__compte { color: var(--border-strong); font-size: 2.6rem; line-height: 1; }
+.cx-compte-rangee__titre { font-size: 1.85rem; line-height: 1.1; }
+.cx-compte-rangee__texte { display: flex; flex-direction: column; gap: 10px; color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+.cx-compte-rangee__action { display: inline-flex; align-items: center; gap: 8px; color: var(--text-primary); }
+.cx-compte-rangee--fixe > .cx-compte-rangee__titre:first-child { grid-column: 1 / span 2; }
+
+@media (max-width: 900px) {
+    .cx-compte-panneau { flex-direction: column; overflow-y: auto; }
+    .cx-compte-panneau__sable, .cx-compte-panneau__carnet { width: 100%; overflow: visible; }
+    .cx-compte-panneau__carnet { justify-content: flex-start; }
+    .cx-menu__pied { grid-template-columns: minmax(0, 1fr); }
+    .cx-menu__promesse { justify-content: flex-start; }
+}
+@media (max-width: 560px) {
+    .cx-compte-rangee, .cx-compte-rangee--fixe { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .cx-compte-rangee__compte { font-size: 1.6rem; }
+    .cx-compte-rangee--fixe > .cx-compte-rangee__titre:first-child { grid-column: auto; }
+}
+
+/* ── Le pied de page ── */
+.cx-pied { background-color: var(--bg); border-top: 1px solid var(--border); }
+.cx-pied__grille {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: 40px clamp(32px, 5vw, 80px);
+    /* La gouttière de l'en-tête (px-5, puis sm:px-16) : le logo du pied tombe
+       sur la verticale du menu, pas dans un conteneur centré à part. */
+    padding: clamp(48px, 6vw, 72px) 20px;
+}
+@media (min-width: 640px) {
+    .cx-pied__grille { padding-inline: 64px; }
+}
+.cx-pied__grille .cx-label { margin-bottom: 16px; }
+.cx-pied__logo { width: 10rem; height: auto; }
+.cx-pied__marque { display: flex; flex-direction: column; gap: 18px; }
+.cx-pied__texte { max-width: 22rem; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+.cx-pied__lien {
+    display: block;
+    width: fit-content;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+.cx-pied__lien:hover { color: var(--brand-terre); }
+.cx-pied__signature {
+    padding: 22px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+@media (max-width: 760px) {
+    .cx-pied__grille { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   MON COMPTE — /mon-compte
+   ==========================================================================
+   Le prefixe est .cx-param et PAS .cx-compte : ce dernier existe deja plus
+   haut dans cette feuille, c'est le decompte de la fiche circuit, et il est en
+   display:grid. La section des reglages en heritait sans qu'on la voie faire —
+   releve dans le navigateur : la rangee commencait a 814 px au lieu de 64, les
+   douze colonnes faisaient 29 px chacune. Une collision de nom ne se voit pas
+   dans le code, seulement a l'ecran.
+   Premiere version : un portrait de 112 px, deux lignes de texte sur le fond
+   clair, puis trois volets. Verdict du client, mot pour mot : « c'est
+   ergonomique c'est de la merde regarde dans home une espace tres tres luxe et
+   premium et riche moderne la c'est direct un bas de gamme ».
+
+   Il avait raison, et le diagnostic tient en une phrase : un ecran de compte
+   compose comme un formulaire EST un formulaire, meme bien compose.
+
+   Ce qui fait la richesse de l'accueil tient a TROIS choses, et aucune des
+   trois n'etait la :
+     1. de la photographie PLEIN CADRE, a 0.75 d'opacite sur du noir ;
+     2. un titre en tres grand corps, ligne par ligne sous son masque ;
+     3. un filet d'un pixel en pied, qui porte la meta.
+
+   La page ouvre donc sur un hero photographique qui porte le nom du voyageur en
+   titre de une — exactement comme l'accueil ouvre sur « Composez votre
+   Madagascar » —, et les reglages reprennent le rythme editorial de « Votre
+   voyage en trois gestes » : douze colonnes, numero en Abhaya clair, filet
+   entre chaque rangee, filet de fermeture.
+
+   Ce qui reste ECARTE, et il faut le dire une fois pour ne pas y revenir : les
+   cartes a coins arrondis avec ombre portee, les champs encadres de gris, les
+   interrupteurs, les onglets. C'est le vocabulaire d'un tableau de bord
+   d'application — l'exact contraire de ce que le reste du site raconte.
+   -------------------------------------------------------------------------- */
+
+/* ---------- Le hero photographique ---------------------------------------
+   Il passe SOUS la barre fixe, comme tous les heros du site : c'est ce qui rend
+   la barre transparente sur la photographie. D'ou l'absence de .cx-sous-entete
+   sur cette page, et le data-header-text="var(--text-inverse)" sur la section.
+
+   Pas 100vh : un ecran de reglages qui demande de defiler avant de montrer le
+   premier reglage se paie en agacement a chaque visite. 76vh laisse le titre
+   respirer et laisse deviner la suite. */
+.cx-param-hero {
+    /* Le hero est un FRERE de .cx-detail, pas un enfant : il n'herite pas de
+       sa gouttiere et retombait sur les 64 px du defaut. Mesure a 430 px : le
+       filet du hero commencait a 64, celui des reglages a 24 — deux verticales
+       differentes sur la meme page. On redeclare ici la meme valeur, et la
+       meme bascule. */
+    --cx-gutter: 64px;
+    position: relative;
+    height: clamp(520px, 76vh, 860px);
+}
+@media (max-width: 1024px) {
+    .cx-param-hero { --cx-gutter: 24px; }
+}
+
+.cx-param-hero__contenu {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 10;
+    padding: 0 var(--cx-gutter, 64px) clamp(36px, 4vw, 56px);
+}
+
+.cx-param-hero__accroche {
+    display: block;
+    margin-bottom: clamp(20px, 2.2vw, 32px);
+    color: var(--brand-ocre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Le corps du nom suit celui du hero d'accueil. Un nom long ne casse pas la
+   mise en page : il descend, la colonne est faite pour deux lignes. */
+.cx-param-hero__nom {
+    color: var(--text-inverse);
+    font-size: clamp(2.6rem, 7vw, 6rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+}
+
+.cx-param-hero__filet {
+    margin-top: clamp(28px, 3.2vw, 44px);
+}
+
+.cx-param-hero__pied {
+    padding-top: clamp(22px, 2.4vw, 32px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 3vw, 48px);
+}
+
+/* ---------- Le portrait, sur la photographie -----------------------------
+   Il est ICI et pas dans la liste des reglages : on change sa photo la ou on la
+   regarde. Un volet « photo de profil » a deplier pour y trouver un bouton
+   « parcourir » ajoute deux gestes pour la meme chose. */
+.cx-param-hero__portrait {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2vw, 28px);
+}
+
+/* Le declencheur ne dessine rien : ni fond, ni cadre, ni rayon. Il ne porte que
+   le portrait, et le voile n'apparait qu'au survol — une icone posee en
+   permanence sur un visage, c'est un badge, pas une commande. */
+.cx-param__declencheur {
+    position: relative;
+    display: block;
+    background: none;
+    border: 0;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+}
+.cx-param__declencheur:disabled { cursor: wait; }
+
+.cx-param__voile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(16, 14, 11, 0.6);
+    color: var(--text-inverse);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.cx-param__declencheur:hover .cx-param__voile,
+.cx-param__declencheur:focus-visible .cx-param__voile { opacity: 1; }
+
+.cx-param-hero__gestes {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+/* Le filet vertical entre les deux gestes : c'est ce qui les separe sans
+   ajouter de ponctuation, comme la meta du hero d'accueil. */
+.cx-param-hero__gestes > * + *::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 11px;
+    margin-right: 16px;
+    vertical-align: -1px;
+    background-color: rgba(245, 240, 230, 0.35);
+}
+
+/* Les gestes du portrait : du texte en petites capitales sur la photographie,
+   rien de plus. Un bouton plein ici ferait une pastille posee sur l'image. */
+.cx-param-hero__lien {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-inverse);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+}
+.cx-param-hero__lien:hover { color: var(--brand-ocre); }
+.cx-param-hero__lien:disabled { color: var(--text-inverse-muted); cursor: default; }
+.cx-param-hero__lien--discret { color: var(--text-inverse-secondary); }
+
+/* ---------- Les reperes, a droite du filet -------------------------------
+   Meme place et meme role que la meta du hero d'accueil : ce qu'on lit apres le
+   titre, sans avoir a le chercher. */
+.cx-param-hero__reperes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(28px, 3.4vw, 64px);
+    text-align: right;
+    margin-left: auto;
+}
+.cx-param-hero__legende {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--brand-ocre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.cx-param-hero__valeur {
+    color: var(--text-inverse-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.cx-param-hero__attente {
+    display: block;
+    margin-top: clamp(18px, 2vw, 26px);
+    color: var(--brand-ocre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* L'avis sur le hero reste lisible : il garde ses tons, sur fond opaque. */
+.cx-param-hero__avis { max-width: 62ch; }
+.cx-param-hero__avis .cx-param__avis { margin-top: clamp(16px, 1.8vw, 22px); }
+
+/* ---------- La section des reglages -------------------------------------- */
+.cx-param {
+    padding: clamp(56px, 6vw, 96px) var(--cx-gutter, 64px) 0;
+    overflow: clip;   /* l'aplat de survol sort de la gouttiere */
+}
+
+.cx-reglages {
+    margin-top: clamp(40px, 4.4vw, 68px);
+}
+
+/* ---------- Une rangee de reglage ----------------------------------------
+   La rangee de « trois gestes », a l'identique : 2 / 4 / 6 colonnes sur douze,
+   filet en haut, numero en Abhaya clair. */
+.cx-reglage {
+    position: relative;
+    border-top: 1px solid var(--border);
+}
+
+/* L'aplat de survol, repris de l'itineraire : il sort de la gouttiere et file
+   jusqu'aux deux bords. Un scaleX, donc aucune surface repeinte. */
+.cx-reglage__aplat {
+    position: absolute;
+    inset: 0 calc(var(--cx-gutter, 64px) * -1);
+    background-color: var(--bg-sunken);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.cx-reglage:hover .cx-reglage__aplat { transform: scaleX(1); }
+
+.cx-reglage__rangee {
+    position: relative;   /* au-dessus de l'aplat */
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(20px, 2.4vw, 32px);
+    align-items: baseline;
+    padding: clamp(28px, 3vw, 40px) 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cx-reglage__numero {
+    grid-column: span 2;
+    color: var(--border-strong);
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.cx-reglage__titre {
+    grid-column: span 4;
+    color: var(--text-primary);
+    font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-reglage:hover .cx-reglage__titre { transform: translateX(8px); }
+
+.cx-reglage__propos { grid-column: span 5; }
+
+.cx-reglage__desc {
+    display: block;
+    max-width: 44ch;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* La valeur actuelle : ce qu'une etape de l'accueil n'a pas besoin de dire et
+   qu'un reglage doit dire. Sans elle il faut ouvrir les trois volets pour
+   savoir ce qui est regle. */
+.cx-reglage__valeur {
+    display: block;
+    margin-top: 12px;
+    color: var(--text-primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.cx-reglage__bascule {
+    grid-column: span 1;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.35s ease;
+}
+.cx-reglage:hover .cx-reglage__bascule { color: var(--brand-terre); }
+.cx-reglage__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-reglage--ouvert .cx-reglage__chevron { transform: rotate(180deg); }
+
+/* Le doigt n'a pas de survol : sur tactile l'aplat et le decalage du titre
+   resteraient accroches a la derniere rangee touchee. */
+@media (hover: none) {
+    .cx-reglage:hover .cx-reglage__aplat { transform: scaleX(0); }
+    .cx-reglage:hover .cx-reglage__titre { transform: none; }
+}
+
+/* ---------- Le depli ---------------------------------------------------- */
+.cx-reglage__corps {
+    position: relative;   /* au-dessus de l'aplat, comme la rangee */
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-reglage--ouvert .cx-reglage__corps { grid-template-rows: 1fr; }
+.cx-reglage__corps > div { overflow: hidden; }
+
+/* Le formulaire s'aligne sur la colonne du titre, pas sur le bord : il
+   appartient a la rangee qu'on vient d'ouvrir, et l'alignement le dit sans
+   qu'on ait besoin d'un cadre autour.
+
+   Il reprend LA MEME GRILLE que la rangee, et se place en colonne 3. Une marge
+   en pourcentage ne marchait pas — mesure : le decalage tombait a cote, parce
+   que « 2/12 de la largeur » ignore les onze gouttieres. Dans la grille, c'est
+   juste par construction, quelle que soit la gouttiere. */
+.cx-reglage__dedans {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(20px, 2.4vw, 32px);
+    padding-bottom: clamp(34px, 3.6vw, 52px);
+}
+.cx-reglage__dedans > * { grid-column: 3 / span 8; }
+
+/* ---------- Les formulaires --------------------------------------------- */
+.cx-param__texte {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.8;
+}
+.cx-param__accent { color: var(--brand-terre); }
+
+/* Les envies de voyage : un groupe par famille d'etiquettes, des mots en
+   capitales espacees a cocher — le choisi s'encre, comme les filtres. */
+.cx-envies {
+    margin-top: clamp(24px, 2.6vw, 34px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(22px, 2.4vw, 30px);
+}
+.cx-envies__groupe { border: 0; margin: 0; padding: 0; min-width: 0; }
+.cx-envies__titre {
+    margin-bottom: 14px;
+    padding: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+.cx-envies__liste { display: flex; flex-wrap: wrap; gap: 10px; }
+.cx-envie {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border: 1px solid var(--border-strong);
+    background-color: transparent;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+}
+.cx-envie:hover { border-color: var(--brand-terre); color: var(--brand-terre); }
+.cx-envie--actif,
+.cx-envie--actif:hover {
+    border-color: var(--text-primary);
+    background-color: var(--text-primary);
+    color: var(--bg);
+}
+.cx-envie__coche { font-size: 12px; line-height: 1; }
+
+.cx-param__champs {
+    margin-top: clamp(24px, 2.6vw, 34px);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(24px, 2.8vw, 36px) clamp(28px, 3.4vw, 52px);
+}
+.cx-param__champ--large { grid-column: 1 / -1; }
+
+/* L'aide sous le champ : elle explique POURQUOI on demande, ce qui est
+   exactement la question du visiteur devant « votre mot de passe » sur une page
+   ou il est deja connecte. */
+.cx-param__aide {
+    display: block;
+    margin-top: 10px;
+    max-width: 52ch;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.cx-param__actions {
+    margin-top: clamp(28px, 3vw, 40px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+}
+.cx-param__note {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Un lien-action dans un formulaire : « annuler la demande » ne merite pas le
+   meme poids que « confirmer ». */
+.cx-param__lien {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+}
+.cx-param__lien:hover { color: var(--brand-terre); }
+.cx-param__lien:disabled { color: var(--border-strong); cursor: default; }
+
+/* ---------- L'avis du serveur -------------------------------------------
+   Il se pose SOUS les champs et AU-DESSUS du bouton : c'est la que le regard
+   revient apres un echec. Les deux tons viennent des jetons du site, aucune
+   couleur inventee sur place.
+
+   pre-line parce qu'apiErrorMessage joint le message et les details de
+   validation par des retours a la ligne — sans ca, les trois motifs d'un refus
+   arrivent colles en une phrase illisible. */
+.cx-param__avis {
+    margin-top: clamp(20px, 2.2vw, 28px);
+    padding: 14px 18px;
+    max-width: 62ch;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+.cx-param__avis--erreur { background-color: var(--error-bg);   color: var(--error-text); }
+.cx-param__avis--succes { background-color: var(--success-bg); color: var(--success-text); }
+
+/* ---------- Pied de page et etats vides --------------------------------- */
+.cx-param__pied {
+    margin-top: clamp(32px, 3.4vw, 48px);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+.cx-param__pied a { transition: color 0.3s ease; }
+.cx-param__pied a:hover { color: var(--text-primary); }
+
+/* Un ecran vide dit ce qu'il faut faire ensuite. « Non connecte » tout seul est
+   un cul-de-sac. */
+.cx-param__vide {
+    margin-top: clamp(36px, 4vw, 56px);
+    padding-top: clamp(28px, 3vw, 40px);
+    border-top: 1px solid var(--border);
+    max-width: 560px;
+}
+.cx-param__vide-texte {
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+@media (max-width: 1100px) {
+    /* Douze colonnes ne tiennent plus : le numero garde sa colonne, le titre et
+       le propos s'empilent. Repartir de zero en liste simple ferait perdre le
+       numero, qui est ce qui ordonne la page. */
+    .cx-reglage__rangee {
+        grid-template-columns: 56px minmax(0, 1fr) auto;
+        row-gap: 14px;
+    }
+    .cx-reglage__numero { grid-column: 1; }
+    .cx-reglage__titre { grid-column: 2; }
+    .cx-reglage__bascule { grid-column: 3; }
+    .cx-reglage__propos { grid-column: 2 / -1; }
+    .cx-reglage__dedans > * { grid-column: 1 / -1; }
+}
+
+@media (max-width: 860px) {
+    /* Le portrait et les reperes s'empilent, et les reperes repassent a gauche :
+       un bloc aligne a droite tout seul sur sa ligne n'a plus rien en face de
+       lui, il a juste l'air decale. */
+    .cx-param-hero__reperes {
+        margin-left: 0;
+        text-align: left;
+    }
+    .cx-param__champs { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+    .cx-reglage__rangee {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .cx-reglage__numero { grid-column: 1 / -1; }
+    .cx-reglage__titre { grid-column: 1; }
+    .cx-reglage__propos { grid-column: 1 / -1; }
+}
+
+
+/* ==========================================================================
+   DEMANDE DE DEVIS — /circuit/:id/devis
+   ==========================================================================
+   La photographie du circuit en tete, pour que le voyageur VOIE ce qu'il fait
+   chiffrer ; puis trois etapes numerotees a gauche et un recapitulatif qui
+   reste sous les yeux a droite.
+
+   Les etapes reprennent la grammaire des reglages de /mon-compte — numero en
+   Abhaya clair, titre, aide en gris — mais posees sur des panneaux clairs
+   (--bg-card) detaches du sable : c'est la surface qui separe, pas le trait.
+   Trois filets empiles donnent trois blocs d'egale importance et l'oeil n'a
+   plus de point d'entree ; trois panneaux se lisent comme un parcours.
+
+   Tout est au moins en 15 px, les zones de clic font 44 px : c'est un
+   formulaire qu'on remplit une fois, parfois sur un telephone, parfois a
+   soixante-dix ans. Angle vif, aucun rayon, aucune ombre, comme partout.
+   -------------------------------------------------------------------------- */
+.cx-dv-attente {
+    padding: 160px var(--cx-gutter, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.cx-dv-lien {
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 4px;
+}
+
+/* ---------- Le hero ------------------------------------------------------ */
+.cx-dv-hero {
+    --cx-gutter: 64px;
+    position: relative;
+    height: clamp(420px, 58vh, 620px);
+    background-color: var(--bg-dark);
+    overflow: hidden;
+}
+@media (max-width: 1024px) {
+    .cx-dv-hero { --cx-gutter: 24px; }
+}
+.cx-dv-hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* Le voile monte du bas : c'est la que le texte se pose. Le haut garde la
+   photographie, et un second degrade assombrit sous la barre de navigation. */
+.cx-dv-hero__voile {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to top, rgba(37, 26, 18, 0.88) 0%, rgba(37, 26, 18, 0.35) 55%, rgba(37, 26, 18, 0) 75%),
+        linear-gradient(to bottom, rgba(37, 26, 18, 0.45) 0%, rgba(37, 26, 18, 0) 22%);
+}
+.cx-dv-hero__contenu {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 0 var(--cx-gutter) clamp(36px, 4vw, 56px);
+}
+.cx-dv-hero__retour {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(24px, 3vw, 40px);
+    color: var(--text-inverse-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: color 0.3s ease;
+}
+.cx-dv-hero__retour:hover { color: var(--cta-accent-bg); }
+.cx-dv-hero__accroche {
+    display: block;
+    margin-bottom: 18px;
+    color: var(--cta-accent-bg);
+    letter-spacing: 0.1em;
+}
+.cx-dv-hero__titre {
+    max-width: 18ch;
+    color: var(--text-inverse);
+    font-size: clamp(2.4rem, 5.6vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+.cx-dv-hero__pied {
+    margin-top: 20px;
+    color: var(--text-inverse-secondary);
+    font-size: 15px;
+}
+
+/* ---------- La mise en page : etapes | recapitulatif --------------------- */
+.cx-dv {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
+    padding: clamp(48px, 5vw, 80px) var(--cx-gutter, 64px) 0;
+}
+.cx-dv__etapes {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cx-dv-etape {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: clamp(24px, 3vw, 44px);
+}
+.cx-dv-etape__entete {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(18px, 2.4vw, 32px);
+    align-items: baseline;
+}
+.cx-dv-etape__numero {
+    color: var(--border-strong);
+    font-size: clamp(2.2rem, 3.4vw, 3.2rem);
+    line-height: 1;
+}
+.cx-dv-etape__titre {
+    color: var(--text-primary);
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+.cx-dv-etape__aide {
+    margin-top: 8px;
+    max-width: 56ch;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+.cx-dv-etape__corps { margin-top: clamp(22px, 2.4vw, 32px); }
+
+/* ---------- 03 · Les hebergements ----------------------------------------
+   Un sejour = des nuits a un meme endroit. Pour chacun, les hebergements
+   que l'agence propose et qui sont libres, en photos cote a cote ; le
+   conseille est deja pris. Le choix se lit au filet terre et a la coche. */
+.cx-dv-sejours { display: flex; flex-direction: column; gap: 36px; }
+.cx-dv-sejour__entete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+.cx-dv-sejour__etape { color: var(--text-primary); font-size: 1.45rem; line-height: 1.1; }
+.cx-dv-sejour__nuits { color: var(--brand-terre); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+.cx-dv-sejour__vide { color: var(--text-muted); font-size: 14px; font-style: italic; }
+
+.cx-dv-hotels { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+.cx-dv-hotel {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.cx-dv-hotel:hover { border-color: var(--border-strong); }
+.cx-dv-hotel--choisi,
+.cx-dv-hotel--choisi:hover { border-color: var(--brand-terre); box-shadow: inset 0 0 0 1px var(--brand-terre); }
+.cx-dv-hotel__media { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background-color: var(--bg-territoires); }
+.cx-dv-hotel__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-dv-hotel:hover .cx-dv-hotel__media img { transform: scale(1.05); }
+.cx-dv-hotel__initiale { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3rem; color: rgba(43, 33, 26, 0.24); }
+.cx-dv-hotel__conseil {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 7px 10px 7px 11px;
+    background-color: var(--bg);
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.cx-dv-hotel__coche {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--brand-terre);
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-dv-hotel--choisi .cx-dv-hotel__coche { opacity: 1; transform: none; }
+.cx-dv-hotel__corps { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 18px; }
+.cx-dv-hotel__nom { color: var(--text-primary); font-size: 1.2rem; line-height: 1.15; }
+.cx-dv-hotel__etoiles { color: var(--brand-ocre); font-size: 11px; letter-spacing: 0.2em; }
+.cx-dv-hotel__texte {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ---------- 04 · Les visites ----------------------------------------------
+   Ce qu'on FAIT de l'étape, quand les hébergements disent où l'on DORT.
+   Deux natures qui doivent se distinguer sans rien lire : ce qui est
+   COMPRIS dans le circuit est acquis — carte sobre, cadenas, rien à
+   cliquer — et ce qui est PROPOSÉ se coche, au filet terre comme les
+   hôtels. Des cases et non des radios : on visite plusieurs endroits
+   dans une même étape, on n'y dort qu'à un seul. */
+.cx-dv-visites__titre { margin: 18px 0 12px; color: var(--text-muted); }
+.cx-dv-visites { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.cx-dv-visite {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.cx-dv-visite:hover { border-color: var(--border-strong); }
+.cx-dv-visite--prise,
+.cx-dv-visite--prise:hover { border-color: var(--brand-terre); box-shadow: inset 0 0 0 1px var(--brand-terre); }
+.cx-dv-visite--acquise,
+.cx-dv-visite--acquise:hover { cursor: default; background-color: var(--bg-territoires); border-color: var(--border); }
+.cx-dv-visite__media { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; background-color: var(--bg-territoires); }
+.cx-dv-visite__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-dv-visite:not(.cx-dv-visite--acquise):hover .cx-dv-visite__media img { transform: scale(1.05); }
+.cx-dv-visite--acquise .cx-dv-visite__media img { filter: saturate(0.75); }
+.cx-dv-visite__initiale { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2.4rem; color: rgba(43, 33, 26, 0.24); }
+.cx-dv-visite__coche {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 27px;
+    height: 27px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--brand-terre);
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-dv-visite--prise .cx-dv-visite__coche { opacity: 1; transform: none; }
+/* L'acquise porte son cadenas en permanence : il ne dit pas « choisi », il dit « déjà à vous ». */
+.cx-dv-visite__coche--acquise { opacity: 1; transform: none; background-color: var(--bg); color: var(--text-muted); }
+.cx-dv-visite__corps { display: flex; flex-direction: column; gap: 5px; padding: 14px 16px 16px; }
+.cx-dv-visite__nom { color: var(--text-primary); font-size: 1.1rem; line-height: 1.15; }
+.cx-dv-visite__categorie { color: var(--brand-ocre); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.cx-dv-visite__texte {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cx-dv-champ {
+    display: flex;
+    flex-direction: column;
+    margin-top: 24px;
+}
+.cx-dv-champ__option {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+.cx-dv-champ__saisie {
+    width: 100%;
+    margin-top: 12px;
+    padding-bottom: 12px;
+    background: transparent;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+.cx-dv-champ__texte {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.7;
+}
+.cx-dv-champ__aide {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ---------- 02 · Les voyageurs ------------------------------------------ */
+.cx-dv-voyageur {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-top: 1px solid var(--border);
+    gap: 20px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+.cx-dv-voyageur__nom {
+    color: var(--text-primary);
+    font-size: 16px;
+}
+.cx-dv-compteur {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+.cx-dv-compteur__bouton {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+.cx-dv-compteur__bouton:hover:not(:disabled) {
+    border-color: var(--brand-terre);
+    color: var(--brand-terre);
+}
+.cx-dv-compteur__bouton:disabled { opacity: 0.35; cursor: not-allowed; }
+.cx-dv-compteur__valeur {
+    min-width: 2ch;
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 1.6rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 03 · Les envies --------------------------------------------- */
+.cx-dv-envies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.cx-dv-envie {
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+}
+.cx-dv-envie:hover { border-color: var(--brand-terre); color: var(--brand-terre); }
+.cx-dv-envie--prise {
+    border-color: var(--brand-terre);
+    background-color: var(--brand-terre);
+    color: var(--cta-text);
+}
+.cx-dv-envie--prise:hover { color: var(--cta-text); }
+
+/* ---------- Le recapitulatif --------------------------------------------
+   Colle sous la barre de navigation : il accompagne toute la saisie, et le
+   total change sous les yeux a chaque geste. */
+.cx-dv-recap {
+    position: sticky;
+    top: calc(var(--entete-hauteur, 85px) + 24px);
+    background-color: var(--bg-dark);
+    color: var(--text-inverse);
+    padding: clamp(26px, 2.8vw, 40px);
+}
+.cx-dv-recap .cx-label--accent { color: var(--cta-accent-bg); }
+.cx-dv-recap .cx-label--legende { color: var(--text-inverse-muted); }
+.cx-dv-recap__circuit {
+    margin-top: 14px;
+    font-size: clamp(1.5rem, 2vw, 1.9rem);
+    line-height: 1.1;
+}
+.cx-dv-recap__lignes {
+    margin-top: 24px;
+    border-top: 1px solid rgba(245, 240, 230, 0.14);
+}
+.cx-dv-recap__ligne {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(245, 240, 230, 0.14);
+    font-size: 15px;
+}
+.cx-dv-recap__ligne dt { color: var(--text-inverse-secondary); }
+.cx-dv-recap__ligne dd { text-align: right; }
+.cx-dv-recap__note {
+    color: var(--text-inverse-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.cx-dv-recap__suite { margin-top: 22px; font-size: 14px; }
+.cx-dv-recap__envoyer {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 56px;
+    padding: 18px 24px;
+    background-color: var(--cta-bg);
+    color: var(--cta-text);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+}
+.cx-dv-recap__envoyer:hover:not(:disabled) { background-color: var(--cta-bg-hover); }
+.cx-dv-recap__envoyer:disabled { opacity: 0.45; cursor: not-allowed; }
+.cx-dv-recap__rassurance {
+    margin-top: 14px;
+    color: var(--text-inverse-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.cx-dv-recap__erreur {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--brand-terre);
+    background-color: rgba(168, 88, 50, 0.12);
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* ---------- La confirmation --------------------------------------------- */
+/* ── La page introuvable (404) : la meme grammaire que les merci/devis ── */
+.cx-404 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(24px, 3vw, 40px) var(--cx-gutter, 64px) clamp(48px, 6vw, 96px);
+    background-color: var(--bg);
+}
+.cx-404__logo img { height: 2.1rem; width: auto; }
+.cx-404__contenu {
+    margin: auto 0;
+    max-width: 760px;
+    padding-top: clamp(48px, 8vw, 120px);
+}
+.cx-404__titre {
+    margin-top: 20px;
+    color: var(--text-primary);
+    font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+.cx-404__texte {
+    margin-top: 28px;
+    max-width: 56ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+.cx-404__adresse { color: var(--brand-terre); word-break: break-all; }
+.cx-404__actions {
+    margin-top: clamp(32px, 3.4vw, 44px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px 32px;
+}
+@media (max-width: 560px) {
+    .cx-404 { padding-left: 16px; padding-right: 16px; }
+}
+
+.cx-dv-merci {
+    max-width: 760px;
+    padding: clamp(56px, 6vw, 110px) var(--cx-gutter, 64px) 0;
+}
+.cx-dv-merci__titre {
+    margin-top: 20px;
+    color: var(--text-primary);
+    font-size: clamp(2.4rem, 4.6vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+.cx-dv-merci__reference {
+    margin-top: 28px;
+    color: var(--text-secondary);
+    font-size: 17px;
+}
+.cx-dv-merci__reference strong { color: var(--brand-terre); letter-spacing: 0.04em; }
+.cx-dv-merci__texte {
+    margin-top: 14px;
+    max-width: 58ch;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.8;
+}
+.cx-dv-merci__actions {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px;
+}
+.cx-dv-merci__actions .cx-dv-recap__envoyer { width: auto; margin-top: 0; padding: 18px 36px; }
+
+@media (max-width: 1100px) {
+    .cx-dv { grid-template-columns: minmax(0, 1fr); }
+    /* Le recapitulatif passe sous les etapes et cesse de coller : sur une
+       colonne, il couvrirait le formulaire. */
+    .cx-dv-recap { position: static; }
+}
+
+
+/* ==========================================================================
+   MES DEVIS — /mes-devis
+   ==========================================================================
+   Une carte par demande, et sur chaque carte la FRISE : quatre points relies
+   par un filet, pleins pour les etapes franchies, creux pour celles a venir.
+   Le statut se lit deux fois — une pastille en mots, une frise en position —
+   parce qu'une attente se supporte mieux quand on voit ce qui reste.
+
+   Le lisere gauche de la carte porte la famille du statut : terre quand le
+   voyageur doit agir, sauge quand c'est acquis, gris quand c'est clos.
+   -------------------------------------------------------------------------- */
+.cx-md {
+    padding: clamp(56px, 6vw, 96px) var(--cx-gutter, 64px) 0;
+}
+.cx-md__attente { margin-top: 48px; }
+.cx-md__liste {
+    margin-top: clamp(36px, 4vw, 60px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.cx-md__vide {
+    margin-top: clamp(36px, 4vw, 60px);
+    padding: clamp(28px, 3vw, 44px);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    max-width: 720px;
+}
+.cx-md__vide-texte {
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.7;
+}
+.cx-md__vide-action { width: auto; display: inline-flex; padding: 18px 32px; }
+
+.cx-md-carte {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    padding: clamp(22px, 2.6vw, 36px);
+}
+.cx-md-carte--action { border-left-color: var(--brand-terre); }
+.cx-md-carte--acquis { border-left-color: var(--brand-nature); }
+.cx-md-carte--clos { border-left-color: var(--border); }
+.cx-md-carte--clos .cx-md-carte__media img { filter: grayscale(0.7); }
+
+.cx-md-carte__rangee {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) auto;
+    gap: clamp(18px, 2.4vw, 32px);
+    align-items: center;
+}
+.cx-md-carte__media {
+    aspect-ratio: 4 / 3;
+    background-color: var(--bg-muted);
+    overflow: hidden;
+}
+.cx-md-carte__media img { width: 100%; height: 100%; object-fit: cover; }
+.cx-md-carte__titre-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+.cx-md-carte__circuit {
+    color: var(--text-primary);
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    line-height: 1.1;
+    transition: color 0.3s ease;
+}
+.cx-md-carte__circuit:hover { color: var(--brand-terre); }
+.cx-md-carte__quand {
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+.cx-md-pastille {
+    justify-self: end;
+    padding: 8px 14px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+}
+.cx-md-pastille--attente { color: var(--brand-lagune); }
+.cx-md-pastille--action  { color: var(--cta-text); background-color: var(--brand-terre); border-color: var(--brand-terre); }
+.cx-md-pastille--acquis  { color: var(--brand-nature); }
+.cx-md-pastille--clos    { color: var(--text-muted); }
+
+/* ---------- La frise ---------------------------------------------------- */
+.cx-md-frise {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    margin-top: clamp(24px, 2.8vw, 36px);
+}
+.cx-md-frise__etape {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 22px;
+}
+/* Le filet part du point et file jusqu'au suivant. */
+.cx-md-frise__etape::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--border);
+}
+.cx-md-frise__etape--franchie::before { background-color: var(--text-primary); }
+.cx-md-frise__etape--courante::before {
+    background: linear-gradient(to right, var(--text-primary) 0 14px, var(--border) 14px);
+}
+.cx-md-frise__etape:last-child::before { right: auto; width: 14px; }
+.cx-md-frise__point {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-card);
+}
+.cx-md-frise__etape--franchie .cx-md-frise__point {
+    border-color: var(--text-primary);
+    background-color: var(--text-primary);
+}
+.cx-md-frise__etape--courante .cx-md-frise__point {
+    border-color: var(--brand-terre);
+    background-color: var(--brand-terre);
+    box-shadow: 0 0 0 4px rgba(168, 88, 50, 0.16);
+}
+.cx-md-frise__etape--fin .cx-md-frise__point {
+    border-color: var(--text-muted);
+    background-color: var(--text-muted);
+}
+.cx-md-frise__libelle {
+    color: var(--text-primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-right: 12px;
+}
+.cx-md-frise__etape:not(.cx-md-frise__etape--franchie) .cx-md-frise__libelle { color: var(--text-muted); }
+.cx-md-frise__date {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ---------- L'offre de l'agence ----------------------------------------- */
+.cx-md-offre {
+    margin-top: clamp(24px, 2.8vw, 36px);
+    padding: clamp(22px, 2.6vw, 32px);
+    background-color: var(--bg-sunken);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    gap: clamp(20px, 3vw, 44px);
+    align-items: center;
+}
+.cx-md-offre__montant {
+    margin-top: 12px;
+    color: var(--brand-terre);
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.cx-md-offre__validite {
+    margin-top: 10px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+.cx-md-offre__mot {
+    margin-top: 16px;
+    max-width: 60ch;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.7;
+    font-style: italic;
+    white-space: pre-line;
+}
+/* Le devis poste par poste : c'est lui qui justifie le montant. */
+.cx-md-postes {
+    margin-top: 22px;
+    max-width: 640px;
+    border-top: 1px solid var(--border-strong);
+}
+.cx-md-postes__ligne {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 15px;
+}
+.cx-md-postes__ligne dd { text-align: right; white-space: nowrap; }
+.cx-md-postes__qte { color: var(--text-muted); font-size: 13px; }
+.cx-md-postes__ligne--total {
+    border-bottom: none;
+    color: var(--brand-terre);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+}
+.cx-md-offre__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cx-md-offre__note {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+.cx-md-offre__suite {
+    color: var(--brand-nature);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.cx-md-bouton {
+    min-height: 48px;
+    padding: 14px 22px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+.cx-md-bouton:hover:not(:disabled) { border-color: var(--brand-terre); color: var(--brand-terre); }
+.cx-md-bouton--plein {
+    background-color: var(--cta-bg);
+    border-color: var(--cta-bg);
+    color: var(--cta-text);
+}
+.cx-md-bouton--plein:hover:not(:disabled) { background-color: var(--cta-bg-hover); color: var(--cta-text); }
+.cx-md-bouton:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cx-md-motif {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    max-width: 640px;
+}
+.cx-md-motif__actions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.cx-md-carte .cx-dv-recap__erreur { color: var(--text-primary); }
+
+/* ---------- Le detail --------------------------------------------------- */
+.cx-md-carte__bascule {
+    margin-top: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-md-carte__bascule:hover { color: var(--brand-terre); }
+.cx-md-carte__chevron { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-md-carte__chevron--ouvert { transform: rotate(180deg); }
+.cx-md-carte__corps {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-md-carte__corps--ouvert { grid-template-rows: 1fr; }
+.cx-md-carte__corps > div { overflow: hidden; }
+.cx-md-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 44px);
+    padding-top: 12px;
+    align-items: start;
+}
+.cx-md-detail .cx-dv-recap__lignes { margin-top: 0; border-top-color: var(--border); }
+.cx-md-detail .cx-dv-recap__ligne { border-bottom-color: var(--border); color: var(--text-primary); }
+.cx-md-detail .cx-dv-recap__ligne dt { color: var(--text-secondary); }
+.cx-md-detail__message {
+    margin-top: 12px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+.cx-md-detail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 28px;
+}
+.cx-md-lien {
+    justify-self: start;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 3px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-md-lien:hover { color: var(--brand-terre); }
+
+@media (max-width: 860px) {
+    .cx-md-carte__rangee { grid-template-columns: 88px minmax(0, 1fr); }
+    .cx-md-pastille { grid-column: 1 / -1; justify-self: start; }
+    .cx-md-offre,
+    .cx-md-detail { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+    /* Quatre colonnes ne tiennent plus : la frise passe a la verticale. */
+    .cx-md-frise { grid-auto-flow: row; gap: 14px; }
+    .cx-md-frise__etape { padding: 0 0 0 26px; }
+    .cx-md-frise__etape::before { display: none; }
+}
+
+
+/* ==========================================================================
+   ADMIN — LE SYSTÈME COMMUN
+   ==========================================================================
+   Une seule grammaire pour toutes les pages de l'administration, celle de
+   « Destinations » : filets d'un pixel, aucun rayon, aucune ombre, micro-titres
+   en capitales espacées (0.1em), titres en Abhaya. Un seul aplat de marque par
+   barre : l'action principale.
+
+     .ad-barre        la barre : recherche soulignée, tri, actions, filtres
+     .ad-bouton       les boutons (--plein : l'action principale ; --danger)
+     .ad-tableau      le cadre du tableau et sa pagination
+     .ad-modale       les fenêtres : formulaire et confirmation
+     .ad-champ        les champs de saisie
+     .ad-erreur       le refus du serveur, en tête de page ou de fenêtre
+     .ad-note         une information (--succes : une réussite)
+     .ad-acces        les pages de connexion et de première installation
+     .ad-formulaire   les pages de création (circuit, destination)
+   -------------------------------------------------------------------------- */
+
+/* ── La barre ── */
+.ad-barre { padding: 32px 0 24px; display: flex; flex-direction: column; gap: 20px; }
+.ad-barre__ligne {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px 24px;
+}
+.ad-barre__outils { flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 32px; min-width: 0; }
+.ad-barre__recherche {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(20rem, 100%);
+    padding-bottom: 10px;
+}
+.ad-barre__tri {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.ad-barre__tri:hover, .ad-barre__tri:focus-within { color: var(--brand-terre); }
+.ad-barre__tri select {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+.ad-barre__tri option { color: var(--text-primary); background-color: var(--bg-card); text-transform: none; }
+.ad-barre__actions { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.ad-filtres { display: flex; flex-wrap: wrap; gap: 6px; }
+.ad-filtre {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.ad-filtre:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.ad-filtre--actif,
+.ad-filtre--actif:hover { border-color: var(--text-primary); background-color: var(--text-primary); color: var(--bg); }
+.ad-filtre__compte { opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+/* ── Les boutons ── */
+.ad-bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 22px;
+    border: 1px solid var(--cta-outline-border);
+    background-color: transparent;
+    color: var(--cta-outline-text);
+    font-size: 11px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.ad-bouton:hover:not(:disabled) { border-color: var(--cta-outline-hover); color: var(--cta-outline-hover); }
+.ad-bouton--plein { background-color: var(--cta-bg); border-color: var(--cta-bg); color: var(--cta-text); }
+.ad-bouton--plein:hover:not(:disabled) { background-color: var(--cta-bg-hover); border-color: var(--cta-bg-hover); color: var(--cta-text); }
+.ad-bouton--danger:hover:not(:disabled) { background-color: var(--brand-terre); border-color: var(--brand-terre); color: var(--cta-text); }
+.ad-bouton:disabled { opacity: 0.45; cursor: not-allowed; }
+.ad-dv-pdf { margin-top: 14px; }
+
+/* ── Le tableau et sa pagination ── */
+.ad-tableau { width: 100%; background-color: var(--bg-card); border: 1px solid var(--border); }
+.ad-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+}
+.ad-pagination__etat, .ad-pagination__page { color: var(--text-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.ad-pagination__gestes { display: flex; align-items: center; gap: 20px; }
+.ad-pagination__bouton {
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.ad-pagination__bouton:hover:not(:disabled) { color: var(--brand-terre); }
+.ad-pagination__bouton:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Les fenêtres ── */
+.ad-modale {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: rgba(37, 26, 18, 0.45);
+    animation: ad-modale-voile 0.2s ease;
+}
+.ad-modale__cadre {
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    animation: ad-modale-entree 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ad-modale__cadre--large { max-width: 540px; }
+@keyframes ad-modale-voile { from { opacity: 0; } }
+@keyframes ad-modale-entree { from { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) {
+    .ad-modale, .ad-modale__cadre { animation: none; }
+}
+.ad-modale__entete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px 0;
+}
+.ad-modale__entete--filet { padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.ad-modale__surtitre {
+    margin-bottom: 12px;
+    color: var(--brand-terre);
+    font-size: 11px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.ad-modale__titre { color: var(--text-primary); font-size: 28px; line-height: 1.05; }
+.ad-modale__fermer {
+    width: 32px;
+    height: 32px;
+    margin-right: -8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.ad-modale__fermer:hover { color: var(--text-primary); }
+.ad-modale__texte { padding: 16px 32px 0; color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+.ad-modale__corps { display: flex; flex-direction: column; gap: 20px; padding: 24px 32px; }
+.ad-modale__rangee { display: flex; gap: 16px; }
+.ad-modale__champ { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
+.ad-libelle,
+.ad-modale__libelle {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.ad-modale__etat { padding: 0 32px 8px; color: var(--text-muted); font-size: 13px; }
+.ad-modale__message { margin: 0 32px 16px; }
+.ad-modale__pied { display: flex; justify-content: flex-end; gap: 8px; padding: 24px 32px 28px; }
+.ad-modale__pied--filet { padding-top: 20px; padding-bottom: 20px; border-top: 1px solid var(--border); }
+
+/* ── Les champs ── */
+.ad-champ {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.ad-champ::placeholder { color: var(--text-muted); }
+.ad-champ:focus { border-color: var(--brand-terre); background-color: var(--bg-card); }
+.ad-champ:disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.65; }
+
+/* Un champ fautif : le filet passe en terre AVANT l'envoi, et son message
+   s'installe juste dessous. Le refus n'attend plus le serveur, et il ne reste
+   plus a chercher lequel des quinze champs est en cause. */
+.ad-champ--faux { border-color: var(--brand-terre); background-color: var(--error-bg); }
+.ad-champ__erreur {
+    color: var(--brand-terre);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+/* L'aide occupe la meme place que l'erreur : le formulaire ne saute pas d'un
+   pixel quand un message apparait. */
+.ad-champ__aide {
+    color: var(--text-muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+.ad-champ__requis { color: var(--brand-terre); }
+
+/* ── Choisir dans une longue liste (ChampRecherche) ──────────────────────
+   Un <select> tient a dix options, pas a mille. Ici un champ qui dit ce qui
+   est choisi, et qui s'ouvre sur une recherche. Le panneau se pose en repere
+   fixe (coordonnees calculees en JS) : dans la liste d'etapes, qui a son
+   propre defilement, un panneau en absolu serait rogne. */
+.ad-choix { position: relative; width: 100%; min-width: 0; }
+.ad-choix__bouton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    text-align: left;
+    cursor: pointer;
+}
+.ad-choix__bouton:disabled { cursor: not-allowed; opacity: 0.65; }
+.ad-choix__valeur { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-choix__vide { color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-choix__gestes { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; color: var(--text-muted); }
+.ad-choix__effacer { display: inline-flex; padding: 2px; cursor: pointer; }
+.ad-choix__effacer:hover { color: var(--brand-terre); }
+
+.ad-choix__panneau {
+    position: fixed;
+    z-index: 60;                 /* au-dessus de la fenetre de formulaire */
+    display: flex;
+    flex-direction: column;
+    min-width: 16rem;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.45);
+}
+.ad-choix__recherche {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.ad-choix__saisie {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.ad-choix__saisie::placeholder { color: var(--text-muted); }
+
+.ad-choix__liste { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
+.ad-choix__option {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+}
+.ad-choix__option--survol { background-color: var(--bg-hover); }
+.ad-choix__option--choisie { border-left-color: var(--brand-terre); }
+.ad-choix__option-titre { color: var(--text-primary); font-size: 14px; line-height: 1.3; }
+.ad-choix__option-sous { color: var(--text-muted); font-size: 12px; line-height: 1.3; }
+.ad-choix__aucun { padding: 16px 14px; color: var(--text-muted); font-size: 13px; }
+.ad-choix__compte {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 11.5px;
+}
+
+/* ── Le refus du serveur ── */
+.ad-erreur {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--brand-terre);
+    background-color: var(--error-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+.ad-erreur__fermer { flex-shrink: 0; color: var(--text-muted); cursor: pointer; }
+.ad-erreur__fermer:hover { color: var(--text-primary); }
+
+/* ── Les e-mails ne partent pas : le bandeau de toutes les pages ── */
+.ad-mail { flex-wrap: wrap; align-items: center; margin: 24px 0 0; }
+.ad-mail > div { flex: 1 1 28rem; min-width: 0; }
+.ad-mail p + p { margin-top: 4px; }
+.ad-mail--dossier { margin: 0; }
+
+/* ── La note : une information, pas un refus ── */
+.ad-note {
+    padding: 12px 14px;
+    border-left: 2px solid var(--border-strong);
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.ad-note--succes { border-left-color: var(--success-text); background-color: var(--success-bg); }
+
+/* ── L'accès : connexion et première installation ── */
+.ad-acces {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    background-color: var(--bg);
+}
+.ad-acces__cadre { width: 100%; max-width: 400px; }
+.ad-acces__logo { display: block; width: 128px; height: auto; margin-bottom: 48px; }
+.ad-acces__titre { margin-top: 14px; color: var(--text-primary); font-size: clamp(2.25rem, 4vw, 2.75rem); line-height: 1; }
+.ad-acces__texte { margin-top: 12px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+.ad-acces__formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+.ad-acces__formulaire .ad-erreur { margin-bottom: 0; }
+.ad-acces__rangee { display: flex; gap: 16px; }
+.ad-acces__champ { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
+.ad-acces__envoi { width: 100%; height: 48px; margin-top: 8px; }
+.ad-acces__lien { color: var(--brand-terre); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Les étapes d'un circuit (création, édition) ── */
+.ad-etapes__tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-bottom: 12px; }
+.ad-etapes__aide { color: var(--text-muted); font-size: 12px; }
+.ad-etapes__liste { display: flex; flex-direction: column; max-height: 46vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+.ad-etapes__ligne { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-top: 2px solid transparent; border-bottom: 2px solid transparent; }
+.ad-etapes__ligne--avant { border-top-color: var(--brand-terre); }
+.ad-etapes__ligne--apres { border-bottom-color: var(--brand-terre); }
+.ad-etapes__ligne--saisie { opacity: 0.4; }
+.ad-etapes__poignee { flex-shrink: 0; padding: 0 4px; color: var(--text-muted); cursor: grab; transition: color 0.2s ease; }
+.ad-etapes__poignee:hover,
+.ad-etapes__poignee:focus-visible { color: var(--text-primary); }
+.ad-etapes__poignee:active { cursor: grabbing; }
+.ad-etapes__num {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.ad-etapes__num:hover { border-color: var(--brand-terre); color: var(--brand-terre); }
+input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-color: var(--brand-terre); }
+/* ── Le programme jour par jour (ChampProgramme) ─────────────────────────
+   Le parcours se saisissait sur trois ecrans : les etapes ici, les journees
+   ailleurs, les visites ailleurs encore. Tout tient maintenant dans une seule
+   liste de journees, depliables une a la fois — quinze jours ouverts en meme
+   temps ne se lisent pas.
+
+   Meme vocabulaire que le reste de l'administration : angle vif, filet d'un
+   pixel, la terre pour ce qui est actif. */
+.ad-prog { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.ad-prog__tete { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.ad-prog__compte { color: var(--text-primary); font-size: 14px; }
+.ad-prog__aide,
+.ad-prog__vide {
+    flex: 1 1 24rem;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+.ad-prog__vide {
+    padding: 18px 16px;
+    border: 1px dashed var(--border-strong);
+}
+
+.ad-prog__jours { display: flex; flex-direction: column; gap: 8px; list-style: none; }
+.ad-prog__jour { border: 1px solid var(--border); background-color: var(--bg); }
+.ad-prog__jour--ouvert { border-color: var(--border-strong); background-color: var(--bg-card); }
+
+.ad-prog__entete { display: flex; align-items: stretch; gap: 4px; }
+.ad-prog__bascule {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+}
+.ad-prog__bascule:hover { background-color: var(--bg-hover); }
+/* Le numero du jour ORDONNE : il se lit en chiffres tabulaires, pas en titre. */
+.ad-prog__num {
+    flex-shrink: 0;
+    color: var(--brand-terre);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+}
+.ad-prog__resume { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ad-prog__trajet {
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ad-prog__titre-jour {
+    color: var(--text-muted);
+    font-size: 12.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ad-prog__fleche { flex-shrink: 0; color: var(--text-muted); font-size: 11px; transition: transform 0.2s ease; }
+.ad-prog__fleche--ouverte { transform: rotate(180deg); }
+
+.ad-prog__gestes { display: flex; align-items: center; gap: 2px; padding: 0 8px 0 0; }
+.ad-prog__geste {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+.ad-prog__geste:hover:not(:disabled) { color: var(--text-primary); background-color: var(--bg-hover); }
+.ad-prog__geste:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.ad-prog__corps {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 18px 16px 20px;
+    border-top: 1px solid var(--border);
+}
+.ad-prog__bloc { display: flex; flex-direction: column; gap: 8px; }
+.ad-prog__bloc legend { margin-bottom: 2px; }
+
+/* Une ligne de lieu ou de visite : le choix prend la place, le reste garde la
+   sienne. En dessous de 720 px la ligne se replie, sinon rien n'est lisible. */
+.ad-prog__lieu,
+.ad-prog__visite { display: flex; align-items: center; gap: 8px; }
+.ad-prog__rang {
+    flex-shrink: 0;
+    width: 26px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+.ad-prog__lieu-choix { flex: 1 1 14rem; min-width: 0; }
+.ad-prog__note { flex: 1 1 12rem; min-width: 0; }
+.ad-prog__inclus { width: 9rem; flex-shrink: 0; }
+@media (max-width: 720px) {
+    .ad-prog__lieu,
+    .ad-prog__visite { flex-wrap: wrap; }
+    .ad-prog__note,
+    .ad-prog__inclus { flex-basis: 100%; width: 100%; }
+}
+
+.ad-prog__ajouter { align-self: flex-start; margin-top: 2px; }
+.ad-prog__ajouter-jour { align-self: flex-start; }
+
+.ad-prog__repas { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.ad-prog__coche { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+
+/* La destination prend la largeur restante ; la duree garde la sienne. */
+.ad-etapes__destination { flex: 1 1 auto; min-width: 0; }
+.ad-etapes__duree { width: 7rem; flex-shrink: 0; }
+.ad-retirer {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.ad-retirer:hover:not(:disabled) { color: var(--brand-terre); }
+.ad-retirer:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Une liste de lignes saisies (compris / non compris) ── */
+.ad-lignes { display: flex; flex-direction: column; gap: 8px; }
+.ad-ligne { display: flex; align-items: center; gap: 8px; }
+
+/* ── Le dépôt de fichiers (images, vidéo) ── */
+.ad-televersement { display: flex; flex-direction: column; gap: 12px; }
+.ad-depot {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    border: 1px dashed var(--border-strong);
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.ad-depot:hover,
+.ad-depot--survol { border-color: var(--brand-terre); color: var(--brand-terre); }
+.ad-depot--survol { background-color: rgba(168, 88, 50, 0.04); }
+.ad-depot:focus-visible { outline: 1px solid var(--brand-terre); outline-offset: 2px; }
+.ad-depot__invite { color: var(--text-secondary); font-size: 14px; }
+.ad-depot__aide { color: var(--text-muted); font-size: 12px; }
+
+.ad-vignettes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ad-vignette { position: relative; aspect-ratio: 1 / 1; overflow: hidden; border: 1px solid var(--border-strong); }
+.ad-vignette--couverture { border-color: var(--brand-terre); }
+.ad-vignette__choisir { display: block; width: 100%; height: 100%; cursor: pointer; }
+.ad-vignette__choisir img { width: 100%; height: 100%; object-fit: cover; }
+.ad-vignette__mention {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 5px 8px;
+    background-color: var(--brand-terre);
+    color: var(--cta-text);
+    font-size: 11px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+}
+.ad-vignette__retirer {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(37, 26, 18, 0.75);
+    color: #fff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+.ad-vignette:hover .ad-vignette__retirer,
+.ad-vignette__retirer:focus-visible { opacity: 1; }
+.ad-vignette__retirer:hover { background-color: var(--brand-terre); }
+@media (hover: none) { .ad-vignette__retirer { opacity: 1; } }
+
+.ad-video { position: relative; }
+.ad-video video { display: block; width: 100%; max-height: 16rem; border: 1px solid var(--border-strong); background-color: #000; }
+.ad-video .ad-vignette__retirer { opacity: 1; top: 8px; right: 8px; width: 32px; height: 32px; font-size: 18px; }
+
+/* ── L'adresse inconnue ── */
+.ad-introuvable { max-width: 560px; padding: clamp(48px, 10vh, 120px) 0; }
+.ad-introuvable__titre { margin-top: 14px; color: var(--text-primary); font-size: clamp(2.5rem, 5vw, 3.5rem); line-height: 1; }
+.ad-introuvable__texte { margin-top: 16px; color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+.ad-introuvable__gestes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+
+/* ── Les pages de création ── */
+.ad-formulaire { margin: 20px 0 0; }
+.ad-formulaire__carte {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+}
+.ad-formulaire__rangee { display: flex; gap: 20px; }
+.ad-formulaire__champ { display: flex; flex-direction: column; gap: 10px; width: 100%; min-width: 0; }
+.ad-formulaire__choix { display: flex; gap: 20px; padding-top: 4px; }
+.ad-formulaire__option { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px; cursor: pointer; }
+.ad-formulaire__option input { accent-color: var(--brand-terre); }
+.ad-formulaire__pied {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    padding: 16px 0 24px;
+    background: linear-gradient(to bottom, transparent, var(--bg) 24%);
+}
+.ad-formulaire__erreur { margin-bottom: 12px; }
+.ad-formulaire__gestes { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 640px) {
+    .ad-modale__rangee, .ad-formulaire__rangee { flex-direction: column; }
+    .ad-modale__entete, .ad-modale__corps, .ad-modale__pied { padding-left: 20px; padding-right: 20px; }
+    .ad-modale__texte { padding-left: 20px; padding-right: 20px; }
+    .ad-formulaire__carte { padding: 20px 16px; }
+    .ad-barre__recherche { width: 100%; }
+    .ad-barre__actions { width: 100%; }
+    .ad-barre__actions .ad-bouton { flex: 1; }
+}
+
+
+/* ==========================================================================
+   ADMIN — DEMANDES DE DEVIS
+   ==========================================================================
+   Le vocabulaire de l'administration : filets d'un pixel, micro-titres en
+   petites capitales, aucun rayon. Le dossier s'ouvre sur le cote pour qu'on
+   traite une demande sans perdre la liste.
+   -------------------------------------------------------------------------- */
+
+.ad-dv-pastille {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+}
+.ad-dv-pastille--ENVOYE   { color: var(--brand-terre); background-color: rgba(168, 88, 50, 0.08); }
+.ad-dv-pastille--EN_COURS { color: var(--brand-ocre); }
+.ad-dv-pastille--PROPOSE  { color: var(--brand-lagune); }
+.ad-dv-pastille--ACCEPTE  { color: var(--cta-text); background-color: var(--brand-nature); border-color: var(--brand-nature); }
+.ad-dv-pastille--REFUSE,
+.ad-dv-pastille--DECLINE,
+.ad-dv-pastille--ANNULE,
+.ad-dv-pastille--EXPIRE   { color: var(--text-muted); }
+
+/* ---------- Le dossier -------------------------------------------------- */
+.ad-dv-voile {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: flex-end;
+    background-color: rgba(37, 26, 18, 0.45);
+}
+.ad-dv-dossier {
+    width: min(560px, 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-card);
+    border-left: 1px solid var(--border);
+    animation: ad-dv-entree 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes ad-dv-entree {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ad-dv-dossier { animation: none; }
+}
+.ad-dv-dossier__entete {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 32px 22px;
+    border-bottom: 1px solid var(--border);
+}
+.ad-dv-dossier__titre {
+    margin: 10px 0 14px;
+    color: var(--text-primary);
+    font-size: 1.9rem;
+    line-height: 1.05;
+}
+.ad-dv-fermer {
+    width: 32px;
+    height: 32px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.ad-dv-fermer:hover { color: var(--text-primary); }
+.ad-dv-alerte {
+    display: inline-block;
+    margin-left: 10px;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.ad-dv-dossier__corps {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 32px 24px;
+}
+.ad-dv-dossier__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 32px;
+    border-top: 1px solid var(--border);
+}
+
+.ad-dv-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-muted);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.ad-dv-bloc a { color: var(--brand-terre); }
+.ad-dv-surtitre {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1;
+}
+.ad-dv-ligne {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 14px;
+}
+.ad-dv-ligne > span:first-child { color: var(--text-secondary); }
+.ad-dv-ligne--fort {
+    padding-top: 8px;
+    border-top: 1px solid var(--border-muted);
+}
+.ad-dv-ligne--fort > span:last-child { color: var(--brand-terre); }
+.ad-dv-texte {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    white-space: pre-line;
+}
+.ad-dv-muet { color: var(--text-muted); font-size: 13px; }
+
+.ad-dv-historique { display: flex; flex-direction: column; gap: 12px; }
+.ad-dv-historique__etape {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 16px;
+    border-left: 1px solid var(--border-strong);
+}
+
+.ad-dv-grille {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr 1fr;
+    gap: 10px;
+}
+.ad-dv-grille--deux { grid-template-columns: 0.5fr 1fr; }
+
+.ad-dv-postes { display: flex; flex-direction: column; gap: 8px; }
+.ad-dv-poste {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px 120px auto;
+    gap: 8px;
+    align-items: center;
+}
+.ad-dv-poste--entete { align-items: end; }
+.ad-dv-poste__outils { display: inline-flex; gap: 4px; }
+.ad-dv-icone {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.ad-dv-icone:hover:not(:disabled) { border-color: var(--brand-terre); color: var(--brand-terre); }
+.ad-dv-icone:disabled { opacity: 0.35; cursor: not-allowed; }
+.ad-dv-ajout {
+    align-self: flex-start;
+    margin-top: 4px;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+}
+.ad-dv-total {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0 4px;
+    padding: 16px;
+    background-color: var(--bg-sunken);
+}
+.ad-dv-total__montant {
+    color: var(--brand-terre);
+    font-size: 1.9rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.ad-dv-champ { display: flex; flex-direction: column; gap: 8px; }
+.ad-dv-saisie {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+}
+.ad-dv-saisie:focus { border-color: var(--brand-terre); background-color: var(--bg-card); }
+
+.ad-dv-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+@media (max-width: 560px) {
+    .ad-dv-grille,
+    .ad-dv-grille--deux { grid-template-columns: minmax(0, 1fr); }
+    .ad-dv-poste { grid-template-columns: minmax(0, 1fr) 56px; }
+    .ad-dv-poste--entete { display: none; }
+}
+
+
+/* ==========================================================================
+   ADMIN — TABLEAU DE BORD
+   ==========================================================================
+   Le meme vocabulaire que les demandes de devis : blocs separes par un filet
+   d'un pixel, micro-titres en capitales, titres en Abhaya, aucun rayon. Une
+   seule couleur porte le sens : la terre, pour ce qui est en retard.
+   -------------------------------------------------------------------------- */
+
+/* La phrase d'ouverture. L'ecran commencait sur quatre chiffres colles au
+   filet de l'en-tete : on lisait des nombres avant de savoir ce qu'on regarde.
+   Le titre de la page vit dans l'en-tete collant — ici, seulement qui arrive et
+   ce qui l'attend. */
+.ad-tb-accueil { margin-bottom: clamp(24px, 2.6vw, 34px); }
+.ad-tb-accueil__titre {
+    color: var(--text-primary);
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.15;
+}
+.ad-tb-accueil__texte {
+    margin-top: 8px;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 14.5px;
+    line-height: 1.6;
+}
+
+.ad-tb-grille {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-bottom: 32px;
+    background-color: var(--border);
+    border: 1px solid var(--border);
+}
+.ad-tb-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 28px;
+    background-color: var(--bg-card);
+}
+.ad-tb-entete {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+.ad-tb-entete > div { display: flex; flex-direction: column; gap: 10px; }
+.ad-tb-titre {
+    color: var(--text-primary);
+    font-size: 24px;
+    line-height: 1.1;
+}
+.ad-tb-lien {
+    flex-shrink: 0;
+    color: var(--brand-terre);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.ad-tb-lien:hover { color: var(--brand-terre-600); }
+.ad-tb-aide { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+.ad-tb-vide {
+    padding: 18px 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.ad-tb-muet { color: var(--text-muted); font-size: 13px; }
+.ad-tb-succes {
+    padding: 10px 12px;
+    border-left: 2px solid var(--brand-nature);
+    background-color: rgba(95, 122, 74, 0.08);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+.ad-tb-squelette { display: flex; flex-direction: column; gap: 14px; padding: 8px 0; }
+
+/* Les demandes qui attendent */
+.ad-tb-liste { display: flex; flex-direction: column; }
+.ad-tb-liste > li + li { border-top: 1px solid var(--border-muted); }
+.ad-tb-demande {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease;
+}
+.ad-tb-demande:hover { background-color: var(--bg-hover); }
+.ad-tb-demande__ref {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+}
+.ad-tb-demande__corps { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 14px; }
+.ad-tb-demande__corps > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-tb-age { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+.ad-tb-age--retard { color: var(--brand-terre); }
+
+/* Les barres par source */
+.ad-tb-barres { display: flex; flex-direction: column; gap: 18px; }
+.ad-tb-barre { display: flex; flex-direction: column; gap: 8px; }
+.ad-tb-barre__ligne {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.ad-tb-barre__chiffre { font-variant-numeric: tabular-nums; }
+.ad-tb-barre__piste { height: 6px; background-color: var(--border-muted); }
+.ad-tb-barre__jauge {
+    display: block;
+    height: 100%;
+    background-color: var(--brand-lagune);
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Par destination */
+.ad-tb-table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--text-primary); }
+.ad-tb-table th {
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: normal;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.ad-tb-table td {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.ad-tb-table th:first-child,
+.ad-tb-table td:first-child { text-align: left; }
+.ad-tb-table__taux { color: var(--brand-lagune); }
+
+/* Les paires */
+.ad-tb-paires { display: flex; flex-direction: column; }
+.ad-tb-paire {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.ad-tb-paire + .ad-tb-paire { border-top: 1px solid var(--border-muted); }
+.ad-tb-pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+/* ── Les circuits des voyageurs : la liste et le voyage ouvert ── */
+.ad-cv-voyage { display: flex; flex-direction: column; gap: 4px; max-width: 320px; }
+.ad-cv-voyage > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-cv-pastille--BROUILLON { color: var(--text-muted); }
+.ad-cv-pastille--FINALISE  { color: var(--brand-nature); }
+.ad-cv-puce {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.ad-cv-puce button { color: var(--text-muted); cursor: pointer; }
+.ad-cv-puce button:hover { color: var(--brand-terre); }
+.ad-cv-etapes { display: flex; flex-direction: column; }
+.ad-cv-etape {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 14px;
+    padding: 12px 0;
+}
+.ad-cv-etape + .ad-cv-etape { border-top: 1px solid var(--border-muted); }
+.ad-cv-etape__jours {
+    color: var(--brand-terre);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+}
+.ad-cv-etape__corps { display: flex; flex-direction: column; gap: 4px; }
+.ad-cv-message {
+    padding: 8px 12px;
+    border-left: 2px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.ad-cv-message--ERREUR { border-left-color: var(--brand-terre); color: var(--text-primary); }
+.ad-cv-message--AVERTISSEMENT { border-left-color: var(--brand-ocre); }
+
+/* ── Les comptes ── */
+.ad-ut-pastille--admin    { color: var(--brand-terre); }
+.ad-ut-pastille--voyageur { color: var(--text-muted); }
+.ad-ut-attention { color: var(--brand-ocre); }
+.ad-ut-lien { color: var(--brand-terre); white-space: nowrap; }
+.ad-ut-lien:hover { color: var(--brand-terre-600); }
+
+@media (max-width: 1100px) {
+    .ad-tb-grille { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+    .ad-tb-bloc { padding: 20px 16px; }
+    .ad-tb-demande { grid-template-columns: minmax(0, 1fr) auto; }
+    .ad-tb-demande__ref { grid-column: 1 / -1; }
+    .ad-tb-demande .ad-dv-pastille { display: none; }
+}
+
+
+/* ==========================================================================
+   COMPOSER SON CIRCUIT — /composer
+   ==========================================================================
+   La suite de l'accueil, pas un autre site. Tout ce qui suit reprend ce que
+   Home.jsx, le menu et /circuit ont déjà posé :
+
+     * la COLONNE DE SABLE (--bg-territoires) contre la photographie, comme
+       « Territoires » et le héro de /circuit ;
+     * le SUR-TITRE minuscule en capitales très espacées, couleur terre ;
+     * le TITRE D'AFFICHE en Abhaya, interligne serré (le nom du voyage) ;
+     * les LIGNES NUMÉROTÉES pâles « 01, 02… » séparées d'un filet, comme les
+       « trois gestes » ;
+     * les PHOTOS PLEIN CADRE, dégradé par le bas, nom en serif blanc, comme
+       les circuits de l'accueil ;
+     * les MOTS EN CAPITALES ESPACÉES pour filtrer, le choisi souligné, comme
+       les durées de /circuit ;
+     * le BOUTON TERRE plein, en capitales espacées, flèche qui glisse.
+
+   Mouvements : les courbes de l'accueil — expo.out pour ce qui se pose,
+   power4.inOut pour ce qui s'ouvre (rideau, volets). Angles vifs partout.
+   -------------------------------------------------------------------------- */
+.cx-cp {
+    --cp-filet: rgba(43, 33, 26, 0.14);
+    --cp-filet-fort: rgba(43, 33, 26, 0.24);
+    --cp-pale: rgba(43, 33, 26, 0.26);
+    --cp-courbe: cubic-bezier(0.16, 1, 0.3, 1);
+    --cp-gouttiere: 64px;
+    --cp-marge: 48px;
+
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(440px, 40%) minmax(0, 1fr);
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+}
+
+/* ---------- Briques communes ---------------------------------------------- */
+
+/* Le cadre qui découpe une ligne pendant qu'elle monte */
+.cx-cp-masque { display: block; overflow: hidden; }
+
+.cx-cp-surtitre {
+    display: block;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-terre);
+}
+.cx-cp-surtitre--discret { letter-spacing: 0.1em; color: var(--text-muted); }
+
+/* Un lien en capitales espacées, souligné d'un filet */
+.cx-cp-lien-espace {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-lien-espace::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.3em;
+    bottom: 0;
+    height: 1px;
+    background-color: currentColor;
+    transform-origin: left;
+    transition: transform 0.6s var(--cp-courbe, ease);
+}
+.cx-cp-lien-espace:hover:not(:disabled) { color: var(--brand-terre); }
+.cx-cp-lien-espace:hover:not(:disabled)::after { animation: cx-cp-filet-repasse 0.8s var(--cp-courbe, ease); }
+.cx-cp-lien-espace:disabled { color: var(--text-muted); opacity: 0.55; cursor: default; }
+.cx-cp-lien-espace--discret { color: var(--text-muted); }
+@keyframes cx-cp-filet-repasse {
+    0% { transform: scaleX(1); transform-origin: right; }
+    45% { transform: scaleX(0); transform-origin: right; }
+    46% { transform: scaleX(0); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Le bouton de marque — celui de « Voir la sélection » */
+.cx-cp-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    padding: 19px 36px;
+    background-color: var(--cta-bg);
+    color: var(--cta-text);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.cx-cp-cta svg { transition: transform 0.5s var(--cp-courbe, ease); }
+.cx-cp-cta:hover:not(:disabled) { background-color: var(--cta-bg-hover); }
+.cx-cp-cta:hover:not(:disabled) svg { transform: translateX(5px); }
+.cx-cp-cta:disabled { background-color: var(--cta-disabled-bg); color: var(--cta-disabled-text); cursor: not-allowed; }
+.cx-cp-cta--large { width: 100%; justify-content: space-between; }
+
+/* Un chiffre qui change monte à sa place, comme un compteur */
+.cx-cp-roule-cadre { display: inline-flex; overflow: hidden; vertical-align: bottom; }
+.cx-cp-roule { display: inline-block; animation: cx-cp-roule 0.55s var(--cp-courbe, ease); }
+@keyframes cx-cp-roule { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@keyframes cx-cp-apparait { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Compatibilité : pastille d'état et boutons repris par « Mes circuits » */
+.cx-cp-pastille {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.cx-cp-pastille::before { content: ""; width: 5px; height: 5px; background-color: var(--brand-ocre); }
+.cx-cp-pastille--acquis::before { background-color: var(--brand-nature); }
+.cx-cp-bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 15px 28px;
+    border: 1px solid var(--text-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.cx-cp-bouton:hover { background-color: var(--text-primary); color: var(--bg); }
+.cx-cp-bouton--plein { border-color: var(--cta-bg); background-color: var(--cta-bg); color: var(--cta-text); }
+.cx-cp-bouton--plein:hover { border-color: var(--cta-bg-hover); background-color: var(--cta-bg-hover); color: var(--cta-text); }
+.cx-cp-lien {
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-lien:hover { color: var(--brand-terre); }
+.cx-cp-lien--danger { color: var(--brand-terre); }
+
+/* ---------- Le rideau d'ouverture ----------------------------------------- */
+/* Sous la barre du site (z 50), comme sur /circuit : le logo reste lisible. */
+.cx-cp-rideau { position: absolute; inset: 0; z-index: 40; display: flex; pointer-events: none; }
+.cx-cp-rideau > [data-cp-panneau] { flex: 1; height: 100%; background-color: var(--bg-territoires); }
+.cx-cp-rideau__attente {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    transform: translate(-50%, -50%);
+}
+.cx-cp-rideau__filet { position: relative; width: 180px; height: 1px; overflow: hidden; background-color: var(--cp-filet); }
+.cx-cp-rideau__filet::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--brand-terre);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: cx-cp-attente 1.6s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+}
+@keyframes cx-cp-attente {
+    0% { transform: scaleX(0); transform-origin: left; }
+    50% { transform: scaleX(1); transform-origin: left; }
+    51% { transform: scaleX(1); transform-origin: right; }
+    100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* ---------- Onglets (téléphone seulement) --------------------------------- */
+.cx-cp-onglets { display: none; }
+
+/* ==========================================================================
+   À GAUCHE — VOTRE VOYAGE
+   ========================================================================== */
+.cx-cp-voyage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background-color: var(--bg-territoires);
+}
+.cx-cp-voyage__defile {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: calc(var(--entete-hauteur, 85px) + 56px) var(--cp-marge) 48px var(--cp-gouttiere);
+    scrollbar-width: thin;
+    scrollbar-color: var(--cp-filet-fort) transparent;
+}
+
+.cx-cp-voyage__surtitres { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; }
+
+/* Le nom du voyage, au format d'affiche. Un filet se dessine dessous à la saisie. */
+.cx-cp-voyage__titre-cadre { position: relative; margin-top: 22px; padding-bottom: 6px; }
+.cx-cp-voyage__titre-cadre::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background-color: var(--text-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.9s var(--cp-courbe);
+}
+.cx-cp-voyage__titre-cadre:focus-within::after { transform: scaleX(1); }
+.cx-cp-voyage__titre {
+    display: block;
+    width: 100%;
+    padding: 0 0 0.04em;
+    border: none;
+    background: transparent;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-family: var(--font-title);
+    font-size: clamp(2.6rem, 3.6vw, 4.1rem);
+    line-height: 0.95;
+}
+.cx-cp-voyage__titre::placeholder { color: var(--cp-pale); }
+
+/* Les dates : la ligne de méta des circuits de l'accueil */
+.cx-cp-voyage__dates { margin-top: 30px; }
+.cx-cp-dates__declencheur {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 4px 0;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-dates__declencheur:hover { color: var(--brand-terre); }
+.cx-cp-dates__fleche { opacity: 0.7; }
+.cx-cp-dates__sep { width: 1px; height: 13px; margin: 0 4px; background-color: var(--cp-filet-fort); }
+.cx-cp-dates__vide { padding-bottom: 4px; border-bottom: 1px solid currentColor; }
+
+/* Le calendrier (sorti dans le body : jetons du site, pas de la page) */
+.cx-cp-dates__panneau {
+    position: fixed;
+    z-index: 90;
+    padding: 22px 26px 16px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 70px rgba(43, 33, 26, 0.14);
+    animation: cx-cp-apparait 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-cp-dates__pied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+.cx-cp-calendrier {
+    --rdp-accent-color: #2B211A;
+    --rdp-accent-background-color: #EFE9DD;
+    --rdp-range_middle-background-color: #EFE9DD;
+    --rdp-range_middle-color: #2B211A;
+    --rdp-range_start-color: #F5F0E6;
+    --rdp-range_end-color: #F5F0E6;
+    --rdp-range_start-date-background-color: #2B211A;
+    --rdp-range_end-date-background-color: #2B211A;
+    --rdp-day-height: 40px;
+    --rdp-day-width: 40px;
+    --rdp-day_button-height: 38px;
+    --rdp-day_button-width: 38px;
+    --rdp-day_button-border-radius: 0;
+    --rdp-selected-border: 1px solid #2B211A;
+    --rdp-today-color: #A85832;
+    --rdp-nav_button-height: 32px;
+    --rdp-nav_button-width: 32px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #2B211A;
+}
+.cx-cp-calendrier .rdp-months { gap: 36px; }
+.cx-cp-calendrier .rdp-caption_label { font-family: var(--font-title); font-size: 19px; font-weight: normal; text-transform: capitalize; }
+.cx-cp-calendrier .rdp-weekday { font-family: var(--font-body-strong); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #8B7C6D; opacity: 1; }
+.cx-cp-calendrier .rdp-chevron { fill: #2B211A; width: 12px; height: 12px; }
+.cx-cp-calendrier .rdp-day_button { transition: background-color 0.2s ease; }
+.cx-cp-calendrier .rdp-day:not(.rdp-selected):not(.rdp-disabled) .rdp-day_button:hover { background-color: #EFE9DD; }
+
+/* Les nuits : un filet segmenté et une ligne en capitales */
+.cx-cp-jauge { margin-top: 28px; }
+.cx-cp-jauge__filet { position: relative; display: flex; gap: 3px; height: 2px; background-color: var(--cp-filet); }
+.cx-cp-jauge__segment { height: 100%; background-color: var(--text-primary); transition: width 0.8s var(--cp-courbe); }
+.cx-cp-jauge--depasse .cx-cp-jauge__segment { background-color: var(--brand-terre); }
+.cx-cp-jauge__repere { position: absolute; top: -5px; bottom: -5px; width: 1px; background-color: var(--text-primary); }
+.cx-cp-jauge__ligne { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-top: 12px; }
+.cx-cp-jauge__compte {
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+.cx-cp-jauge__compte strong { font-weight: normal; color: var(--text-primary); }
+.cx-cp-jauge__compte em { font-style: normal; color: var(--brand-terre); }
+
+/* Les étapes : les « trois gestes » */
+.cx-cp-etapes-zone { position: relative; margin-top: 48px; }
+.cx-cp-etapes { position: relative; list-style: none; border-top: 1px solid var(--cp-filet-fort); }
+.cx-cp-etape { position: relative; background-color: var(--bg-territoires); border-bottom: 1px solid var(--cp-filet-fort); }
+.cx-cp-etape--saisie { z-index: 5; box-shadow: 0 24px 50px rgba(43, 33, 26, 0.16); }
+.cx-cp-etape__rangee {
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr) auto 26px;
+    align-items: center;
+    gap: 14px;
+    padding: 24px 0;
+}
+.cx-cp-etape__numero {
+    align-self: start;
+    padding: 2px 0 0;
+    text-align: left;
+    font-family: var(--font-title);
+    font-size: 2.3rem;
+    line-height: 1;
+    color: var(--cp-pale);
+    cursor: grab;
+    transition: color 0.4s ease;
+}
+.cx-cp-etape--saisie .cx-cp-etape__numero { cursor: grabbing; }
+.cx-cp-etape:hover .cx-cp-etape__numero,
+.cx-cp-etape--evidence .cx-cp-etape__numero,
+.cx-cp-etape__numero:focus-visible { color: var(--brand-terre); }
+.cx-cp-etape__texte { min-width: 0; }
+.cx-cp-etape__nom {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-title);
+    font-size: clamp(1.4rem, 1.75vw, 1.85rem);
+    line-height: 1.12;
+    color: var(--text-primary);
+    transition: transform 0.6s var(--cp-courbe);
+}
+.cx-cp-etape:hover .cx-cp-etape__nom { transform: translateX(8px); }
+.cx-cp-etape__quand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 18px;
+    margin-top: 9px;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+.cx-cp-etape__note-lien {
+    font-family: inherit;
+    font-size: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    color: var(--brand-terre);
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+.cx-cp-etape:hover .cx-cp-etape__note-lien,
+.cx-cp-etape__note-lien:focus-visible { opacity: 1; }
+
+.cx-cp-etape__nuits { display: flex; align-items: center; gap: 2px; }
+.cx-cp-etape__pas {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-etape__pas:hover:not(:disabled) { color: var(--brand-terre); }
+.cx-cp-etape__pas:disabled { opacity: 0.3; cursor: not-allowed; }
+.cx-cp-etape__valeur { display: flex; flex-direction: column; align-items: center; min-width: 42px; }
+.cx-cp-etape__chiffre { font-family: var(--font-title); font-size: 1.85rem; line-height: 1; color: var(--text-primary); }
+.cx-cp-etape__unite {
+    margin-top: 5px;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+.cx-cp-etape__retirer {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+.cx-cp-etape:hover .cx-cp-etape__retirer,
+.cx-cp-etape__retirer:focus-visible { opacity: 1; }
+.cx-cp-etape__retirer:hover { color: var(--brand-terre); }
+.cx-cp-etape__note { padding: 0 40px 22px 80px; margin-top: -8px; }
+.cx-cp-etape__note-champ {
+    width: 100%;
+    padding: 6px 0;
+    border: none;
+    border-bottom: 1px solid var(--cp-filet-fort);
+    background: transparent;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--text-secondary);
+    transition: border-color 0.3s ease;
+}
+.cx-cp-etape__note-champ:focus { border-color: var(--text-primary); }
+.cx-cp-etape__note-champ::placeholder { color: var(--text-muted); }
+
+/* La première ligne, tant que le voyage est vide */
+.cx-cp-vide {
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr);
+    gap: 14px;
+    padding: 26px 0;
+    border-top: 1px solid var(--cp-filet-fort);
+    border-bottom: 1px solid var(--cp-filet-fort);
+    transition: border-color 0.4s ease;
+}
+.cx-cp-vide__numero { font-family: var(--font-title); font-size: 2.3rem; line-height: 1; color: var(--cp-pale); }
+.cx-cp-vide__titre { font-family: var(--font-title); font-size: clamp(1.4rem, 1.75vw, 1.85rem); line-height: 1.12; color: var(--cp-pale); transition: color 0.4s ease; }
+.cx-cp-vide__texte { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+.cx-cp-etapes-zone--active .cx-cp-vide__titre { color: var(--text-secondary); }
+.cx-cp-etapes-zone--survol .cx-cp-vide { border-color: var(--text-primary); }
+.cx-cp-etapes-zone--survol .cx-cp-vide__titre,
+.cx-cp-etapes-zone--survol .cx-cp-vide__numero { color: var(--brand-terre); }
+
+/* La ligne d'insertion, pendant qu'on glisse une photo */
+.cx-cp-insertion { display: flex; align-items: center; gap: 16px; height: 44px; list-style: none; animation: cx-cp-insertion 0.35s var(--cp-courbe); }
+.cx-cp-insertion__ligne { flex: 1; height: 1px; background-color: var(--brand-terre); }
+.cx-cp-insertion__texte {
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-terre);
+    white-space: nowrap;
+}
+@keyframes cx-cp-insertion { from { height: 0; opacity: 0; } to { height: 44px; opacity: 1; } }
+
+/* Une phrase du serveur, s'il y a lieu */
+.cx-cp-alerte {
+    position: relative;
+    max-width: 46ch;
+    margin-top: 30px;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    animation: cx-cp-apparait 0.5s var(--cp-courbe);
+}
+.cx-cp-alerte::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; background-color: var(--brand-ocre); }
+.cx-cp-alerte--erreur::before { background-color: var(--brand-terre); }
+
+/* Un voyage tenu par un devis : la raison en une phrase, et plus aucun reglage */
+.cx-cp-verrou {
+    margin-top: 30px;
+    padding: 16px 18px 16px 22px;
+    border-left: 2px solid var(--brand-terre);
+    background-color: rgba(43, 33, 26, 0.05);
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+}
+.cx-cp--verrouille .cx-cp-dates__declencheur { cursor: default; }
+.cx-cp--verrouille .cx-cp-dates__declencheur:hover { color: var(--text-secondary); }
+.cx-cp--verrouille .cx-cp-voyage__titre-cadre::after { display: none; }
+.cx-cp--verrouille .cx-cp-etape__numero { cursor: default; }
+.cx-cp--verrouille .cx-cp-etape__pas { visibility: hidden; }
+.cx-cp--verrouille .cx-cp-carte { cursor: pointer; }
+
+/* Le pied : devis, enregistrer */
+.cx-cp-actions {
+    flex-shrink: 0;
+    padding: 22px var(--cp-marge) 26px var(--cp-gouttiere);
+    border-top: 1px solid var(--cp-filet-fort);
+    background-color: var(--bg-territoires);
+}
+.cx-cp-actions__ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 34px; }
+.cx-cp-actions__erreur { margin-bottom: 14px; font-size: 12.5px; line-height: 1.5; color: var(--brand-terre); }
+
+/* ==========================================================================
+   À DROITE — L'ATLAS
+   ========================================================================== */
+.cx-cp-atlas {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background-color: var(--bg);
+    container-type: inline-size;
+}
+.cx-cp-atlas__tete { flex-shrink: 0; padding: calc(var(--entete-hauteur, 85px) + 44px) var(--cp-marge) 0; }
+
+/* Les deux vues, écrites comme les liens du menu */
+.cx-cp-vues { display: flex; align-items: flex-end; gap: 40px; }
+.cx-cp-vue {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: var(--font-title);
+    font-size: clamp(2rem, 2.6vw, 2.9rem);
+    line-height: 0.95;
+    color: var(--cp-pale);
+    cursor: pointer;
+    transition: color 0.4s ease;
+}
+.cx-cp-vue__mot { display: block; padding-bottom: 0.06em; transition: transform 0.6s var(--cp-courbe); }
+.cx-cp-vue:hover { color: var(--brand-terre); }
+.cx-cp-vue:hover:not(.cx-cp-vue--active) .cx-cp-vue__mot { transform: translateX(6px); }
+.cx-cp-vue--active,
+.cx-cp-vue--active:hover { color: var(--text-primary); cursor: default; }
+.cx-cp-vue__compte {
+    top: 0;
+    padding-top: 0.35em;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+
+.cx-cp-atlas__corps { position: relative; flex: 1; min-height: 0; margin-top: 22px; }
+
+/* La galerie */
+.cx-cp-catalogue {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 var(--cp-marge) 72px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+}
+
+.cx-cp-outils {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--bg);
+}
+.cx-cp-recherche { display: flex; align-items: center; gap: 12px; flex: 0 1 230px; min-width: 140px; }
+.cx-cp-recherche__icone { flex-shrink: 0; color: var(--text-muted); }
+.cx-cp-recherche__champ {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+.cx-cp-recherche__champ::placeholder { color: var(--text-muted); }
+.cx-cp-recherche__champ::-webkit-search-cancel-button { display: none; }
+.cx-cp-recherche__effacer { display: inline-flex; color: var(--text-muted); cursor: pointer; transition: color 0.3s ease; }
+.cx-cp-recherche__effacer:hover { color: var(--brand-terre); }
+
+.cx-cp-filtres { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 26px; min-width: 0; }
+.cx-cp-filtre {
+    position: relative;
+    padding: 4px 0;
+    font-family: var(--font-body);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-filtre sup { margin-left: 4px; font-size: 8.5px; letter-spacing: 0.08em; }
+.cx-cp-filtre::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.25em;
+    bottom: -1px;
+    height: 1px;
+    background-color: var(--text-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--cp-courbe);
+}
+.cx-cp-filtre:hover,
+.cx-cp-filtre--actif { color: var(--text-primary); }
+.cx-cp-filtre--actif::after { transform: scaleX(1); }
+.cx-cp-filtres__sep { width: 1px; height: 12px; background-color: var(--border-strong); }
+.cx-cp-filtres__effacer {
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-terre);
+    cursor: pointer;
+}
+
+.cx-cp-tri { position: relative; flex-shrink: 0; }
+.cx-cp-tri__declencheur {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-tri__declencheur:hover { color: var(--brand-terre); }
+.cx-cp-tri__chevron { transition: transform 0.4s var(--cp-courbe); }
+.cx-cp-tri__chevron--ouvert { transform: rotate(180deg); }
+.cx-cp-tri__liste {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    z-index: 10;
+    min-width: 210px;
+    padding: 10px 0;
+    list-style: none;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(43, 33, 26, 0.12);
+    animation: cx-cp-apparait 0.35s var(--cp-courbe);
+}
+.cx-cp-tri__option {
+    display: block;
+    width: 100%;
+    padding: 10px 22px;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease, padding-left 0.4s var(--cp-courbe);
+}
+.cx-cp-tri__option:hover { color: var(--brand-terre); padding-left: 28px; }
+.cx-cp-tri__option[aria-selected="true"] { color: var(--text-primary); font-family: var(--font-body-strong); }
+
+/* Les photographies */
+.cx-cp-grille {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 22px;
+    margin-top: 32px;
+    list-style: none;
+    transition: opacity 0.4s ease;
+}
+.cx-cp-grille--attente { opacity: 0.55; }
+@container (min-width: 820px) {
+    .cx-cp-grille { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.cx-cp-carte {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background-color: var(--bg-territoires);
+    cursor: grab;
+    user-select: none;
+    outline: none;
+    transition: opacity 0.35s ease;
+}
+.cx-cp-carte:focus-visible { box-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--text-primary); }
+.cx-cp-carte--glissee { opacity: 0.35; }
+.cx-cp-carte__media { position: absolute; inset: 0; }
+.cx-cp-carte__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    transition: transform 1.6s var(--cp-courbe);
+}
+.cx-cp-carte:hover .cx-cp-carte__media img { transform: scale(1.06); }
+.cx-cp-carte__initiale {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-family: var(--font-title);
+    font-size: 4rem;
+    color: var(--cp-pale);
+}
+/* Le dégradé des circuits de l'accueil ; plus dense pour une destination déjà choisie */
+.cx-cp-carte::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(24, 16, 10, 0.66), rgba(24, 16, 10, 0) 58%);
+    pointer-events: none;
+    transition: background-color 0.6s ease;
+}
+.cx-cp-carte--choisie::after { background-color: rgba(24, 16, 10, 0.3); }
+
+/* Un voile par le haut, pour lire « Dans votre voyage » sur n'importe quel ciel */
+.cx-cp-carte--choisie .cx-cp-carte__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(24, 16, 10, 0.45), rgba(24, 16, 10, 0) 32%);
+    pointer-events: none;
+}
+.cx-cp-carte__mention {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    z-index: 1;
+    animation: cx-cp-apparait 0.6s var(--cp-courbe);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(245, 240, 230, 0.78);
+    text-shadow: 0 1px 12px rgba(24, 16, 10, 0.35);
+}
+/* « Suggérée » : une étiquette ivoire, lisible sur la photo la plus claire */
+.cx-cp-carte--suggeree .cx-cp-carte__mention {
+    top: 14px;
+    left: 14px;
+    padding: 8px 11px 8px 12px;
+    background-color: var(--bg);
+    color: var(--brand-terre);
+    text-shadow: none;
+}
+.cx-cp-carte--choisie .cx-cp-carte__mention { color: var(--text-inverse); }
+
+.cx-cp-carte__bas {
+    position: absolute;
+    left: 20px;
+    right: 16px;
+    bottom: 18px;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+}
+.cx-cp-carte__texte { min-width: 0; transition: transform 0.7s var(--cp-courbe); }
+.cx-cp-carte:hover .cx-cp-carte__texte { transform: translateY(-4px); }
+.cx-cp-carte__meta {
+    display: block;
+    margin-bottom: 10px;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(245, 240, 230, 0.72);
+}
+.cx-cp-carte__nom {
+    font-family: var(--font-title);
+    font-weight: normal;
+    font-size: clamp(1.4rem, 1.75vw, 2rem);
+    line-height: 0.98;
+    color: #fff;
+}
+.cx-cp-carte__ajout {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(245, 240, 230, 0.6);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+.cx-cp-carte__ajout:hover { background-color: #fff; border-color: #fff; color: var(--text-primary); }
+.cx-cp-carte--choisie .cx-cp-carte__ajout { background-color: var(--brand-terre); border-color: var(--brand-terre); }
+.cx-cp-carte--choisie .cx-cp-carte__ajout:hover { background-color: #fff; border-color: #fff; color: var(--text-primary); }
+
+.cx-cp-catalogue__vide { padding: 90px 0; }
+.cx-cp-catalogue__vide-titre { margin-bottom: 22px; font-family: var(--font-title); font-size: clamp(1.8rem, 2.4vw, 2.5rem); line-height: 1; color: var(--text-primary); }
+
+/* La vignette qui suit le curseur pendant le glissement (posée dans le body) */
+.cx-cp-fantome {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 24px 6px 6px;
+    background-color: var(--bg);
+    box-shadow: 0 26px 60px rgba(43, 33, 26, 0.22);
+    pointer-events: none;
+    will-change: transform;
+    animation: cx-cp-fantome-entree 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-cp-fantome__image { width: 46px; height: 58px; background-size: cover; background-position: center; }
+.cx-cp-fantome__nom { font-family: var(--font-title); font-size: 19px; color: var(--text-primary); white-space: nowrap; }
+.cx-cp-fantome--sortie { opacity: 0; transition: opacity 0.2s ease; }
+@keyframes cx-cp-fantome-entree { from { opacity: 0; transform: scale(0.92); } }
+
+/* La photo qui s'envole vers l'itinéraire (posée dans le body) */
+.cx-cp-envol {
+    position: fixed;
+    z-index: 9998;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 24px 50px rgba(43, 33, 26, 0.22);
+    pointer-events: none;
+}
+
+/* La carte : un volet par-dessus la galerie */
+.cx-cp-carte-parcours {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    overflow: hidden;
+    background-color: var(--bg-territoires);
+    clip-path: inset(0% 0% 0% 100%);
+    visibility: hidden;
+}
+.cx-cp-carte-parcours__fond { position: absolute; inset: 0; }
+.cx-cp-carte-parcours__absente { display: flex; align-items: center; justify-content: center; height: 100%; padding: 40px; color: var(--text-muted); text-align: center; }
+.cx-cp-carte-parcours__legende {
+    position: absolute;
+    top: 22px;
+    left: var(--cp-marge);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    background-color: var(--bg);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+.cx-cp-carte-parcours__sep { width: 1px; height: 12px; background-color: var(--border-strong); }
+.cx-cp-carte-parcours .mapboxgl-ctrl-group { border-radius: 0; box-shadow: none; border: 1px solid var(--border); }
+.cx-cp-carte-parcours .mapboxgl-ctrl-group button { border-radius: 0; }
+
+/* Les repères d'étape : l'élément appartient à Mapbox, la pastille à nous */
+.cx-cp-repere { padding: 0; border: none; background: none; cursor: pointer; }
+.cx-cp-repere__pastille {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2B211A;
+    color: #F5F0E6;
+    font-family: var(--font-title);
+    font-size: 16px;
+    line-height: 1;
+    box-shadow: 0 10px 24px rgba(43, 33, 26, 0.28);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+}
+.cx-cp-repere:hover .cx-cp-repere__pastille,
+.cx-cp-repere--survol .cx-cp-repere__pastille { transform: scale(1.2); background-color: #A85832; }
+
+/* ==========================================================================
+   LA FICHE D'UNE DESTINATION — un volet, comme le menu
+   ========================================================================== */
+.cx-cp-fiche-voile {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    justify-content: flex-end;
+    background-color: rgba(37, 26, 18, 0.45);
+}
+.cx-cp-fiche {
+    width: min(600px, 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: var(--bg);
+    scrollbar-width: thin;
+}
+.cx-cp-fiche__media { position: relative; flex-shrink: 0; height: 54vh; min-height: 280px; overflow: hidden; background-color: var(--bg-dark); }
+.cx-cp-fiche__media-cadre { position: absolute; inset: 0; }
+.cx-cp-fiche__image { width: 100%; height: 100%; object-fit: cover; animation: cx-cp-fondu 0.8s ease; }
+@keyframes cx-cp-fondu { from { opacity: 0; } }
+.cx-cp-fiche__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(24, 16, 10, 0.45), rgba(24, 16, 10, 0) 45%);
+    pointer-events: none;
+}
+.cx-cp-fiche__fermer {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.cx-cp-fiche__fermer:hover { background-color: var(--text-primary); color: var(--bg); }
+.cx-cp-fiche__navigation {
+    position: absolute;
+    left: 44px;
+    bottom: 26px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-inverse);
+}
+.cx-cp-fiche__navigation button { display: inline-flex; color: inherit; cursor: pointer; transition: opacity 0.3s ease; }
+.cx-cp-fiche__navigation button:disabled { opacity: 0.35; cursor: default; }
+.cx-cp-fiche__corps { flex: 1; padding: 44px 44px 36px; }
+.cx-cp-fiche__nom { margin-top: 16px; font-family: var(--font-title); font-weight: normal; font-size: clamp(2.5rem, 3.6vw, 3.6rem); line-height: 0.92; color: var(--text-primary); }
+.cx-cp-fiche__nom-ligne { display: block; padding-bottom: 0.06em; }
+.cx-cp-fiche__description { margin-top: 26px; font-size: 15px; line-height: 1.85; color: var(--text-secondary); white-space: pre-line; }
+.cx-cp-fiche__tags { margin-top: 34px; border-top: 1px solid var(--border); }
+.cx-cp-fiche__tag-ligne { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+.cx-cp-fiche__groupe {
+    padding-top: 3px;
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+.cx-cp-fiche__valeurs { font-size: 14px; color: var(--text-primary); }
+.cx-cp-fiche__video { margin-top: 28px; }
+.cx-cp-fiche__pied { position: sticky; bottom: 0; padding: 20px 44px 28px; background-color: var(--bg); border-top: 1px solid var(--border); }
+
+/* ---------- Le bandeau « Annuler » ---------------------------------------- */
+.cx-cp-bandeau {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    padding: 16px 26px;
+    background-color: var(--bg-dark);
+    color: var(--text-inverse);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    box-shadow: 0 20px 50px rgba(37, 26, 18, 0.3);
+    transform: translateX(-50%);
+    animation: cx-cp-bandeau 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cx-cp-bandeau { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.cx-cp-bandeau__annuler {
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-yellow);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.cx-cp-bandeau__annuler:hover { color: var(--text-inverse); }
+
+/* ---------- Un circuit introuvable ----------------------------------------- */
+.cx-cp-erreur {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 26px;
+    min-height: 70vh;
+    padding: calc(var(--entete-hauteur, 85px) + 120px) 64px 80px;
+    background-color: var(--bg-territoires);
+}
+.cx-cp-erreur__titre { max-width: 18ch; font-family: var(--font-title); font-size: clamp(2.2rem, 4vw, 4rem); line-height: 0.95; color: var(--text-primary); }
+
+/* ---------- Au doigt, pas de survol : tout reste visible ------------------- */
+@media (hover: none) {
+    .cx-cp-etape__retirer,
+    .cx-cp-etape__note-lien { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cx-cp *, .cx-cp-fantome, .cx-cp-fiche, .cx-cp-bandeau, .cx-cp-dates__panneau { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Écrans moyens -------------------------------------------------- */
+@media (max-width: 1360px) {
+    .cx-cp { --cp-gouttiere: 48px; --cp-marge: 36px; grid-template-columns: minmax(400px, 42%) minmax(0, 1fr); }
+    .cx-cp-etape__rangee { grid-template-columns: 54px minmax(0, 1fr) auto 24px; gap: 10px; }
+    .cx-cp-vide { grid-template-columns: 54px minmax(0, 1fr); }
+    .cx-cp-etape__numero,
+    .cx-cp-vide__numero { font-size: 2rem; }
+    .cx-cp-etape__note { padding-left: 64px; }
+    .cx-cp-outils { gap: 20px; }
+}
+
+/* ---------- Tablette et téléphone : trois onglets -------------------------- */
+@media (max-width: 1099px) {
+    .cx-cp {
+        --cp-gouttiere: 24px;
+        --cp-marge: 24px;
+        display: block;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        padding-top: var(--entete-hauteur, 85px);
+    }
+    .cx-cp-onglets {
+        position: sticky;
+        top: var(--entete-hauteur, 85px);
+        z-index: 20;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 0 var(--cp-marge);
+        background-color: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+    .cx-cp-onglet {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 52px;
+        margin-bottom: -1px;
+        border-bottom: 1px solid transparent;
+        font-family: var(--font-body-strong);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.3s ease, border-color 0.3s ease;
+    }
+    .cx-cp-onglet--actif { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+    .cx-cp-onglet__compte { font-size: 11px; letter-spacing: 0.1em; color: var(--brand-terre); animation: cx-cp-roule 0.55s var(--cp-courbe); }
+
+    .cx-cp-voyage,
+    .cx-cp-atlas { display: none; }
+    .cx-cp[data-onglet="voyage"] .cx-cp-voyage,
+    .cx-cp[data-onglet="destinations"] .cx-cp-atlas,
+    .cx-cp[data-onglet="carte"] .cx-cp-atlas { display: flex; }
+
+    .cx-cp-voyage { min-height: calc(100vh - var(--entete-hauteur, 85px) - 53px); }
+    .cx-cp-voyage__defile { overflow: visible; padding: 44px var(--cp-marge) 120px; }
+    /* Le pied reste sous le pouce, quel que soit le défilement */
+    .cx-cp-actions { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 14px var(--cp-marge) 16px; box-shadow: 0 -18px 40px rgba(43, 33, 26, 0.08); }
+    .cx-cp-actions__ligne { gap: 14px 26px; }
+
+    .cx-cp-atlas__tete { display: none; }
+    .cx-cp-atlas__corps { flex: none; margin-top: 0; }
+    .cx-cp-catalogue { position: static; overflow: visible; padding: 0 var(--cp-marge) 56px; }
+    .cx-cp[data-onglet="carte"] .cx-cp-catalogue { display: none; }
+    .cx-cp-outils { top: calc(var(--entete-hauteur, 85px) + 53px); flex-wrap: wrap; gap: 14px 22px; }
+    .cx-cp-recherche { flex: 1 1 100%; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .cx-cp-filtres { justify-content: flex-start; }
+    .cx-cp-carte-parcours { position: relative; height: calc(100vh - var(--entete-hauteur, 85px) - 53px); }
+    .cx-cp[data-onglet="destinations"] .cx-cp-carte-parcours { display: none; }
+    .cx-cp-rideau { position: fixed; }
+}
+
+@media (max-width: 560px) {
+    .cx-cp-grille { gap: 18px 12px; margin-top: 22px; }
+    .cx-cp-carte__mention { top: 12px; left: 12px; font-size: 10px; letter-spacing: 0.1em; }
+    .cx-cp-carte__bas { left: 12px; right: 10px; bottom: 12px; gap: 8px; }
+    .cx-cp-carte__meta { margin-bottom: 6px; font-size: 10px; letter-spacing: 0.1em; }
+    .cx-cp-carte__nom { font-size: 1.2rem; }
+    .cx-cp-carte__ajout { width: 32px; height: 32px; }
+    .cx-cp-etape__rangee { grid-template-columns: 42px minmax(0, 1fr) auto; row-gap: 12px; }
+    .cx-cp-etape__numero,
+    .cx-cp-vide__numero { font-size: 1.7rem; }
+    .cx-cp-vide { grid-template-columns: 42px minmax(0, 1fr); }
+    .cx-cp-etape__retirer { position: absolute; top: 18px; right: 0; }
+    .cx-cp-etape__texte { padding-right: 20px; }
+    .cx-cp-etape__nuits { grid-column: 2 / -1; justify-self: start; margin-left: -8px; }
+    .cx-cp-etape__note { padding: 0 0 20px 52px; }
+    .cx-cp-cta { gap: 14px; padding: 16px 20px; letter-spacing: 0.1em; }
+    .cx-cp-actions__ligne { flex-wrap: nowrap; gap: 20px; }
+    .cx-cp-fiche__corps { padding: 32px 24px 24px; }
+    .cx-cp-fiche__pied { padding: 16px 24px 22px; }
+    .cx-cp-fiche__navigation { left: 24px; }
+    .cx-cp-fiche__tag-ligne { grid-template-columns: 1fr; gap: 6px; }
+    .cx-cp-bandeau { left: 16px; right: 16px; transform: none; justify-content: space-between; animation-name: cx-cp-bandeau-mobile; }
+}
+@keyframes cx-cp-bandeau-mobile { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+
+/* ==========================================================================
+   MES CIRCUITS — /mes-circuits
+   ==========================================================================
+   Même langue que le créateur : la photographie en tête, le nom en serif,
+   une ligne en capitales, des liens soulignés.
+   -------------------------------------------------------------------------- */
+.cx-mc { padding: clamp(56px, 6vw, 96px) var(--cx-gutter, 64px) 0; }
+.cx-mc__nouveau { margin-top: 30px; }
+.cx-mc__attente { margin-top: 48px; }
+.cx-mc__erreur { margin-top: 28px; font-size: 14px; color: var(--brand-terre); }
+.cx-mc__grille { margin-top: clamp(44px, 5vw, 76px); display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 60px 32px; list-style: none; }
+.cx-mc-carte { display: flex; flex-direction: column; }
+.cx-mc-carte__media { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background-color: var(--bg-territoires); }
+.cx-mc-carte__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.cx-mc-carte:hover .cx-mc-carte__media img { transform: scale(1.05); }
+.cx-mc-carte__vide { display: flex; align-items: center; justify-content: center; height: 100%; font-family: var(--font-title); font-size: 3.5rem; color: rgba(43, 33, 26, 0.26); }
+.cx-mc-carte__statut { position: absolute; top: 16px; left: 16px; }
+.cx-mc-carte__corps { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 22px 0 18px; }
+.cx-mc-carte__nom { font-family: var(--font-title); font-size: clamp(1.5rem, 1.9vw, 1.9rem); line-height: 1.05; color: var(--text-primary); transition: color 0.3s ease; }
+.cx-mc-carte__nom:hover { color: var(--brand-terre); }
+.cx-mc-carte__quand { font-family: var(--font-body-strong); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); }
+.cx-mc-carte__parcours { font-size: 13.5px; line-height: 1.65; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cx-mc-carte__devis { align-self: flex-start; font-family: var(--font-body-strong); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brand-terre); }
+.cx-mc-carte__maj { margin-top: auto; padding-top: 6px; font-size: 12px; color: var(--text-muted); }
+.cx-mc-carte__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; padding-top: 18px; border-top: 1px solid var(--border); }
+.cx-mc-carte__confirmer { font-size: 13px; color: var(--text-primary); }
+
+/* ---------- L'attente entre deux pages ------------------------------------
+   Un trait de 2 px sous le bord haut, qui va et vient tant que le module de
+   la page arrive. Il vit AU-DESSUS de tout (l'en-tête compris) et ne prend
+   jamais le clic : c'est une annonce, pas une interface.
+
+   L'opacité seule s'anime à l'apparition — jamais la hauteur, qui ferait
+   sauter la page d'un pixel à chaque navigation. Le va-et-vient est une
+   transformation, donc l'affaire du compositeur : il ne coûte rien, même
+   pendant que le navigateur décode la page qui arrive. */
+.cx-chargement {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 200;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.cx-chargement--actif { opacity: 1; }
+.cx-chargement__trait {
+    display: block;
+    width: 40%;
+    height: 100%;
+    background-color: var(--brand-terre);
+    transform: translateX(-100%);
+}
+.cx-chargement--actif .cx-chargement__trait {
+    animation: cx-chargement-va-et-vient 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes cx-chargement-va-et-vient {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+/* Qui demande la sobriete garde l'annonce, sans le va-et-vient. */
+@media (prefers-reduced-motion: reduce) {
+    .cx-chargement--actif .cx-chargement__trait { animation: none; transform: translateX(0); width: 100%; }
+}
+
+.cx-visuellement-cache {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}

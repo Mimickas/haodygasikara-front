@@ -1,0 +1,7 @@
+dans la devis ou le client fait ce qu il veut par exemple ici http://localhost:5173/circuit/6/devis 
+
+
+il peut choisir les hebergement disponible aux destination mais pourquoi pas les activites??? on doit le choisir aussi si il a un transport ou pas. il veut une guide ou pas. dojnc il choisit pas forcement le hebergemnt mais completemtn le voyage dans il veut et ensuite les devis est devis 
+
+et aussi cote backoffice dans demande de devis on peut reprendre dans tout ce qu'il veut ok?
+

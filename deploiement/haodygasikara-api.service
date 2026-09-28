@@ -1,0 +1,30 @@
+# =============================================================================
+#  Service systemd de l'API Haodygasikara (Spring Boot, Java 21)
+# =============================================================================
+#  À copier dans /etc/systemd/system/haodygasikara-api.service, puis :
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable --now haodygasikara-api
+#    journalctl -u haodygasikara-api -f          # suivre les journaux
+#
+#  Le jar : /opt/haodygasikara/api.jar
+#  Les variables (secrets compris) : /etc/haodygasikara/api.env, lisible par
+#  root et par l'utilisateur « haodygasikara » seulement (chmod 640).
+# =============================================================================
+
+[Unit]
+Description=Haodygasikara - API (Spring Boot)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=haodygasikara
+Group=haodygasikara
+WorkingDirectory=/opt/haodygasikara
+EnvironmentFile=/etc/haodygasikara/api.env
+ExecStart=/usr/bin/java -Xms256m -Xmx768m -jar /opt/haodygasikara/api.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

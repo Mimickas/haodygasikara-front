@@ -1,50 +1,24 @@
-# Welcome to your Expo app 👋
+# Haodygasikara — site (React + Vite)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Le site vitrine et l'administration de Haodygasikara. L'API est dans le dépôt
+voisin `backhaodygasikara` (Spring Boot, port 8000).
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Démarrer en local
 
 ```bash
-npm run reset-project
+cp .env.example .env        # puis renseigner VITE_API_URL et VITE_MAPBOX_TOKEN
+npm install
+npm run dev                 # http://localhost:5173 (l'API autorise cette origine)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+| Commande | Rôle |
+|---|---|
+| `npm run dev` | serveur de développement |
+| `npm run build` | build de production dans `dist/` |
+| `npm run lint` | vérification (oxlint) |
 
-## Learn more
+## Documentation
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Guide d'utilisation](docs/guide-utilisateur.md) — le voyageur, puis l'agence (administration).
+- [Déploiement sur le serveur de test](docs/deploiement.md) — base, API, site, nginx, HTTPS, variables.
+- Fichiers de déploiement : [`deploiement/`](deploiement/) (nginx, service systemd, modèle des variables de l'API).
