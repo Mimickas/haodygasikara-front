@@ -1,3 +1,5 @@
+// Un choix multiple en étiquettes : le même bouton que les filtres de la
+// barre d'outils (.ad-filtre) — même rôle, même dessin.
 export default function MultiSelectField({ value = [], onChange, options = [] }) {
     // Comparaison par chaine, des deux cotes : ce champ sert aussi bien des
     // identifiants numeriques (les tags) que des noms de constantes (les
@@ -11,35 +13,16 @@ export default function MultiSelectField({ value = [], onChange, options = [] })
     }
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="ad-filtres">
             {options.map(opt => {
                 const selected = value.some(v => memeValeur(v, opt.value));
                 return (
                     <button
                         key={opt.value}
                         type="button"
+                        aria-pressed={selected}
                         onClick={() => toggle(opt.value)}
-                        className="text-sm px-3.5 py-1.5 cursor-pointer transition-all duration-200"
-                        style={{
-                            borderRadius: "var(--radius-pill)",
-                            backgroundColor: selected ? "var(--brand-terre)" : "var(--bg-card)",
-                            color: selected ? "#fff" : "var(--text-secondary)",
-                            border: `1px solid ${selected ? "var(--brand-terre)" : "var(--border-strong)"}`,
-                            boxShadow: selected ? "var(--cta-shadow)" : "var(--shadow-normal)",
-                            fontWeight: selected ? 500 : 400,
-                        }}
-                        onMouseEnter={e => {
-                            if (!selected) {
-                                e.currentTarget.style.borderColor = "var(--brand-terre)";
-                                e.currentTarget.style.color = "var(--brand-terre)";
-                            }
-                        }}
-                        onMouseLeave={e => {
-                            if (!selected) {
-                                e.currentTarget.style.borderColor = "var(--border-strong)";
-                                e.currentTarget.style.color = "var(--text-secondary)";
-                            }
-                        }}
+                        className={`ad-filtre font-body-strong${selected ? " ad-filtre--actif" : ""}`}
                     >
                         {opt.label}
                     </button>

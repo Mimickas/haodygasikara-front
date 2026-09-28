@@ -50,7 +50,7 @@ export default function ChampTelephone({ label = "Téléphone", indicatif, numer
 
     return (
         <div ref={boiteRef} className="relative">
-            <span className="block font-body-strong text-[10px] uppercase tracking-[0.35em] mb-4" style={{ color: "var(--text-muted)" }}>
+            <span className="block font-body-strong text-[11px] uppercase tracking-[0.1em] mb-4" style={{ color: "var(--text-muted)" }}>
                 {label}
             </span>
 
@@ -89,7 +89,7 @@ export default function ChampTelephone({ label = "Téléphone", indicatif, numer
             {ouvert && (
                 <div
                     className="absolute left-0 right-0 top-full mt-3 z-30"
-                    style={{ backgroundColor: "var(--bg-card)", boxShadow: "var(--shadow-card)" }}
+                    style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-strong)" }}
                 >
                     <label className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
                         <FaMagnifyingGlass className="text-[11px] shrink-0" style={{ color: "var(--text-muted)" }} />
@@ -122,7 +122,7 @@ export default function ChampTelephone({ label = "Téléphone", indicatif, numer
                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = actif ? "var(--bg-hover)" : "transparent")}
                                 >
-                                    <span className="font-body text-[10px] uppercase tracking-[0.25em] shrink-0" style={{ color: "var(--text-muted)", width: "28px" }}>
+                                    <span className="font-body text-[11px] uppercase tracking-[0.1em] shrink-0" style={{ color: "var(--text-muted)", width: "28px" }}>
                                         {p.code}
                                     </span>
                                     <span className="font-body text-sm flex-1 truncate" style={{ color: "var(--text-primary)" }}>

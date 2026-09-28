@@ -120,25 +120,21 @@ export const circuitMedias = (circuit, maxImages = 6) => {
     return [...images.slice(0, 1), film, ...images.slice(1)];
 };
 
-// Appréciation d'un circuit : la moyenne des étoiles de ses étapes, à une
-// décimale. Le back ne note pas les circuits eux-mêmes — sans étape notée, on
-// renvoie null plutôt qu'une note inventée.
-export const circuitStars = (circuit) => {
-    const notes = circuitSteps(circuit)
-        .map((step) => step.destination?.stars)
-        .filter((stars) => stars != null && stars > 0);
-    if (!notes.length) return null;
-    return Math.round((notes.reduce((total, n) => total + n, 0) / notes.length) * 10) / 10;
+// Les journees d'une etape.
+//
+// Le programme appartient au CIRCUIT et chaque journee porte son numero sur
+// tout le voyage ; une etape — un sejour — couvre une plage de ces journees,
+// celle que circuitLegs a calculee. Il n'y a plus de lien direct entre les
+// deux, et c'est voulu : une seule verite, celle des journees.
+export const journeesDeLEtape = (circuit, debut, fin) => {
+    if (debut == null || fin == null) return [];
+    return (circuit?.jours ?? [])
+        .filter((j) => j.jour >= debut && j.jour <= fin)
+        .sort((a, b) => a.jour - b.jour);
 };
 
-// Nombre de lieux distincts traversés par une collection de circuits
-export const countDestinations = (circuits = []) => {
-    const seen = new Set();
-    circuits.forEach((c) =>
-        circuitSteps(c).forEach((s) => {
-            const key = s.destination?.id ?? s.destination?.nom;
-            if (key) seen.add(key);
-        })
-    );
-    return seen.size;
-};
+// Le trajet d'une journee : « Antananarivo → Ampefy → Chute de Lily ».
+// Une journee traverse souvent plusieurs lieux — c'est ce que le modele ne
+// savait pas dire avant.
+export const trajetDuJour = (jour) =>
+    (jour?.lieux ?? []).map((l) => l?.nom).filter(Boolean);

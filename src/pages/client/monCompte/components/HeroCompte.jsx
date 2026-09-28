@@ -18,7 +18,7 @@ const POIDS_MAX_MO = 8;
  * n'est pas un hasard : on entre chez soi, on doit reconnaître l'endroit.
  */
 const IMAGE =
-    "/img/home/ctaSection/tropical-beach-landscape-with-deckchair-parasol-from-nosy-be-madagascar-vintage-light-filter.jpg";
+    "/img/home/ctaSection/tropical-beach-landscape-with-deckchair-parasol-from-nosy-be-madagascar-vintage-light-filter-1920.webp";
 
 /**
  * Le hero de la page de paramètres.

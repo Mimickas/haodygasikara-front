@@ -17,6 +17,8 @@ export function usePoi() {
         const destinationOptions = (destinationsResponse.data ?? []).map(d => ({
             label: d.nom,
             value: d.id,
+            // La ligne grise de la recherche : de quoi distinguer deux homonymes
+            sousTitre: (d.tags ?? []).slice(0, 3).join(" \u00b7 "),
         }));
 
         const categoryPoiOptions = (categoriesResponse.data ?? []).map(c => ({
@@ -58,8 +60,6 @@ export function usePoi() {
     const actions = {
         create: createPoi,
         edit:   editPoi,
-        export: () => console.log("export"),
-        sort:   () => console.log("sort"),
     };
 
     return { open, setOpen, actions, fields };

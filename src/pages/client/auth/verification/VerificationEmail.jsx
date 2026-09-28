@@ -75,7 +75,8 @@ export default function VerificationEmail() {
         setEnvoi(true);
         try {
             await verifyCodeApi({ email, code });
-            navigate("/login", { replace: true, state: { message: "Votre email est vérifié. Vous pouvez vous connecter." } });
+            // Un administrateur repart vers la connexion de l'administration
+            navigate(state?.retour ?? "/login", { replace: true, state: { message: "Votre email est vérifié. Vous pouvez vous connecter.", ton: "succes" } });
         } catch (error) {
             setErreur(messageErreurApi(error));
             setChiffres(Array(LONGUEUR_CODE).fill(""));
@@ -128,10 +129,10 @@ export default function VerificationEmail() {
                     style={{ color: "var(--text-primary)" }}
                 >
                     <FaArrowLeft className="text-[11px] transition-transform duration-500 ease-out group-hover:-translate-x-1.5" />
-                    <span className="font-body-strong text-[10px] uppercase tracking-[0.35em]">Retour</span>
+                    <span className="font-body-strong text-[11px] uppercase tracking-[0.1em]">Retour</span>
                 </button>
 
-                <span className="font-abhaya-bold text-xl" style={{ color: "var(--text-primary)" }}>
+                <span className="font-title text-xl" style={{ color: "var(--text-primary)" }}>
                     HaodyGasikara
                 </span>
             </div>
@@ -139,7 +140,7 @@ export default function VerificationEmail() {
             {/* ── Le code, seul au centre ─────────────────────────────────── */}
             <div className="flex-1 flex items-center justify-center px-8 pb-24">
                 <div className="w-full text-center" style={{ maxWidth: "560px" }}>
-                    <p className="font-body-strong text-[10px] uppercase tracking-[0.5em] mb-8" style={{ color: "var(--brand-terre)" }}>
+                    <p className="font-body-strong text-[11px] uppercase tracking-[0.1em] mb-8" style={{ color: "var(--brand-terre)" }}>
                         Vérification
                     </p>
 
@@ -208,7 +209,7 @@ export default function VerificationEmail() {
                         <button
                             type="submit"
                             disabled={!complet || envoi}
-                            className="mt-12 w-full py-5 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-all duration-300 cursor-pointer disabled:cursor-not-allowed"
+                            className="mt-12 w-full py-5 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-all duration-300 cursor-pointer disabled:cursor-not-allowed"
                             style={{
                                 backgroundColor: complet && !envoi ? "var(--cta-bg)" : "var(--cta-disabled-bg)",
                                 color: complet && !envoi ? "var(--cta-text)" : "var(--cta-disabled-text)",
@@ -251,12 +252,12 @@ export default function VerificationEmail() {
 
             {/* ── Pied ────────────────────────────────────────────────────── */}
             <div className="flex items-center justify-between px-12 py-8">
-                <span className="font-body text-[10px] uppercase tracking-[0.35em]" style={{ color: "var(--text-muted)" }}>
+                <span className="font-body text-[11px] uppercase tracking-[0.1em]" style={{ color: "var(--text-muted)" }}>
                     Devis sur mesure sous 48 heures
                 </span>
                 <Link
                     to="/login"
-                    className="group flex items-center gap-3 font-body-strong text-[10px] uppercase tracking-[0.3em] transition-colors duration-300"
+                    className="group flex items-center gap-3 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-colors duration-300"
                     style={{ color: "var(--text-primary)" }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-terre)")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-primary)")}

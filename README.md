@@ -1,16 +1,24 @@
-# React + Vite
+# Haodygasikara — site (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Le site vitrine et l'administration de Haodygasikara. L'API est dans le dépôt
+voisin `backhaodygasikara` (Spring Boot, port 8000).
 
-Currently, two official plugins are available:
+## Démarrer en local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+cp .env.example .env        # puis renseigner VITE_API_URL et VITE_MAPBOX_TOKEN
+npm install
+npm run dev                 # http://localhost:5173 (l'API autorise cette origine)
+```
 
-## React Compiler
+| Commande | Rôle |
+|---|---|
+| `npm run dev` | serveur de développement |
+| `npm run build` | build de production dans `dist/` |
+| `npm run lint` | vérification (oxlint) |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Documentation
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- [Guide d'utilisation](docs/guide-utilisateur.md) — le voyageur, puis l'agence (administration).
+- [Déploiement sur le serveur de test](docs/deploiement.md) — base, API, site, nginx, HTTPS, variables.
+- Fichiers de déploiement : [`deploiement/`](deploiement/) (nginx, service systemd, modèle des variables de l'API).

@@ -1,14 +1,7 @@
 import { useState } from "react";
 
+// Le formulaire d'un groupe d'étiquettes : rien à charger, il s'ouvre.
 export function useTagsGroup() {
     const [open, setOpen] = useState(false);
-
-    const actions = {
-        create: () => setOpen(true),
-        edit: () => setOpen(true),
-        export: () => exportTags(),
-        sort:   () => console.log("sort"),
-    };
-
-    return { open, setOpen, actions };
+    return { open, setOpen, actions: { create: () => setOpen(true), edit: () => setOpen(true) } };
 }

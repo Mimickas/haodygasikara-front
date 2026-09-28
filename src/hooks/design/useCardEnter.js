@@ -2,6 +2,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { mouvementSobre } from "./recalageScroll";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -25,6 +26,11 @@ export function useCardEnter(delay = 0) {
         const el = scopeRef.current;
         if (!el) return;
 
+        // Qui demande la sobriété reçoit la carte, telle quelle. Sans ce
+        // garde-fou la carte partait quand même de son état masqué : le seul
+        // moyen de la voir aurait été de jouer l'animation qu'on refuse.
+        if (mouvementSobre()) return;
+
         const tl = gsap.timeline({
             defaults: { ease: "power3.out" },
             delay,
@@ -46,7 +52,6 @@ export function useCardEnter(delay = 0) {
                 // chaque refresh, donc le seuil suit la carte si sa hauteur
                 // change (media queries, CARD_HEIGHT retouche).
                 start: () => `top bottom-=${el.offsetHeight * 0.5}`,
-                invalidateOnRefresh: true,
                 once: true,
             },
             // Une entree ne se joue qu'une fois : des qu'elle est jouee, on
@@ -66,12 +71,29 @@ export function useCardEnter(delay = 0) {
             onComplete: () => tl.scrollTrigger?.kill(),
         });
 
+        // Trois `fromTo`, et pas un seul `from` : c'est ce qui manquait.
+        //
+        // Un `from` ne connaît pas sa destination, il la RELÈVE sur l'élément
+        // au moment de sa création. Tant qu'on n'y revient pas, très bien.
+        // Mais un recalage — et la page en déclenche à chaque image qui
+        // arrive — peut faire relire ces valeurs, et il les relit alors que
+        // l'élément est posé sur son état de DÉPART, celui que le `from` a
+        // appliqué d'office. La destination enregistrée devient « opacité 0 » :
+        // le texte s'anime de l'invisible vers l'invisible, et la carte reste
+        // à moitié vide sans que rien ne paraisse cassé. `fromTo` écrit les
+        // deux bouts noir sur blanc — aucun recalage ne peut les réinventer.
+        //
+        // `invalidateOnRefresh` a disparu pour la même raison : il ORDONNAIT
+        // cette relecture. Le seuil, lui, est une fonction — il est réévalué à
+        // chaque recalage sans avoir besoin de toucher aux valeurs.
         tl.fromTo("[data-card-media]",
             { clipPath: "inset(0% 0% 100% 0%)" },
             { clipPath: "inset(0% 0% 0% 0%)", duration: 1.05 }
         )
             .fromTo("[data-card-img]", { scale: 1.22 }, { scale: 1, duration: 1.45 }, 0)
-            .from("[data-card-text]", { yPercent: 40, opacity: 0, duration: 0.85 }, 0.3);
+            .fromTo("[data-card-text]",
+                { yPercent: 40, opacity: 0 },
+                { yPercent: 0, opacity: 1, duration: 0.85 }, 0.3);
     }, { scope: scopeRef, dependencies: [delay] });
 
     return scopeRef;

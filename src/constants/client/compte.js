@@ -1,10 +1,3 @@
-// Une pastille de couleur suffit a porter le statut : pas de badge encadre.
-export const COULEUR_STATUT = {
-    "Confirmé": "var(--brand-nature)",
-    "Envoyé": "var(--brand-lagune)",
-    "En attente": "var(--brand-ocre)",
-};
-
 // Le compte porte maintenant une photo (`photoUrl`), reglee depuis la page de
 // parametres. Le monogramme reste le cas NOMINAL pour qui n'en a pas mis — ce
 // n'est pas un repli d'erreur, c'est le dessin d'origine. Le choix entre les

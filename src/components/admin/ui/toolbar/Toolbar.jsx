@@ -1,79 +1,76 @@
-import { useState } from "react";
 import { FaMagnifyingGlass, FaArrowDownWideShort } from "react-icons/fa6";
 
-export default function Toolbar({ toolbarConfigs, actions }){
-    // ← la recherche n'est pas encore branchée sur les pages : on garde la saisie en local
-    //   (avant, InputComponent recevait onChange au lieu de setValue et plantait à la frappe)
-    const [search, setSearch] = useState("");
+// ── La barre d'un écran d'administration ──────────────────────────────────
+//
+// La même sur toutes les pages : recherche soulignée, tri, filtres en
+// capitales espacées, puis les actions — une seule en aplat (l'action
+// principale), les autres au trait. Branchée sur useListeAdmin :
+//
+//   <Toolbar liste={liste} placeholder="Rechercher une destination…"
+//            actions={[{ libelle: "Exporter", onClick: liste.exporter },
+//                      { libelle: "Nouvelle destination", onClick: creer, primaire: true }]} />
 
-    return <>
-        <div className="flex items-end justify-between gap-6 pt-8 pb-6">
+// `enPlus` : un réglage propre à la page (une période, par exemple), rangé
+// avec la recherche et le tri, dans le même style (ad-barre__tri).
+export default function Toolbar({ liste, placeholder = "Rechercher…", actions = [], enPlus = null }) {
+    const avecTri = (liste?.tris?.length ?? 0) > 1;
+    const avecFiltres = (liste?.filtres?.length ?? 0) > 1;
 
-            <div className="flex items-end gap-8">
-                {/* ← champ souligné : le filet passe en terre à la saisie (.field-line, cf. index.css) */}
-                <label className="field-line flex items-center gap-3 w-80 pb-2.5">
-                    <FaMagnifyingGlass className="text-xs shrink-0" style={{ color: "var(--text-muted)" }} />
-                    <input
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        placeholder="Rechercher…"
-                        className="field-input w-full bg-transparent outline-none font-body text-sm"
-                        style={{ color: "var(--text-primary)" }}
-                    />
-                </label>
+    return (
+        <div className="ad-barre">
+            <div className="ad-barre__ligne">
+                <div className="ad-barre__outils">
+                    {liste?.setRecherche && (
+                        <label className="field-line ad-barre__recherche">
+                            <FaMagnifyingGlass className="text-xs shrink-0" style={{ color: "var(--text-muted)" }} aria-hidden="true" />
+                            <input
+                                type="search"
+                                value={liste.recherche}
+                                onChange={(e) => liste.setRecherche(e.target.value)}
+                                placeholder={placeholder}
+                                aria-label={placeholder}
+                                className="field-input w-full bg-transparent outline-none font-body text-sm"
+                                style={{ color: "var(--text-primary)" }}
+                            />
+                        </label>
+                    )}
 
-                <button
-                    type="button"
-                    onClick={() => actions?.sort?.()}
-                    className="flex items-center gap-2 pb-2.5 font-body-strong text-[11px] uppercase leading-none cursor-pointer transition-colors"
-                    style={{ color: "var(--text-muted)", letterSpacing: "0.1em" }}
-                    onMouseEnter={e => (e.currentTarget.style.color = "var(--brand-terre)")}
-                    onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
-                >
-                    <FaArrowDownWideShort className="text-xs" />
-                    Trier
-                </button>
+                    {avecTri && (
+                        <label className="ad-barre__tri font-body-strong">
+                            <FaArrowDownWideShort className="text-xs shrink-0" aria-hidden="true" />
+                            <span className="sr-only">Trier</span>
+                            <select value={liste.tri ?? ""} onChange={(e) => liste.setTri(e.target.value)} aria-label="Trier">
+                                {liste.tris.map((t) => <option key={t.cle} value={t.cle}>{t.libelle}</option>)}
+                            </select>
+                        </label>
+                    )}
+
+                    {enPlus}
+                </div>
+
+                {actions.length > 0 && (
+                    <div className="ad-barre__actions">
+                        {actions.filter((a) => a.onClick).map((a) => (
+                            <button key={a.libelle} type="button" onClick={a.onClick} disabled={a.disabled}
+                                className={`ad-bouton font-body-strong${a.primaire ? " ad-bouton--plein" : ""}`}>
+                                {a.libelle}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="flex items-center gap-2">
-                {toolbarConfigs.ctaAction.map((action, index) => {
-                    // ← primaire plein, tout le reste en contour : un seul aplat de marque par barre
-                    const primary = action.variant === "primary";
-                    return (
-                        <button
-                            key={index}
-                            type="button"
-                            onClick={actions[action.name]}
-                            className="h-10 px-6 font-body-strong text-[11px] uppercase leading-none whitespace-nowrap cursor-pointer transition-colors duration-200"
-                            style={primary
-                                ? { letterSpacing: "0.1em", backgroundColor: "var(--cta-bg)", color: "var(--cta-text)", border: "1px solid var(--cta-bg)" }
-                                : { letterSpacing: "0.1em", backgroundColor: "transparent", color: "var(--cta-outline-text)", border: "1px solid var(--cta-outline-border)" }
-                            }
-                            onMouseEnter={e => {
-                                if (primary) {
-                                    e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)";
-                                    e.currentTarget.style.borderColor = "var(--cta-bg-hover)";
-                                } else {
-                                    e.currentTarget.style.color = "var(--cta-outline-hover)";
-                                    e.currentTarget.style.borderColor = "var(--cta-outline-hover)";
-                                }
-                            }}
-                            onMouseLeave={e => {
-                                if (primary) {
-                                    e.currentTarget.style.backgroundColor = "var(--cta-bg)";
-                                    e.currentTarget.style.borderColor = "var(--cta-bg)";
-                                } else {
-                                    e.currentTarget.style.color = "var(--cta-outline-text)";
-                                    e.currentTarget.style.borderColor = "var(--cta-outline-border)";
-                                }
-                            }}
-                        >
-                            {action.value}
+            {avecFiltres && (
+                <div className="ad-filtres" role="tablist" aria-label="Filtrer la liste">
+                    {liste.filtres.map((f) => (
+                        <button key={f.cle} type="button" role="tab" aria-selected={liste.filtre === f.cle}
+                            className={`ad-filtre font-body-strong${liste.filtre === f.cle ? " ad-filtre--actif" : ""}`}
+                            onClick={() => liste.setFiltre(f.cle)}>
+                            {f.libelle} <span className="ad-filtre__compte">{f.compte}</span>
                         </button>
-                    );
-                })}
-            </div>
-
+                    ))}
+                </div>
+            )}
         </div>
-    </>
+    );
 }

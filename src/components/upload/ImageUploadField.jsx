@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import ZoneDepot from "./ZoneDepot";
 
 export default function ImageUploadField({ value = [], onChange }) {
     const [previews, setPreviews] = useState([]);
-    const [isDragging, setIsDragging] = useState(false);
-    const inputRef = useRef(null);
 
     useEffect(() => {
-        const created = [];                       
+        const created = [];
         const urls = value.map(item => {
-            if (typeof item === "string") return item;   
-            const url = URL.createObjectURL(item);      
+            if (typeof item === "string") return item;
+            const url = URL.createObjectURL(item);
             created.push(url);
             return url;
         });
@@ -23,19 +22,7 @@ export default function ImageUploadField({ value = [], onChange }) {
         onChange([...value, ...files]);
     }
 
-    function handleInput(e) {
-        addFiles(e.target.files);
-        e.target.value = "";
-    }
-
-    function handleDrop(e) {
-        e.preventDefault();
-        setIsDragging(false);
-        addFiles(e.dataTransfer.files);
-    }
-
-    function removeImage(index, e) {
-        e.stopPropagation();
+    function removeImage(index) {
         onChange(value.filter((_, i) => i !== index));
     }
 
@@ -48,100 +35,54 @@ export default function ImageUploadField({ value = [], onChange }) {
     }
 
     return (
-        <div className="flex flex-col gap-3">
-            <div
-                onClick={() => inputRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-                className="flex flex-col items-center justify-center gap-2 py-8 px-4 cursor-pointer transition-all duration-200"
-                style={{
-                    border: `1.5px dashed ${isDragging ? "var(--brand-terre)" : "var(--border-strong)"}`,
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: isDragging ? "rgba(168, 88, 50, 0.04)" : "var(--bg-card)",
-                    boxShadow: "var(--shadow-normal)",
-                }}
-            >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                     stroke={isDragging ? "var(--brand-terre)" : "var(--text-muted)"}
-                     strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                </svg>
-                <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    {isDragging ? "Déposez les images ici" : "Cliquez ou glissez des images"}
-                </div>
-                <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    JPG, PNG, WebP — la première image sera la couverture
-                </div>
-            </div>
-
-            <input
-                ref={inputRef}
-                type="file"
+        <div className="ad-televersement">
+            <ZoneDepot
                 accept="image/*"
                 multiple
-                onChange={handleInput}
-                className="hidden"
+                onFichiers={addFiles}
+                invite="Cliquez ou glissez des images"
+                depot="Déposez les images ici"
+                aide="JPG, PNG, WebP — la première image sera la couverture"
+                icone={
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                }
             />
 
             {previews.length > 0 && (
-                <div className="grid grid-cols-4 gap-3">
+                <ul className="ad-vignettes">
                     {previews.map((src, i) => {
                         const isCover = i === 0;
                         return (
-                            <div
-                                key={i}
-                                onClick={() => setAsCover(i)}
-                                className="relative group cursor-pointer transition-all duration-200"
-                                style={{
-                                    aspectRatio: "1 / 1",
-                                    borderRadius: "var(--radius-md)",
-                                    overflow: "hidden",
-                                    border: `2px solid ${isCover ? "var(--brand-terre)" : "var(--border-strong)"}`,
-                                    boxShadow: isCover ? "var(--cta-shadow)" : "var(--shadow-normal)",
-                                }}
-                            >
-                                <img
-                                    src={src}
-                                    alt=""
-                                    className="w-full h-full object-cover"
-                                />
+                            <li key={i} className={`ad-vignette${isCover ? " ad-vignette--couverture" : ""}`}>
+                                <button
+                                    type="button"
+                                    className="ad-vignette__choisir"
+                                    onClick={() => setAsCover(i)}
+                                    title={isCover ? "Image de couverture" : "Choisir comme couverture"}
+                                    aria-label={isCover ? `Image ${i + 1}, couverture` : `Choisir l'image ${i + 1} comme couverture`}
+                                >
+                                    <img src={src} alt="" />
+                                </button>
 
-                                {isCover && (
-                                    <div
-                                        className="absolute top-1.5 left-1.5 px-2 py-0.5 text-xs font-body-strong"
-                                        style={{
-                                            backgroundColor: "var(--brand-terre)",
-                                            color: "#fff",
-                                            borderRadius: "var(--radius-pill)",
-                                        }}
-                                    >
-                                        Couverture
-                                    </div>
-                                )}
+                                {isCover && <span className="ad-vignette__mention font-body-strong">Couverture</span>}
 
                                 <button
                                     type="button"
-                                    onClick={e => removeImage(i, e)}
-                                    className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center cursor-pointer transition-all duration-200 opacity-0 group-hover:opacity-100"
-                                    style={{
-                                        backgroundColor: "rgba(37, 26, 18, 0.75)",
-                                        color: "#fff",
-                                        borderRadius: "var(--radius-pill)",
-                                        fontSize: "14px",
-                                        lineHeight: 1,
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--brand-terre)"}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(37, 26, 18, 0.75)"}
+                                    className="ad-vignette__retirer"
+                                    onClick={() => removeImage(i)}
+                                    aria-label={`Retirer l'image ${i + 1}`}
                                 >
                                     ×
                                 </button>
-                            </div>
+                            </li>
                         );
                     })}
-                </div>
+                </ul>
             )}
         </div>
     );

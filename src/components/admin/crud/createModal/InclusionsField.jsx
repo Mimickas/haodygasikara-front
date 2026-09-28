@@ -1,3 +1,5 @@
+import { FaPlus, FaXmark } from "react-icons/fa6";
+
 // Ce qui est compris dans le prix, et ce qui ne l'est pas.
 //
 // Une seule liste, une colonne « Compris » : c'est le même objet des deux côtés,
@@ -20,14 +22,14 @@ export default function InclusionsField({ value = [], onChange, options = [] }) 
         onChange([...lignes, { categorie: options[0]?.value ?? "AUTRE", libelle: "", inclus: true }]);
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="ad-lignes">
             {lignes.map((ligne, i) => (
-                <div key={i} className="flex gap-2 items-center">
+                <div key={i} className="ad-ligne">
                     <select
                         value={ligne.categorie ?? ""}
                         onChange={(e) => modifier(i, "categorie", e.target.value)}
-                        className="px-3 py-2 text-sm outline-none w-44 shrink-0"
-                        style={champStyle}
+                        aria-label="Catégorie"
+                        className="ad-champ font-body w-44 shrink-0"
                     >
                         {options.map((opt) => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -39,62 +41,29 @@ export default function InclusionsField({ value = [], onChange, options = [] }) 
                         value={ligne.libelle ?? ""}
                         onChange={(e) => modifier(i, "libelle", e.target.value)}
                         placeholder="Ex : transport privé en 4x4 avec chauffeur"
-                        className="px-3 py-2 text-sm outline-none w-full"
-                        style={champStyle}
+                        aria-label="Libellé"
+                        className="ad-champ font-body"
                     />
 
                     <select
                         value={ligne.inclus === false ? "false" : "true"}
                         onChange={(e) => modifier(i, "inclus", e.target.value === "true")}
-                        className="px-3 py-2 text-sm outline-none w-40 shrink-0"
-                        style={champStyle}
+                        aria-label="Compris ou non"
+                        className="ad-champ font-body w-40 shrink-0"
                     >
                         <option value="true">Compris</option>
                         <option value="false">Non compris</option>
                     </select>
 
-                    <button
-                        type="button"
-                        onClick={() => retirer(i)}
-                        aria-label="Retirer cette ligne"
-                        className="w-9 h-9 shrink-0 flex items-center justify-center text-sm cursor-pointer transition-colors"
-                        style={{ ...champStyle, color: "var(--text-muted)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-terre)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-                    >
-                        ✕
+                    <button type="button" onClick={() => retirer(i)} aria-label="Retirer cette ligne" className="ad-retirer">
+                        <FaXmark className="text-xs" aria-hidden="true" />
                     </button>
                 </div>
             ))}
 
-            <button
-                type="button"
-                onClick={ajouter}
-                className="self-start text-sm px-3.5 py-1.5 cursor-pointer transition-colors"
-                style={{
-                    borderRadius: "var(--radius-pill)",
-                    border: "1px solid var(--border-strong)",
-                    color: "var(--text-secondary)",
-                    backgroundColor: "var(--bg-card)",
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "var(--brand-terre)";
-                    e.currentTarget.style.color = "var(--brand-terre)";
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--border-strong)";
-                    e.currentTarget.style.color = "var(--text-secondary)";
-                }}
-            >
-                + Ajouter une ligne
+            <button type="button" onClick={ajouter} className="ad-bouton font-body-strong self-start">
+                <FaPlus aria-hidden="true" /> Ajouter une ligne
             </button>
         </div>
     );
 }
-
-const champStyle = {
-    backgroundColor: "var(--bg)",
-    border: "1px solid var(--border)",
-    color: "var(--text-primary)",
-    borderRadius: "var(--radius-md)",
-};

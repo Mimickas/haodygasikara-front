@@ -176,8 +176,8 @@ export function useCircuitDetailAnimations(pret) {
             monte(".cx-devis", { y: 24 });
             monte(".cx-themes", { y: 20 });
 
-            // L'itinéraire — le grand titre, puis les haltes une à une
-            monte(".cx-iti__titre, .cx-iti__intro", { y: 40, duration: 1.15, stagger: 0.1 });
+            // L'itinéraire — son en-tête est une .cx-tete (animée plus haut),
+            // puis les haltes une à une
             monte(".cx-leg", { y: 36, stagger: 0.09, start: "top 92%" });
 
             // Les images arrivent après coup et changent les hauteurs : sans

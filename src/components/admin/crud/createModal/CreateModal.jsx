@@ -1,158 +1,82 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Button from "../../../ui/button/Button";
-import InputComponent from "../../../ui/input/InputComponent";
-import TextareaComponent from "../../../ui/input/TextareaComponent";
-import VideoUploadField from "../../../upload/VideoUploadField";
-import MultiSelectField from "./MultiSelectField";
-import ImageUploadField from "../../../upload/ImageUploadField";
-import MultiDropDownCircuitStep from "./MultiDropDownCircuitStep";
-import InclusionsField from "./InclusionsField";
+import ChampFormulaire from "../form/ChampFormulaire";
+import { useChampsFormulaire } from "../../../../hooks/admin/useChampsFormulaire";
+import { apiErrorMessage } from "../../../../utils/apiError";
 
-export default function CreateModal({ onSubmit }) {
+// La page de création ou de modification. Champs et valeurs arrivent en props
+// (pages qui se chargent elles-mêmes, cf. useFormulaireAdmin) ou, à défaut,
+// dans l'état de navigation. Sans l'un ni l'autre, on n'affiche rien plutôt que
+// de planter.
+//
+// Le rendu des champs et la validation sont ceux de la fenêtre des listes
+// (ChampFormulaire, useChampsFormulaire) : un champ ajouté à la déclaration
+// arrive dans les deux écrans, avec les mêmes bornes et les mêmes messages.
+export default function CreateModal(props) {
     const { state } = useLocation();
+    const fields = props.fields ?? state?.fields;
+    if (!fields) return <p className="my-8 font-body text-sm" style={{ color: "var(--text-muted)" }}>Chargement du formulaire…</p>;
+    return <Formulaire {...props} fields={fields} values={props.values ?? state?.values} />;
+}
+
+function Formulaire({ onSubmit, fields, values, uploading = false, coherence }) {
     const navigate = useNavigate();
-    const { fields, values } = state;
+    const { formData, setChamp, erreurs, valider, optionsDe, attenteDe } =
+        useChampsFormulaire(fields, values, coherence);
 
-    const [formData, setFormData] = useState(
-        fields.flat().reduce((acc, field) => {
-            acc[field.name] = values?.[field.name] ?? field.defaultValue ?? "";
-            return acc;
-        }, {})
-    );
+    // Un enregistrement refusé se dit : il ne finit plus seulement dans la console
+    const [erreur, setErreur] = useState(null);
+    const [envoi, setEnvoi] = useState(false);
 
-    function handleChange(name, value) {
-        setFormData(prev => ({ ...prev, [name]: value }));
-    }
-
-    function renderField(field) {
-        switch (field.type) {
-            case "textarea":
-                return (
-                    <TextareaComponent
-                        value={formData[field.name]}
-                        setValue={val => handleChange(field.name, val)}
-                        placeholder={field.placeholder}
-                    />
-                );
-            case "image":
-                return (
-                    <ImageUploadField
-                        value={formData[field.name]}
-                        onChange={val => handleChange(field.name, val)}
-                    />
-                );
-            case "video":
-                return (
-                    <VideoUploadField
-                        value={formData[field.name] || null}
-                        onChange={val => handleChange(field.name, val)}
-                    />
-                );
-                case "dropdown":                                      // ← ajouter
-            return (
-                <select
-                    value={formData[field.name]}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    className="w-full px-3 py-2 text-sm outline-none rounded-md"
-                    style={{
-                        backgroundColor: "var(--bg)",
-                        border: "1px solid var(--border)",
-                        color: "var(--text-primary)",
-                        borderRadius: "var(--radius-md)",
-                    }}
-                >
-                    <option value="">{field.placeholder}</option>
-                    {(field.options ?? []).map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </option>
-                    ))}
-                </select>
-            );
-            case "multiselect":
-                return (
-                    <MultiSelectField
-                        value={formData[field.name]}
-                        onChange={val => handleChange(field.name, val)}
-                        options={field.options ?? []}
-                    />
-                );
-            case "radio": {
-                const options = field.options ?? [
-                    { label: "Oui", value: "true" },
-                    { label: "Non", value: "false" },
-                ];
-                return (
-                    <div className="flex gap-4">
-                        {options.map(opt => (
-                            <label key={opt.value} className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)", cursor: "pointer" }}>
-                                <input
-                                    type="radio"
-                                    name={field.name}
-                                    value={opt.value}
-                                    checked={String(formData[field.name]) === String(opt.value)}
-                                    onChange={() => handleChange(field.name, opt.value)}
-                                />
-                                {opt.label}
-                            </label>
-                        ))}
-                    </div>
-                );
-            }
-            case "steps":
-            return (
-                <MultiDropDownCircuitStep
-                    value={formData[field.name]}
-                    onChange={val => handleChange(field.name, val)}
-                    options={field.options ?? []}
-                />
-            );
-            case "inclusions":
-                return (
-                    <InclusionsField
-                        value={formData[field.name]}
-                        onChange={val => handleChange(field.name, val)}
-                        options={field.options ?? []}
-                    />
-                );
-            default:
-                return (
-                    <InputComponent
-                        type={field.type}
-                        value={formData[field.name]}
-                        setValue={val => handleChange(field.name, val)}
-                        placeholder={field.placeholder}
-                    />
-                );
+    const enregistrer = async () => {
+        setErreur(null);
+        if (!valider()) {
+            setErreur("Quelques champs demandent une correction : ils sont signalés ci-dessus.");
+            return;
         }
-    }
+        setEnvoi(true);
+        try {
+            await onSubmit?.(formData);
+        } catch (e) {
+            setErreur(apiErrorMessage(e, "L'enregistrement n'a pas abouti. Vérifiez les champs puis réessayez."));
+        } finally {
+            setEnvoi(false);
+        }
+    };
+    const occupe = envoi || uploading;
 
+    // Une page, pas une fenêtre : la carte du formulaire, et au pied les deux
+    // gestes — collés en bas de l'écran pendant qu'on remplit.
     return (
-        <div className="my-5 w-full">
-
-        <div className="pr-74"> 
-            <div className="p-6" style={{ backgroundColor: "var(--bg-card)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-soft)" }}>
+        <form className="ad-formulaire" onSubmit={(e) => { e.preventDefault(); enregistrer(); }} noValidate>
+            <div className="ad-formulaire__carte">
                 {fields.map((group, index) => (
-                    <div key={index} className="flex gap-4 w-full">
-                        {group.map((field, fieldIndex) => (
-                            <div key={fieldIndex} className="mb-4 w-full">
-                                <label className="block text-sm font-body-strong mb-1" style={{ color: "var(--text-secondary)" }}>
-                                    {field.label}
-                                </label>
-                                {renderField(field)}
+                    <div key={index} className="ad-formulaire__rangee">
+                        {group.map(field => (
+                            <div key={field.name} className="ad-formulaire__champ">
+                                <ChampFormulaire
+                                    field={field}
+                                    valeur={formData[field.name]}
+                                    onChange={val => setChamp(field.name, val)}
+                                    erreur={erreurs[field.name]}
+                                    options={optionsDe(field)}
+                                    attente={attenteDe(field)}
+                                />
                             </div>
                         ))}
                     </div>
                 ))}
             </div>
-        </div>
 
-        <div className="fixed top-24 right-6 w-70 flex flex-col gap-4" style={{ zIndex: 50 }}>
-            <Button className="w-full" value="Valider" onClick={() => onSubmit?.(formData)} />
-            <Button className="w-full" value="Annuler" variant="outline" onClick={() => navigate(-1)} />
-        </div>
-
-    </div>
+            <div className="ad-formulaire__pied">
+                {erreur && <p className="ad-erreur ad-formulaire__erreur" role="alert">{erreur}</p>}
+                <div className="ad-formulaire__gestes">
+                    <button type="button" className="ad-bouton font-body-strong" onClick={() => navigate(-1)} disabled={occupe}>Annuler</button>
+                    <button type="submit" className="ad-bouton ad-bouton--plein font-body-strong" disabled={occupe}>
+                        {occupe ? "Enregistrement…" : "Enregistrer"}
+                    </button>
+                </div>
+            </div>
+        </form>
     );
 }

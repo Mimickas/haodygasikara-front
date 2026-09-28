@@ -1,5 +1,6 @@
 import { initiales } from "../../../constants/client/compte";
 
+import { imageCloudinary } from "../../../utils/image";
 /**
  * Le visage du compte : la photographie si elle existe, le monogramme sinon.
  *
@@ -36,7 +37,7 @@ export default function Avatar({
                 style={{ ...commun, backgroundColor: fond }}
             >
                 <img
-                    src={user.photoUrl}
+                    src={imageCloudinary(user.photoUrl, 240)}
                     alt=""
                     width={taille}
                     height={taille}

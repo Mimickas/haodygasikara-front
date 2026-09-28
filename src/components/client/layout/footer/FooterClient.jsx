@@ -1,68 +1,43 @@
 import { Link } from "react-router-dom";
+import { CONTACT } from "../../../../constants/client/contact";
+
+// Le pied de page : la marque, les coordonnées, trois liens. Sur-titres en
+// capitales espacées et filets d'un pixel, comme le reste du site.
+const LIENS = [
+    { label: "Accueil", to: "/" },
+    { label: "Circuits", to: "/circuit" },
+    { label: "Créer mon circuit", to: "/composer" },
+];
 
 export default function FooterClient() {
-    const liens = [
-        { label: "Accueil", to: "/" },
-        { label: "Circuits", to: "/circuits" },
-        { label: "Créer mon circuit", to: "/circuits/create" },
-    ];
-
     return (
-        <footer style={{ backgroundColor: "var(--bg)" }}>
-            <div className="max-w-6xl mx-auto px-8 py-14">
-                <div className="flex justify-between gap-8">
-
-                    {/* Marque */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <img src="/img/logo/logo-2-horizontal.png" alt="Haodygasikara" className="w-40 rounded-full object-cover" />
-                       
-                        </div>
-                        <p className="font-body text-sm leading-relaxed max-w-xs" style={{ color: "var(--text-muted)" }}>
-                            Tour-opérateur basé à Toamasina, spécialiste d'un Madagascar authentique, éthique et solidaire.
-                        </p>
-                    </div>
-
-                    {/* Contact */}
-                    <div className="flex flex-col gap-3">
-                        <h3 className="font-body-strong text-base mb-1" style={{ color: "var(--text)" }}>
-                            Nous contacter
-                        </h3>
-                        <p className="font-body text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
-                            Villa Saphir, Toamasina 501<br />Madagascar
-                        </p>
-                        <p className="font-body text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
-                            +261 34 27 013 74<br />contact@haodygasikara.com
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                        <h3 className="font-body-strong text-base mb-1" style={{ color: "var(--text)" }}>
-                            Explorer
-                        </h3>
-                        {liens.map((lien) => (
-                            <Link
-                                key={lien.to}
-                                to={lien.to}
-                                className="font-body text-sm w-fit transition-colors duration-200"
-                                style={{ color: "var(--text-muted)" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-ocre)")}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-                            >
-                                {lien.label}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-                
-            </div>
-            <div>
-                <div className="mt-2 p-6 text-center" style={{ borderTop: "1px solid rgba(24,16,10,0.28)" }}>
-                    <p className="font-body text-xs" style={{ color: "var(--text-muted)" }}>
-                        © 2025 Haodygasikara — Le voyage est un partage
+        <footer className="cx-pied">
+            <div className="cx-pied__grille">
+                <div className="cx-pied__marque">
+                    <img src="/img/logo/logo-2-horizontal.png" alt="Haodygasikara" className="cx-pied__logo" />
+                    <p className="cx-pied__texte font-body">
+                        Tour-opérateur basé à Toamasina, spécialiste d'un Madagascar authentique, éthique et solidaire.
                     </p>
                 </div>
+
+                <div>
+                    <p className="cx-label cx-label--accent font-body-strong">Nous contacter</p>
+                    <p className="cx-pied__texte font-body">{CONTACT.adresse.join(", ")}</p>
+                    <a href={`tel:${CONTACT.telHref}`} className="cx-pied__lien font-body">{CONTACT.tel}</a>
+                    <a href={`mailto:${CONTACT.email}`} className="cx-pied__lien font-body">{CONTACT.email}</a>
+                </div>
+
+                <nav aria-label="Pied de page">
+                    <p className="cx-label cx-label--accent font-body-strong">Explorer</p>
+                    {LIENS.map((lien) => (
+                        <Link key={lien.to} to={lien.to} className="cx-pied__lien font-body">{lien.label}</Link>
+                    ))}
+                </nav>
             </div>
+
+            <p className="cx-pied__signature font-body">
+                © {new Date().getFullYear()} Haodygasikara — Le voyage est un partage
+            </p>
         </footer>
     );
 }

@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import HeaderClient from "../components/client/layout/header/HeaderClient";
 import FooterClient from "../components/client/layout/footer/FooterClient";
 import RetourEnHaut from "../components/client/layout/RetourEnHaut";
+import BarreDeChargement from "../components/client/layout/BarreDeChargement";
 import { useSmoothScroll } from "../hooks/design/useSmoothScroll";
 
 export default function AppLayout() {
@@ -9,6 +10,10 @@ export default function AppLayout() {
     return (
         <div style={{ backgroundColor: "var(--bg)", minHeight: "100vh" }}>
             <RetourEnHaut />
+            {/* L'attente entre deux pages. Elle ne peut pas s'afficher pendant la
+                fermeture d'un panneau : la navigation ne commence qu'une fois
+                l'animation finie (cf. LienPanneau, HeaderClient.closePanel). */}
+            <BarreDeChargement />
             <HeaderClient />
 
             {/* Pas de retrait ici, et c'est un choix mesuré.

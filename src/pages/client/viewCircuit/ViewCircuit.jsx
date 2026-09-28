@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { recalerQuandLaPageSeStabilise } from "../../../hooks/design/recalageScroll";
 import { findAllCircuitClientApi } from "../../../api/client/cricuitApi";
 import CircuitCard from "../../../components/client/cardCircuit/CircuitCard";
 import { DURATIONS } from "../../../constants/client/circuitFilters";
 import { circuitDays, circuitSteps } from "../../../utils/circuit";
-import CircuitPanel from "./components/circuitPanel/CircuitPanel";
 import CircuitFilters from "./components/filters/CircuitFilters";
 import CircuitHero from "./components/hero/CircuitHero";
 
 const PER_PAGE = 6;
 const HEADER_FALLBACK = 84;
-const CARD_HEIGHT = "620px";
 
 // Cherche dans le nom du circuit et dans les lieux traversés
 const matchQuery = (circuit, needle) => {
@@ -28,7 +26,6 @@ export default function ViewCircuit() {
     const [query, setQuery] = useState("");
     const [duration, setDuration] = useState("all");
     const [page, setPage] = useState(1);
-    const [selected, setSelected] = useState(null);
     const [headerHeight, setHeaderHeight] = useState(HEADER_FALLBACK);
 
     const indexRef = useRef(null);
@@ -55,18 +52,18 @@ export default function ViewCircuit() {
         return () => window.removeEventListener("resize", measure);
     }, []);
 
-    // Les cartes arrivent après le fetch : les déclencheurs doivent se recaler
+    // Les cartes arrivent après le fetch : les déclencheurs doivent se recaler.
+    //
+    // Un unique recalage à 120 ms ne suffisait pas. À cet instant le squelette
+    // vient de céder la place à la grille et aucune photo n'est arrivée : les
+    // cartes se retrouvaient déclenchées à côté de leur position réelle —
+    // entrée jouée hors champ, ou carte franchie sans qu'elle se révèle. On
+    // recale maintenant à chaque fois que la page change de hauteur, et les
+    // filtres comme « charger la suite » repassent par là (cf. recalageScroll).
     useEffect(() => {
-        if (status !== "ready") return;
-        const id = setTimeout(() => ScrollTrigger.refresh(), 120);
-        return () => clearTimeout(id);
-    }, [status]);
-
-    // Bloque le scroll de fond quand le panneau est ouvert
-    useEffect(() => {
-        document.body.style.overflow = selected ? "hidden" : "";
-        return () => { document.body.style.overflow = ""; };
-    }, [selected]);
+        if (status !== "ready") return undefined;
+        return recalerQuandLaPageSeStabilise(indexRef.current ?? undefined);
+    }, [status, page, query, duration]);
 
     useEffect(() => { setPage(1); }, [query, duration]);
 
@@ -88,7 +85,7 @@ export default function ViewCircuit() {
 
     return (
         <section className="w-full" style={{ backgroundColor: "var(--bg)" }}>
-            <CircuitHero circuits={circuits} onBrowse={scrollToIndex} topOffset={headerHeight} />
+            <CircuitHero onBrowse={scrollToIndex} topOffset={headerHeight} />
             
             <div ref={indexRef} data-header-text="var(--text-primary)" className="pb-32" style={{ scrollMarginTop: `${headerHeight}px` }}>
                 <CircuitFilters
@@ -101,7 +98,7 @@ export default function ViewCircuit() {
                     top={headerHeight}
                 />
 
-                <div className="px-16 pt-20">
+                <div className="px-5 sm:px-16 pt-12 lg:pt-20">
                     {status === "loading" && <CircuitGridSkeleton />}
 
                     {status === "error" && (
@@ -139,7 +136,6 @@ export default function ViewCircuit() {
                                     circuit={circuit}
                                     index={index}
                                     delay={(index % 2) * 0.12}
-                                    onClick={() => setSelected(circuit)}
                                 />
                             ))}
                         </div>
@@ -148,10 +144,10 @@ export default function ViewCircuit() {
 
                 {/* ── Charger la suite — inutile tant que tout tient sur une page ── */}
                 {status === "ready" && hasMore && (
-                    <div className="px-16 mt-20 flex justify-center">
+                    <div className="px-5 sm:px-16 mt-12 lg:mt-20 flex justify-center">
                         <button
                             onClick={() => setPage((p) => p + 1)}
-                            className="px-14 py-5 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
+                            className="px-14 py-5 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-colors duration-300 cursor-pointer"
                             style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}
@@ -170,7 +166,7 @@ function CircuitGridSkeleton() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="skeleton-box w-full" style={{ height: CARD_HEIGHT, borderRadius: 0 }} />
+                <div key={i} className="skeleton-box w-full h-[480px] sm:h-[620px]" />
             ))}
         </div>
     );
@@ -179,7 +175,7 @@ function CircuitGridSkeleton() {
 function EmptyState({ title, text, actionLabel, onAction }) {
     return (
         <div className="py-28 flex flex-col items-center text-center">
-            <span className="font-body-strong text-[11px] uppercase tracking-[0.5em] mb-6" style={{ color: "var(--brand-ocre)" }}>
+            <span className="font-body-strong text-[11px] uppercase tracking-[0.1em] mb-6" style={{ color: "var(--brand-ocre)" }}>
                 Sélection
             </span>
             <h3 className="font-title leading-none mb-6" style={{ color: "var(--text-primary)", fontSize: "clamp(2rem, 3.4vw, 3.25rem)" }}>
@@ -191,7 +187,7 @@ function EmptyState({ title, text, actionLabel, onAction }) {
             {actionLabel && (
                 <button
                     onClick={onAction}
-                    className="mt-10 px-10 py-4 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer"
+                    className="mt-10 px-10 py-4 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-colors duration-300 cursor-pointer"
                     style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}

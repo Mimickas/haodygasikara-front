@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
@@ -7,6 +7,7 @@ import { useAuth } from "../../../../hooks/useAuth";
 import Avatar from "../../compte/Avatar";
 import MenuPanel from "./MenuPanel";
 import AccountPanel from "./AccountPanel";
+import LienPanneau from "./LienPanneau";
 
 const PANEL_EASE = "expo.inOut";
 const OPEN_DURATION = 0.85;
@@ -17,6 +18,7 @@ export default function HeaderClient() {
     // Deux états booléens séparés menaient à un panneau ouvert sans contenu
     // et à un bouton qui ne se refermait jamais.
     const { isAuthenticated, user } = useAuth();
+    const navigate = useNavigate();
 
     const [panneau, setPanneau] = useState(null);
     const [headerHeight, setHeaderHeight] = useState(84);
@@ -102,14 +104,9 @@ export default function HeaderClient() {
 
     // Entrée du contenu, rejouée quand on bascule d'un panneau à l'autre.
     //
-    // Trois temps qui se chevauchent, dans l'esprit du hero d'accueil : la
-    // photo se resserre, les lignes de titre montent de sous leur cadre, puis
-    // le reste se pose. Ils démarrent ensemble et non l'un après l'autre —
-    // enchaînés, l'ouverture durerait trois secondes.
-    //
-    // clearProps est indispensable : un transform inline qui traine ferait de
-    // ces blocs le bloc conteneur des enfants en position fixed — l'image qui
-    // suit le curseur se recalerait alors sur le lien au lieu de la fenêtre.
+    // Deux temps qui se chevauchent, dans l'esprit du hero d'accueil : les
+    // lignes de titre montent de sous leur cadre, puis le reste se pose,
+    // discrètement. clearProps : aucun transform inline ne doit traîner.
     useEffect(() => {
         if (!panneau) return;
 
@@ -120,17 +117,10 @@ export default function HeaderClient() {
             return trouves.length ? trouves : null;
         };
 
-        const media = cible("[data-panel-media]");
         const lignes = cible("[data-panel-mask]");
         const blocs = cible("[data-panel-item]");
 
         const tl = gsap.timeline({ delay: OPEN_DURATION * 0.4 });
-
-        // La photo entre plus large que son cadre et se pose : le mouvement
-        // se lit sans qu'on voie jamais de bord vide.
-        if (media) {
-            tl.from(media, { scale: 1.18, duration: 1.6, ease: "expo.out", clearProps: "transform" }, 0);
-        }
 
         // Le prénom monte ligne par ligne, chacune découpée par son parent
         if (lignes) {
@@ -145,10 +135,10 @@ export default function HeaderClient() {
 
         if (blocs) {
             tl.from(blocs, {
-                y: 40,
+                y: 18,
                 opacity: 0,
-                duration: 0.7,
-                stagger: 0.07,
+                duration: 0.6,
+                stagger: 0.05,
                 ease: "power3.out",
                 clearProps: "transform",
             }, 0.22);
@@ -157,12 +147,18 @@ export default function HeaderClient() {
         return () => tl.kill();
     }, [panneau]);
 
-    const closePanel = useCallback(() => {
+    // `apres` s'execute une fois le panneau REFERME, pas avant. C'est ce qui
+    // met la navigation en file derriere l'animation au lieu de la lancer en
+    // meme temps (cf. LienPanneau). Appele comme gestionnaire d'evenement,
+    // le premier argument est un Event : le test sur le type l'ecarte.
+    const closePanel = useCallback((apres) => {
+        const suite = typeof apres === "function" ? apres : null;
         const panel = panelRef.current;
         const main = document.querySelector("main");
 
         if (!panel) {
             setPanneau(null);
+            suite?.();
             return;
         }
 
@@ -170,11 +166,21 @@ export default function HeaderClient() {
             onComplete: () => {
                 if (main) gsap.set(main, { clearProps: "transform" });
                 setPanneau(null);
+                suite?.();
             },
         });
         tl.to(panel, { height: 0, duration: CLOSE_DURATION, ease: PANEL_EASE });
         if (main) tl.to(main, { y: 0, duration: CLOSE_DURATION, ease: PANEL_EASE }, 0);
     }, []);
+
+    // L'ordre voulu, en une ligne : le menu finit de se fermer, PUIS on
+    // navigue. L'attente du module s'annonce alors toute seule, par la barre
+    // de chargement du gabarit — elle ne peut pas apparaitre avant, puisque
+    // la navigation n'a pas encore commence.
+    const naviguerDepuisLePanneau = useCallback(
+        (vers) => closePanel(() => navigate(vers)),
+        [closePanel, navigate]
+    );
 
     // Même bouton : ferme si son panneau est déjà là, bascule sinon
     const togglePanel = useCallback(
@@ -196,7 +202,7 @@ export default function HeaderClient() {
         <>
             <header
                 ref={scopeRef}
-                className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center py-6 px-16 uppercase text-sm transition-colors duration-300 backdrop-blur-sm"
+                className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center py-5 px-5 sm:py-6 sm:px-16 uppercase text-sm transition-colors duration-300 backdrop-blur-sm"
                 style={{ borderBottom: "1px solid var(--border)" }}
             >
                 <button
@@ -217,15 +223,27 @@ export default function HeaderClient() {
                             style={{ borderColor: barColor, borderTopWidth: "1.5px", borderTopStyle: "solid" }}
                         />
                     </span>
-                    <span>{menuOuvert ? "Fermer" : "Menu"}</span>
+                    {/* Sur téléphone, les deux traits suffisent : le mot poussait le logo hors de sa colonne */}
+                    <span className="hidden sm:inline">{menuOuvert ? "Fermer" : "Menu"}</span>
                 </button>
 
                 <div data-header-logo className="flex justify-center">
-                    <Link to="/" onClick={ouvert ? closePanel : undefined}>
-                        <span className="font-abhaya-bold text-2xl transition-colors duration-300" style={{ color: barColor }}>
-                            HaodyGasikara
-                        </span>
-                    </Link>
+                    {/* Panneau ouvert, le logo ramène à l'accueil : il suit alors la
+                        même file que les liens du menu — fermeture, puis navigation.
+                        Panneau fermé, c'est un lien ordinaire. */}
+                    {ouvert ? (
+                        <LienPanneau to="/" onNaviguer={naviguerDepuisLePanneau}>
+                            <span className="font-title text-xl sm:text-2xl whitespace-nowrap transition-colors duration-300" style={{ color: barColor }}>
+                                HaodyGasikara
+                            </span>
+                        </LienPanneau>
+                    ) : (
+                        <Link to="/">
+                            <span className="font-title text-xl sm:text-2xl whitespace-nowrap transition-colors duration-300" style={{ color: barColor }}>
+                                HaodyGasikara
+                            </span>
+                        </Link>
+                    )}
                 </div>
 
                 <div data-header-cta className="flex justify-end items-center gap-6 font-body">
@@ -243,12 +261,12 @@ export default function HeaderClient() {
                                     sinon — un seul composant decide, ici comme
                                     dans l'espace voyageur. */}
                                 <Avatar user={user} taille={28} bordure={barColor} />
-                                <span>{compteOuvert ? "Fermer" : user?.prenom}</span>
+                                <span className="hidden sm:inline">{compteOuvert ? "Fermer" : user?.prenom}</span>
                             </>
                         ) : (
                             <>
                                 <FaUser />
-                                <span>{compteOuvert ? "Fermer" : "Se connecter"}</span>
+                                <span className="hidden sm:inline">{compteOuvert ? "Fermer" : "Se connecter"}</span>
                             </>
                         )}
                     </button>
@@ -266,7 +284,9 @@ export default function HeaderClient() {
                         Le padding est laissé à chaque panneau : l'espace compte a
                         besoin de saigner jusqu'aux bords. */}
                     <div style={{ height: `${window.innerHeight - headerHeight}px` }}>
-                        {menuOuvert ? <MenuPanel onNavigate={closePanel} /> : <AccountPanel onClose={closePanel} />}
+                        {menuOuvert
+                            ? <MenuPanel onNaviguer={naviguerDepuisLePanneau} />
+                            : <AccountPanel onClose={closePanel} onNaviguer={naviguerDepuisLePanneau} />}
                     </div>
                 </div>
             )}

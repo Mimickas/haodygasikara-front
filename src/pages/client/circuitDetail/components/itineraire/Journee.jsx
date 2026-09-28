@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { mediasPoi } from "../../../../../utils/circuit";
+import { mediasPoi, trajetDuJour } from "../../../../../utils/circuit";
 import { formatRepas } from "../../../../../utils/format";
 import Mention from "../shared/Mention";
 import JourneeVisites from "./JourneeVisites";
@@ -26,6 +26,7 @@ import PlanchePhoto from "./PlanchePhoto";
 export default function Journee({ jour, lieu }) {
     const repas = formatRepas(jour);
     const aRepas = repas !== "—";
+    const trajet = trajetDuJour(jour);
 
     // La planche photo est celle de l'hebergement — son film compris, s'il en
     // a un. Le POI porte ses visuels dans la meme forme qu'une destination.
@@ -34,11 +35,10 @@ export default function Journee({ jour, lieu }) {
     return (
         <article className="cx-jour">
             <div className="cx-jour__tete">
-                {/* `jourCircuit` vient du back : le jour du VOYAGE, pas celui
-                    de l'etape. La premiere journee de la deuxieme halte n'est
-                    pas le jour 1. */}
+                {/* `jour` est le numero sur TOUT le voyage : la premiere journee
+                    de la deuxieme halte n'est pas le jour 1. */}
                 <span className="cx-label cx-label--accent font-body-strong">
-                    Jour {jour?.jourCircuit ?? jour?.jour}
+                    Jour {jour?.jour}
                 </span>
 
                 {/* Le renvoi vers la carte reste a brancher : il est ici en
@@ -50,8 +50,17 @@ export default function Journee({ jour, lieu }) {
                 </button>
             </div>
 
+            {/* Le trajet de la journee : « Antananarivo → Ampefy → Chute de
+                Lily ». Une journee traverse souvent plusieurs lieux, et c'est ce
+                que la fiche ne savait pas dire — un jour valait un lieu. */}
+            {trajet.length > 1 && (
+                <p className="cx-jour__trajet font-body-strong">
+                    {trajet.join(" → ")}
+                </p>
+            )}
+
             {jour?.titre && (
-                <h4 className="cx-jour__titre font-body-bold">{jour.titre}</h4>
+                <h4 className="cx-jour__titre font-title">{jour.titre}</h4>
             )}
 
             {jour?.description && (
@@ -60,12 +69,20 @@ export default function Journee({ jour, lieu }) {
 
             <JourneeVisites visites={jour?.visites} />
 
-            {(jour?.hebergement || aRepas) && (
+            {(jour?.hebergement || aRepas || jour?.transport) && (
                 <dl className="cx-jour__fiche">
                     {jour?.hebergement && (
                         <Mention legende="Nuitée" valeur={jour.hebergement.nom} />
                     )}
+                    {/* Les autres hébergements que l'agence propose pour cette
+                        nuit ; le voyageur choisit en demandant son devis. */}
+                    {jour?.alternatives?.length > 0 && (
+                        <Mention legende="Ou au choix" valeur={jour.alternatives.map((a) => a.nom).join(" · ")} />
+                    )}
                     {aRepas && <Mention legende="Repas inclus" valeur={repas} />}
+                    {jour?.transport?.libelle && (
+                        <Mention legende="Déplacement" valeur={jour.transport.libelle} />
+                    )}
                 </dl>
             )}
 

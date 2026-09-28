@@ -7,7 +7,6 @@ export const CODES_ERREUR = {
     BAD_CREDENTIALS: "BAD_CREDENTIALS",
     VERIFICATION_TOKEN_INVALID: "VERIFICATION_TOKEN_INVALID",
     VERIFICATION_TOKEN_EXPIRED: "VERIFICATION_TOKEN_EXPIRED",
-    REFRESH_TOKEN_MISSING: "REFRESH_TOKEN_MISSING",
     REFRESH_TOKEN_INVALID: "REFRESH_TOKEN_INVALID",
     // Trop de codes faux sur ce compte : bloque temporairement
     TOO_MANY_ATTEMPTS: "TOO_MANY_ATTEMPTS",
@@ -30,6 +29,5 @@ export const REDIRECTIONS_AUTH = {
     [CODES_ERREUR.EMAIL_NOT_VERIFIED]: { vers: "/verification" },
     [CODES_ERREUR.VERIFICATION_TOKEN_EXPIRED]: { vers: "/verification" },
     [CODES_ERREUR.EMAIL_ALREADY_VERIFIED]: { vers: "/login" },
-    [CODES_ERREUR.REFRESH_TOKEN_MISSING]: { vers: "/login", purgeSession: true },
     [CODES_ERREUR.REFRESH_TOKEN_INVALID]: { vers: "/login", purgeSession: true },
 };

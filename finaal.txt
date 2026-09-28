@@ -1,0 +1,786 @@
+# FINALISATION COMPLÈTE DU PROJET
+
+## OBJECTIF PRINCIPAL
+
+Je veux maintenant une **finalisation complète, professionnelle et approfondie de tout le projet**.
+
+Il ne s'agit pas simplement de corriger quelques bugs.
+
+Je veux un véritable :
+
+* audit ;
+* nettoyage ;
+* suppression du code inutile ;
+* nettoyage BDD ;
+* correction des fonctionnalités ;
+* harmonisation Front-office / Admin ;
+* harmonisation du design ;
+* correction des incohérences ;
+* amélioration des composants ;
+* vérification des parcours ;
+* vérification responsive ;
+* vérification interne et externe ;
+* finition générale du projet.
+
+**NE PAS SE LIMITER AUX PROBLÈMES QUE JE CITE.**
+
+Les exemples ci-dessous servent de références pour identifier également toutes les incohérences similaires dans le reste du projet.
+
+---
+
+# 1. NETTOYAGE COMPLET DU PROJET
+
+Vérifier **TOUS les fichiers, pages, composants, services, API, classes, routes, styles et éléments BDD**.
+
+Identifier tout ce qui n'est plus utilisé.
+
+Vérifier notamment :
+
+* fichiers inutilisés ;
+* pages inutilisées ;
+* composants inutilisés ;
+* imports inutilisés ;
+* services inutilisés ;
+* hooks inutilisés ;
+* fonctions inutilisées ;
+* variables inutilisées ;
+* routes inutilisées ;
+* API inutilisées ;
+* anciens composants ;
+* anciens styles CSS ;
+* anciennes fonctionnalités ;
+* code mort ;
+* code commenté devenu inutile ;
+* données de test ;
+* anciennes configurations ;
+* anciennes relations BDD.
+
+### RÈGLE
+
+Avant de supprimer quoi que ce soit, vérifier qu'il n'est réellement plus utilisé.
+
+Vérifier les dépendances et les utilisations indirectes.
+
+Une fois confirmé comme inutile, **SUPPRIMER réellement l'élément**.
+
+Je ne veux pas simplement le laisser dans le projet en le cachant ou en le commentant.
+
+---
+
+# 2. SUPPRESSION COMPLÈTE DE LA TARIFICATION
+
+La fonctionnalité de **tarification qui n'est plus utilisée doit disparaître complètement du projet.**
+
+Je ne veux **AUCUNE TRACE inutile** de cette ancienne fonctionnalité.
+
+## FRONT-END
+
+Rechercher et supprimer tout ce qui concerne cette ancienne tarification :
+
+* pages ;
+* composants ;
+* routes ;
+* services ;
+* API ;
+* hooks ;
+* states ;
+* types ;
+* interfaces ;
+* imports ;
+* CSS ;
+* formulaires ;
+* modales ;
+* boutons ;
+* variables ;
+* logique métier ;
+* références dans d'autres composants.
+
+## BACK-END
+
+Vérifier et supprimer ce qui est devenu inutile :
+
+* Entities ;
+* DTO ;
+* Controllers ;
+* Services ;
+* Repositories ;
+* Mappers ;
+* Queries ;
+* Endpoints ;
+* Relations ;
+* validations ;
+* logique métier ;
+* imports ;
+* anciennes méthodes.
+
+## BASE DE DONNÉES
+
+Identifier toutes les structures qui ne servent plus :
+
+* tables ;
+* colonnes ;
+* contraintes ;
+* Foreign Keys ;
+* index ;
+* relations ;
+* données ;
+* vues ;
+* triggers éventuels.
+
+Si la suppression directe de la BDD n'est pas possible, **DONNE-MOI OBLIGATOIREMENT LES SCRIPTS SQL DE NETTOYAGE**.
+
+Par exemple :
+
+```sql
+ALTER TABLE ... DROP COLUMN ...;
+
+DROP TABLE ...;
+
+ALTER TABLE ... DROP CONSTRAINT ...;
+```
+
+Mais avant chaque suppression :
+
+1. vérifier les dépendances ;
+2. vérifier les Foreign Keys ;
+3. vérifier les requêtes backend ;
+4. vérifier les relations ;
+5. vérifier que rien d'autre dans l'application n'en dépend.
+
+**AUCUNE suppression BDD à l'aveugle.**
+
+---
+
+# 3. NETTOYAGE GLOBAL DE LA BASE DE DONNÉES
+
+Faire un audit complet de la BDD.
+
+Rechercher également toutes les autres structures devenues inutiles.
+
+Vérifier :
+
+* tables ;
+* colonnes ;
+* relations ;
+* Foreign Keys ;
+* contraintes ;
+* index ;
+* données de test ;
+* anciennes structures ;
+* anciennes fonctionnalités.
+
+L'objectif est que la BDD corresponde exactement aux fonctionnalités réellement utilisées par l'application actuelle.
+
+Si certains éléments ne peuvent pas être supprimés directement :
+
+**fournir les scripts SQL DROP correspondants.**
+
+---
+
+# 4. RÉFÉRENCES PRINCIPALES DU DESIGN
+
+## FRONT-OFFICE
+
+La référence principale et absolue du design Front-office est :
+
+```text
+Home.jsx
+```
+
+Le design de `Home.jsx` doit servir de **référence principale pour toute l'identité visuelle du Front-office**.
+
+Cela signifie que les autres pages doivent être réalignées avec son système de :
+
+* typographie ;
+* espacements ;
+* proportions ;
+* couleurs ;
+* boutons ;
+* cards ;
+* titres ;
+* sections ;
+* layouts ;
+* bordures ;
+* rayons ;
+* images ;
+* CTA ;
+* interactions ;
+* hiérarchie visuelle.
+
+### IMPORTANT
+
+Je ne demande PAS de copier aveuglément chaque élément de `Home.jsx`.
+
+Je veux que **son langage visuel et son niveau de finition deviennent la référence du Front-office**.
+
+---
+
+# 5. RÉFÉRENCE PRINCIPALE ADMIN
+
+Pour toute la partie Admin, la référence principale du design est :
+
+```text
+Destinations
+```
+
+Toutes les autres pages Admin doivent respecter le même langage visuel.
+
+Par exemple, si plusieurs pages utilisent :
+
+* KPI ;
+* tableaux ;
+* filtres ;
+* recherche ;
+* boutons ;
+* cards ;
+* headers ;
+* actions ;
+
+elles doivent utiliser **exactement le même système visuel et, lorsque cela est pertinent, les mêmes composants réutilisables.**
+
+---
+
+# 6. RÈGLE ABSOLUE DE COHÉRENCE DESIGN
+
+### MÊME TYPE D'AFFICHAGE = MÊME DESIGN
+
+Exemple :
+
+Si `Destinations` possède un système KPI et que `Demande de devis` possède également des KPI :
+
+**Demande de devis doit utiliser exactement le même système KPI.**
+
+Pas :
+
+* une autre taille ;
+* une autre card ;
+* un autre spacing ;
+* une autre typographie ;
+* une autre icône ;
+* une autre disposition ;
+* une autre couleur ;
+* une autre bordure.
+
+Je veux une **cohérence à 100 %** lorsque le rôle de l'élément est identique.
+
+Même principe pour :
+
+* recherche ;
+* notifications ;
+* filtres ;
+* tri ;
+* pagination ;
+* tableaux ;
+* boutons ;
+* dropdowns ;
+* modales ;
+* cards ;
+* formulaires ;
+* états loading ;
+* états empty ;
+* messages d'erreur.
+
+---
+
+# 7. COMPOSANTS RÉUTILISABLES
+
+Pendant cette finalisation, identifier tous les éléments qui sont utilisés plusieurs fois.
+
+Lorsqu'un élément est commun à plusieurs pages, créer ou utiliser un **composant réutilisable**.
+
+Exemples :
+
+* Search ;
+* Notifications ;
+* Sorting ;
+* Filters ;
+* KPI ;
+* Buttons ;
+* Cards ;
+* Modal ;
+* Pagination ;
+* Table ;
+* Empty state ;
+* Loading state ;
+* Error state ;
+* Header ;
+* Sidebar ;
+* Breadcrumb ;
+* CTA.
+
+### RÈGLE
+
+Éviter de recréer plusieurs fois le même composant avec de petites différences inutiles.
+
+Je veux une architecture propre :
+
+```text
+Composant réutilisable
+        ↓
+Plusieurs pages
+        ↓
+Même logique
+        ↓
+Même design
+```
+
+Cela doit également faciliter les futures modifications.
+
+---
+
+# 8. FRONT-OFFICE — PAGE DÉTAIL CIRCUIT
+
+Vérifier particulièrement la page :
+
+```text
+Circuit Detail
+```
+
+Il existe une incohérence importante sur le titre :
+
+```text
+ITINÉRAIRE
+```
+
+Il semble utiliser une typographie différente du reste du site, notamment une police de type `Barlow` utilisée comme font body.
+
+Vérifier précisément :
+
+```text
+index.css
+```
+
+ainsi que tous les styles hérités ou spécifiques.
+
+Identifier la cause exacte :
+
+* `font-family` ;
+* héritage ;
+* classe CSS ;
+* style inline ;
+* composant ;
+* override ;
+* ancienne règle CSS.
+
+Puis corriger la source de l'incohérence.
+
+**Ne pas simplement modifier visuellement le titre sans comprendre pourquoi cette différence existe.**
+
+---
+
+# 9. AUDIT TYPOGRAPHIQUE GLOBAL
+
+Faire une recherche globale sur les polices utilisées dans le projet.
+
+Identifier les :
+
+* `font-family` ;
+* `font-size` ;
+* `font-weight` ;
+* `line-height` ;
+* `letter-spacing`.
+
+Rechercher les styles qui sortent du système typographique principal.
+
+Je veux éviter qu'une seule section utilise accidentellement une ancienne police ou une ancienne règle.
+
+---
+
+# 10. NIVEAU DE DESIGN ATTENDU
+
+La page `Home.jsx` montre volontairement une direction :
+
+* minimaliste ;
+* élégante ;
+* calme ;
+* moderne ;
+* luxueuse ;
+* premium ;
+* avec peu de texte ;
+* beaucoup d'espace ;
+* bonne hiérarchie visuelle ;
+* contenu bien organisé ;
+* aucune surcharge visuelle.
+
+**Cette direction doit être conservée et étendue au reste du Front-office.**
+
+Je ne veux PAS transformer les pages en interfaces surchargées.
+
+Le principe doit rester :
+
+> **Peu d'éléments, mais chaque élément doit être parfaitement travaillé.**
+
+---
+
+# 11. CORRECTION DES INCOHÉRENCES VISUELLES
+
+Rechercher activement tout ce qui donne une impression de design ancien, amateur ou incohérent.
+
+Notamment :
+
+* bordures excessives ;
+* cards trop nombreuses ;
+* borders inutiles ;
+* ombres trop fortes ;
+* couleurs incohérentes ;
+* éléments trop serrés ;
+* spacing insuffisant ;
+* layouts mal équilibrés ;
+* textes trop nombreux ;
+* typographies incohérentes ;
+* boutons trop basiques ;
+* composants visuellement datés ;
+* sections trop chargées ;
+* éléments mal alignés ;
+* tailles disproportionnées ;
+* hiérarchie visuelle faible ;
+* layouts qui ne donnent pas une impression premium.
+
+### ESPACEMENT
+
+Une attention particulière doit être portée aux espaces.
+
+Éviter les interfaces où :
+
+```text
+élément
+élément
+élément
+élément
+```
+
+sont trop rapprochés.
+
+Je veux un rythme visuel plus respirant et plus haut de gamme.
+
+---
+
+# 12. BORDURES ET CARDS
+
+Je veux notamment vérifier les **borders excessifs**.
+
+Toutes les bordures ne sont pas nécessaires.
+
+Pour chaque border, vérifier :
+
+* est-elle réellement utile ?
+* améliore-t-elle la hiérarchie ?
+* est-elle cohérente avec `Home.jsx` / `Destinations` ?
+* apporte-t-elle quelque chose au design ?
+
+Si une bordure est uniquement présente parce qu'elle était utilisée dans une ancienne version du design :
+
+**la supprimer.**
+
+Même logique pour les :
+
+* shadows ;
+* backgrounds ;
+* séparateurs ;
+* outlines ;
+* effets décoratifs.
+
+---
+
+# 13. MENU
+
+Supprimer les anciens effets hover du menu.
+
+Je ne veux plus :
+
+* image qui apparaît au hover ;
+* image qui s'affiche lorsque le menu est ouvert ;
+* overlay inutile ;
+* animation excessive ;
+* effet visuel ancien ;
+* changement de style inutile au survol.
+
+Le menu doit rester :
+
+* propre ;
+* minimal ;
+* élégant ;
+* premium ;
+* cohérent avec la direction artistique de `Home.jsx`.
+
+---
+
+# 14. CURSOR
+
+Le curseur actuel est trop basique et trop générique.
+
+Je veux revoir complètement son comportement.
+
+Créer un curseur plus cohérent avec l'identité premium du site.
+
+Il doit être :
+
+* subtil ;
+* élégant ;
+* fluide ;
+* moderne ;
+* non intrusif ;
+* cohérent avec les interactions.
+
+Vérifier son comportement sur :
+
+* liens ;
+* boutons ;
+* images ;
+* cards ;
+* menu ;
+* éléments interactifs ;
+* formulaires.
+
+Ne pas créer un curseur uniquement pour ajouter un effet visuel.
+
+Il doit améliorer la cohérence de l'expérience.
+
+---
+
+# 15. AUDIT DES FONCTIONNALITÉS
+
+Pendant la finalisation, vérifier également toutes les fonctionnalités du site.
+
+Si une fonctionnalité existe mais ne fonctionne pas correctement :
+
+**la rendre fonctionnelle.**
+
+Ne pas simplement signaler le bug.
+
+Lorsqu'il est possible de corriger proprement le problème, le corriger.
+
+Vérifier notamment :
+
+* recherche ;
+* notifications ;
+* tri ;
+* filtres ;
+* pagination ;
+* formulaires ;
+* navigation ;
+* boutons ;
+* modales ;
+* dropdowns ;
+* API ;
+* récupération des données ;
+* création ;
+* modification ;
+* suppression ;
+* validation ;
+* loading ;
+* erreurs ;
+* états vides.
+
+---
+
+# 16. AUDIT ÉTAPE PAR ÉTAPE
+
+Faire une vérification de toute l'application **page par page et fonctionnalité par fonctionnalité**.
+
+Rechercher :
+
+* bugs ;
+* incohérences ;
+* éléments manquants ;
+* erreurs internes ;
+* erreurs externes ;
+* erreurs API ;
+* erreurs frontend ;
+* erreurs backend ;
+* erreurs de navigation ;
+* erreurs de données ;
+* erreurs responsive ;
+* problèmes d'affichage ;
+* problèmes UX ;
+* console errors ;
+* warnings ;
+* composants incomplets.
+
+### NE PAS SE LIMITER AUX BUGS ÉVIDENTS.
+
+Je veux également identifier les **petits détails qui donnent une impression de projet non finalisé**.
+
+---
+
+# 17. VÉRIFICATION FRONT-END → BACK-END → BDD
+
+Pour chaque fonctionnalité importante, vérifier la chaîne complète :
+
+```text
+FRONT-END
+    ↓
+API
+    ↓
+CONTROLLER
+    ↓
+SERVICE
+    ↓
+REPOSITORY
+    ↓
+DATABASE
+```
+
+Vérifier que la logique est cohérente à chaque niveau.
+
+Une fonctionnalité qui fonctionne visuellement mais qui utilise encore une ancienne logique backend ou une ancienne structure BDD doit être corrigée.
+
+---
+
+# 18. RESPONSIVE
+
+Vérifier toutes les pages sur :
+
+* Desktop ;
+* Laptop ;
+* Tablet ;
+* Mobile.
+
+Rechercher :
+
+* overflow ;
+* éléments coupés ;
+* mauvaises tailles ;
+* mauvais spacing ;
+* texte qui déborde ;
+* boutons mal positionnés ;
+* images mal cadrées ;
+* menus incorrects ;
+* cards déformées ;
+* tableaux problématiques.
+
+---
+
+# 19. NON-RÉGRESSION
+
+Chaque correction doit être faite sans casser les autres parties du projet.
+
+Après une modification d'un composant partagé :
+
+1. rechercher toutes ses utilisations ;
+2. vérifier toutes les pages concernées ;
+3. vérifier le responsive ;
+4. vérifier les fonctionnalités ;
+5. vérifier les appels API concernés.
+
+---
+
+# 20. RAPPORT FINAL
+
+À la fin, fournir un rapport clair avec :
+
+## SUPPRIMÉ
+
+Tous les :
+
+* fichiers ;
+* pages ;
+* composants ;
+* routes ;
+* services ;
+* API ;
+* entities ;
+* DTO ;
+* tables ;
+* colonnes ;
+* contraintes ;
+* données inutiles.
+
+## MODIFIÉ
+
+Lister les corrections :
+
+* design ;
+* CSS ;
+* composants ;
+* fonctionnalités ;
+* API ;
+* backend ;
+* BDD ;
+* responsive ;
+* UX.
+
+## COMPOSANTS RÉUTILISABLES CRÉÉS / FACTORISÉS
+
+Lister les composants qui ont été mutualisés.
+
+Exemple :
+
+```text
+Search
+Notifications
+Sorting
+KPI
+Filters
+Modal
+Table
+...
+```
+
+## SQL
+
+Fournir les scripts SQL nécessaires pour les éléments BDD qui n'ont pas pu être supprimés directement.
+
+## PROBLÈMES RESTANTS
+
+S'il reste quelque chose qui ne peut pas être corrigé :
+
+* fichier ;
+* emplacement ;
+* problème ;
+* cause ;
+* impact ;
+* solution recommandée.
+
+---
+
+# RÈGLE FINALE ABSOLUE
+
+Je veux que le projet final donne l'impression d'avoir été conçu par **une seule équipe avec un seul système de design**, et non comme plusieurs fonctionnalités développées à des moments différents.
+
+### RÉFÉRENCE FRONT-OFFICE
+
+```text
+Home.jsx
+```
+
+### RÉFÉRENCE ADMIN
+
+```text
+Destinations
+```
+
+Ces deux références servent de base pour harmoniser l'ensemble du projet.
+
+Le résultat final doit être :
+
+**minimaliste + calme + moderne + élégant + luxueux + premium + cohérent.**
+
+Je ne veux pas ajouter des éléments simplement pour remplir les pages.
+
+Je veux au contraire :
+
+> **moins d'éléments, mais mieux conçus, mieux espacés et mieux hiérarchisés.**
+
+Chaque détail compte :
+
+* une police différente ;
+* un mauvais spacing ;
+* une bordure inutile ;
+* une card incohérente ;
+* un bouton différent ;
+* un mauvais alignement ;
+* une mauvaise taille ;
+* un ancien style ;
+* une animation inutile ;
+* un composant dupliqué.
+
+Ces petits détails doivent tous être recherchés et corrigés.
+
+**NE PAS SE LIMITER À MES EXEMPLES.**
+
+Si vous trouvez ailleurs dans le projet une incohérence similaire ou un élément qui ne correspond plus au niveau de finition attendu, il doit également être corrigé.
+
+### OBJECTIF FINAL
+
+Le projet doit être **propre, cohérent, fonctionnel, maintenable et visuellement ultra-premium sur l'ensemble des pages.**

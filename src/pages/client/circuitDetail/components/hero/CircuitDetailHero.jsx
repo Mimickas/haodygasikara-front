@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { circuitMedias } from "../../../../../utils/circuit";
+import { imageCloudinary } from "../../../../../utils/image";
 
 // Le hero de la page detail : la photo de couverture plein cadre, le nom du
 // circuit et le trace poses dessus.
@@ -52,7 +53,7 @@ export default function CircuitDetailHero({ circuit, days, depart, arrivee }) {
 
     return (
         <section className="h-screen relative" data-header-text="var(--text-inverse)">
-            <div className="relative w-full h-full overflow-hidden bg-black px-16">
+            <div className="relative w-full h-full overflow-hidden bg-black">
 
                 {/* La pile. Chaque calque porte EXACTEMENT les classes de
                     l'image d'origine ; seule l'opacite est pilotee, et celle du
@@ -85,11 +86,11 @@ export default function CircuitDetailHero({ circuit, days, depart, arrivee }) {
                             ) : (
                                 <img
                                     data-hero-media
-                                    src={media.src}
+                                    src={imageCloudinary(media.src, 1920)}
                                     alt=""
                                     decoding="async"
                                     fetchPriority={i === 0 ? "high" : "low"}
-                                    className="w-full object-cover absolute inset-0"
+                                    className="w-full h-full object-cover absolute inset-0"
                                 />
                             )}
                         </div>
@@ -97,20 +98,21 @@ export default function CircuitDetailHero({ circuit, days, depart, arrivee }) {
                 ) : (
                     <img
                         data-hero-media
-                        src={circuit?.imageUrl}
+                        src={imageCloudinary(circuit?.imageUrl, 1920)}
                         alt=""
-                        className="w-full object-cover absolute inset-0 opacity-75"
+                        decoding="async"
+                        className="w-full h-full object-cover absolute inset-0 opacity-75"
                     />
                 )}
 
                 {circuit && (
-                    <div className="z-10 absolute inset-x-16 bottom-20">
+                    <div className="z-10 absolute inset-x-5 sm:inset-x-16 bottom-12 lg:bottom-20">
 
-                        <div className="flex justify-between items-end w-full">
-                            <h1 data-hero-titre className="my-2 text-8xl font-title text-[var(--text-inverse)]">
+                        <div className="flex flex-col items-start gap-1 lg:flex-row lg:justify-between lg:items-end lg:gap-0 w-full">
+                            <h1 data-hero-titre className="my-2 text-5xl sm:text-7xl lg:text-8xl font-title text-[var(--text-inverse)]">
                                 {circuit.nom}
                             </h1>
-                            <div data-hero-meta className="flex items-center text-lg mb-6">
+                            <div data-hero-meta className="flex flex-wrap items-center text-sm sm:text-lg mb-4 lg:mb-6">
 
                                 <span className="font-body-strong text-[var(--text-inverse-secondary)]">{days} jours</span>
 
@@ -175,7 +177,7 @@ function Vignette({ media, position, total, actif, onClick }) {
             aria-label={`${media.type === "video" ? "Film" : "Visuel"} ${position} sur ${total}`}
             className={`cx-hero__vignette${actif ? " cx-hero__vignette--active" : ""}`}
         >
-            {apercu && <img src={apercu} alt="" loading="lazy" decoding="async" />}
+            {apercu && <img src={imageCloudinary(apercu, 200)} alt="" loading="lazy" decoding="async" />}
             {media.type === "video" && (
                 <span className="cx-hero__film" aria-hidden>
                     <Play size={11} fill="currentColor" stroke="currentColor" />

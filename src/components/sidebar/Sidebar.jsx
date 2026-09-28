@@ -1,14 +1,14 @@
 import {
-    FaStore,
-    FaBell,
+    FaUserPlus,
     FaAngleDown,
-    FaUser,
-    FaAnglesLeft
+    FaAnglesLeft,
+    FaArrowRightFromBracket,
 } from 'react-icons/fa6'
 import SidebarListMenu from './js/SidebarListMenu';
 import { Link, NavLink } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import gsap from "gsap";
+import { useAuth } from '../../hooks/useAuth';
 
 /* =============================================================================
    SIDEBAR — meme doctrine que le panneau circuit (cf. index.css)
@@ -29,7 +29,15 @@ import gsap from "gsap";
      5. UN SEUL ACCENT. var(--brand-terre), rien d'autre.
    ========================================================================== */
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, ouvertMobile = false, onFermerMobile }) {
+    const { user, logout } = useAuth();
+    const [sortie, setSortie] = useState(false);
+    const nom = [user?.prenom, user?.nom].filter(Boolean).join(" ") || user?.email || "Administrateur";
+    const initiales = `${user?.prenom?.[0] ?? ""}${user?.nom?.[0] ?? ""}`.toUpperCase() || "HR";
+    const seDeconnecter = async () => {
+        setSortie(true);
+        try { await logout(); } finally { setSortie(false); }
+    };
 
     const [openMenus, setOpenMenus] = useState(
         SidebarListMenu.map((_, i) => i)
@@ -108,9 +116,14 @@ export default function Sidebar({ collapsed, onToggle }) {
         e.currentTarget.style.backgroundColor = "transparent";
     };
 
-    return (
+    return (<>
+        {/* Sur mobile, un voile derrière la colonne : un toucher dehors la referme */}
+        {ouvertMobile && (
+            <div className="fixed inset-0 z-30 lg:hidden" style={{ backgroundColor: "rgba(20, 14, 10, 0.4)" }}
+                onClick={onFermerMobile} aria-hidden="true" />
+        )}
         <aside
-            className="fixed left-0 top-0 h-screen flex-col overflow-hidden z-10 hidden lg:flex"
+            className={`fixed left-0 top-0 h-screen flex-col overflow-hidden lg:flex lg:z-10 ${ouvertMobile ? "flex z-40" : "hidden"}`}
             style={{
                 width: collapsed ? "5rem" : "17rem",
                 backgroundColor: "var(--bg-card)",
@@ -132,7 +145,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             >
                 {!collapsed && (
                     <img
-                        src="/logo/logo-2-horizontal.png"
+                        src="/img/logo/logo-2-horizontal.png"
                         alt="Haodygasikara"
                         className="w-auto shrink-0"
                         style={{ height: "2.1rem" }}
@@ -166,7 +179,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                 Pleine largeur, d'un bord a l'autre, angle vif. C'est le seul
                 aplat de marque de la colonne : il ne se repete nulle part
                 ailleurs, donc il porte. */}
-            <Link className="shrink-0">
+            <Link to="/admin/haodygasikara/utilisateurs?nouveau=1" className="shrink-0">
                 <div
                     className="h-13 flex items-center gap-3.5 px-5 cursor-pointer transition-colors"
                     style={{
@@ -176,7 +189,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--brand-terre-600)")}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = "var(--brand-terre)")}
                 >
-                    <FaStore className="text-base shrink-0" style={{ color: "#FFFFFF" }} />
+                    <FaUserPlus className="text-base shrink-0" style={{ color: "#FFFFFF" }} />
                     {!collapsed && (
                         <span
                             className="font-body-strong text-xs uppercase whitespace-nowrap"
@@ -303,34 +316,6 @@ export default function Sidebar({ collapsed, onToggle }) {
                 className="shrink-0"
                 style={{ borderTop: "1px solid var(--border)" }}
             >
-                <button
-                    type="button"
-                    title={collapsed ? "Notifications" : undefined}
-                    className="relative flex items-center w-full transition-colors cursor-pointer"
-                    style={{
-                        height: "2.75rem",
-                        gap: collapsed ? "0" : "0.875rem",
-                        paddingLeft: collapsed ? "0" : "1.25rem",
-                        paddingRight: collapsed ? "0" : "1rem",
-                        justifyContent: collapsed ? "center" : "flex-start",
-                        color: "var(--text-secondary)",
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
-                    <span className="relative shrink-0 flex items-center">
-                        <FaBell className="text-base" />
-                        <span
-                            aria-hidden="true"
-                            className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
-                            style={{ backgroundColor: "var(--brand-terre)" }}
-                        />
-                    </span>
-                    {!collapsed && (
-                        <span className="font-body text-sm truncate">Notifications</span>
-                    )}
-                </button>
-
                 {!collapsed && (
                     <p
                         className="font-body-strong text-[11px] uppercase leading-none px-5 pt-4 pb-2.5"
@@ -340,38 +325,59 @@ export default function Sidebar({ collapsed, onToggle }) {
                     </p>
                 )}
 
+                {/* Le compte connecté, et la seule porte de sortie de l'administration */}
                 <div
-                    className="flex items-center transition-colors cursor-pointer"
+                    className="flex items-center"
                     style={{
-                        height: "3.25rem",
+                        minHeight: "3.25rem",
                         gap: collapsed ? "0" : "0.875rem",
                         paddingLeft: collapsed ? "0" : "1.25rem",
-                        paddingRight: collapsed ? "0" : "1rem",
+                        paddingRight: collapsed ? "0" : "0.75rem",
                         marginBottom: collapsed ? "0.75rem" : "0.5rem",
                         justifyContent: collapsed ? "center" : "flex-start",
+                        flexDirection: collapsed ? "column" : "row",
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                     {/* Carre plein, angle vif : le rond etait le dernier rayon
                         de complaisance qui restait dans la colonne. */}
                     <div
-                        className="w-9 h-9 flex items-center justify-center shrink-0"
+                        className="w-9 h-9 flex items-center justify-center shrink-0 font-body-strong text-xs"
                         style={{ backgroundColor: "var(--brand-terre)", color: "#FFFFFF" }}
-                        title={collapsed ? "Login" : undefined}
+                        title={collapsed ? nom : undefined}
                     >
-                        <FaUser className="text-sm" />
+                        {initiales}
                     </div>
                     {!collapsed && (
-                        <span
-                            className="font-body-strong text-sm truncate"
-                            style={{ color: "var(--text-primary)" }}
-                        >
-                            Login
+                        <span className="flex flex-col min-w-0 flex-1 gap-1">
+                            <span className="font-body-strong text-sm truncate" style={{ color: "var(--text-primary)" }}>
+                                {nom}
+                            </span>
+                            <span className="font-body text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                                {user?.email}
+                            </span>
                         </span>
                     )}
+                    <button
+                        type="button"
+                        onClick={seDeconnecter}
+                        disabled={sortie}
+                        title="Se déconnecter"
+                        aria-label="Se déconnecter"
+                        className="w-9 h-9 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                        style={{ color: "var(--text-muted)", marginTop: collapsed ? "0.5rem" : 0 }}
+                        onMouseEnter={e => {
+                            e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+                            e.currentTarget.style.color = "var(--brand-terre)";
+                        }}
+                        onMouseLeave={e => {
+                            e.currentTarget.style.backgroundColor = "transparent";
+                            e.currentTarget.style.color = "var(--text-muted)";
+                        }}
+                    >
+                        <FaArrowRightFromBracket className="text-sm" />
+                    </button>
                 </div>
             </div>
         </aside>
-    );
+    </>);
 }

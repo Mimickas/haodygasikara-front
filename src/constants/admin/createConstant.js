@@ -1,43 +1,69 @@
-// ← options Oui / Non partagées : un <select> renvoie toujours une chaîne, la page la repasse en booléen
-const repasOptions = [
-    { label: "Inclus",     value: "true"  },
-    { label: "Non inclus", value: "false" },
-];
+// ── Les champs des formulaires de l'administration ────────────────────────
+//
+// Une déclaration par formulaire, lue par la page de création comme par la
+// fenêtre des listes (ChampFormulaire). Chaque champ porte ses LIMITES avec
+// lui — `obligatoire`, `min`, `max`, `maxLength`, `maxItems` — vérifiées avant
+// l'envoi par validationChamps.js, avec le message posé sous le champ.
+//
+// Les bornes sont celles du serveur (les records de dto/request) quand il en a,
+// et celles du métier quand il n'en a pas : un circuit de 110 jours ou un
+// groupe de 400 voyageurs passait les deux.
+//
+// `aide` : la phrase grise sous le champ, quand le libellé ne suffit pas.
+// `recherche` : force la recherche même sur une courte liste.
+
+// Madagascar, bornes larges : de la Grande Terre à Nosy Be et Sainte-Marie.
+// Une latitude positive ou une longitude à 2° est une faute de saisie, pas un
+// lieu — et elle posait un point au milieu de l'Atlantique sur la carte.
+const LAT = { min: -26, max: -11 };
+const LNG = { min: 42, max: 51.5 };
+const AIDE_GPS = "Coordonnée à Madagascar. Relevée sur une carte, en degrés décimaux.";
+
+// Les étoiles de l'agence, comme côté serveur (0 à 5)
+const ETOILES = { type: "number", min: 0, max: 5, unite: "étoile" };
 
 const createConstant = {
+    // L'identifiant se déduit du nom s'il reste vide (« Parc national » → parc-national)
     tags: [
         [
-            { name: "name",   label: "Nom",     type: "text",   placeholder: "Nom du tag" },
-            
+            { name: "name",       label: "Nom",         type: "text",     placeholder: "Nom de l'étiquette (ex : Plage)",
+              obligatoire: true, maxLength: 100 },
         ],
         [
-            { name: "slug", label: "Slug", type: "text", placeholder: "Slug du tag" },
-        ],
-        [
-            { name: "idTagGroup", label: "Groupe de Tags", type: "dropdown", placeholder: "Sélectionner un groupe" },
+            { name: "idTagGroup", label: "Groupe",      type: "dropdown", placeholder: "Sélectionner un groupe",
+              obligatoire: true },
+            { name: "slug",       label: "Identifiant", type: "text",     placeholder: "Déduit du nom si vide",
+              maxLength: 100 },
         ],
     ],
     tagsGroups: [
         [
-            { name: "name",   label: "Nom",     type: "text",   placeholder: "Nom du tag" },
-            
+            { name: "name",       label: "Nom",         type: "text",     placeholder: "Nom du groupe (ex : Thématique)",
+              obligatoire: true, maxLength: 100 },
         ],
         [
-            { name: "slug", label: "Slug", type: "text", placeholder: "Slug du tag" },
+            { name: "slug",       label: "Identifiant", type: "text",     placeholder: "Déduit du nom si vide",
+              maxLength: 100 },
         ],
     ],
 
     destinations: [
         [
-            { name: "nom",         label: "Nom",              type: "text",     placeholder: "Nom du lieu" },
-            { name: "stars",       label: "Étoiles (0-5)",    type: "number",   placeholder: "4" },
+            { name: "nom",         label: "Nom",              type: "text",     placeholder: "Nom du lieu",
+              obligatoire: true, maxLength: 255 },
+            { name: "stars",       label: "Étoiles (0-5)",    type: "number",   placeholder: "4", ...ETOILES },
         ],
         [
-            { name: "description", label: "Description",     type: "textarea", placeholder: "Décris le lieu…" },
+            // Le serveur la refuse vide : la dire obligatoire ici évite un
+            // aller-retour pour l'apprendre.
+            { name: "description", label: "Description",     type: "textarea", placeholder: "Décris le lieu…",
+              obligatoire: true },
         ],
         [
-            { name: "lat",         label: "Latitude",        type: "number",   placeholder: "-18.8792" },
-            { name: "lng",         label: "Longitude",       type: "number",   placeholder: "47.5079" },
+            { name: "lat",         label: "Latitude",        type: "number",   placeholder: "-18.8792",
+              obligatoire: true, entier: false, step: "any", ...LAT, aide: AIDE_GPS },
+            { name: "lng",         label: "Longitude",       type: "number",   placeholder: "47.5079",
+              obligatoire: true, entier: false, step: "any", ...LNG },
         ],
         [
             { name: "tagIds",      label: "Tags",            type: "multiselect", defaultValue: [] },
@@ -52,12 +78,17 @@ const createConstant = {
 
     circuits: [
         [
-            { name: "name", label: "Nom", type: "text", placeholder: "Nom du circuit" },
-            { name: "isTemplate", label: "Modèle", type: "radio", defaultValue: "false" },
+            { name: "name", label: "Nom", type: "text", placeholder: "Nom du circuit",
+              obligatoire: true, maxLength: 255 },
+            { name: "isTemplate", label: "Modèle", type: "radio", defaultValue: "false",
+              aide: "Un modèle publié apparaît au catalogue public." },
         ],
-        // ← pas de dates ici : elles se saisissent dans « Dates de départ », une ligne par départ
+        // ← pas de dates ici : un circuit de l'agence est un programme, pas un
+        //   calendrier. C'est le voyageur qui donne sa date en demandant son devis.
         [
-            { name: "notes", label: "Notes", type: "textarea", placeholder: "Ajoutez des notes sur le circuit…" },
+            // Refusées vides par le serveur, elles aussi.
+            { name: "notes", label: "Notes", type: "textarea", placeholder: "Ajoutez des notes sur le circuit…",
+              obligatoire: true },
         ],
         [
             { name: "imageUrls", label: "Images", type: "image", placeholder: "Images du circuit", folder: "circuits",        defaultValue: [] },
@@ -66,7 +97,10 @@ const createConstant = {
             { name: "videoUrl",  label: "Vidéo",  type: "video", placeholder: "Vidéo du circuit",  folder: "circuits/videos", defaultValue: "" },
         ],
         [
-            { name: "steps",      label: "Étapes",            type: "steps", defaultValue: [] },
+            // Le programme jour par jour : la SEULE saisie du parcours. Les
+            // séjours — où l'on dort, combien de nuits — s'en déduisent côté
+            // serveur, et l'ancien écran « Jour par jour » a disparu avec eux.
+            { name: "days", label: "Programme jour par jour", type: "programme", defaultValue: [] },
         ],
 
         // ── La fiche technique ──────────────────────────────────────────
@@ -83,13 +117,18 @@ const createConstant = {
             // pas de deux champs laissés vides. Sans rien de coché ni de saisi,
             // la ligne « Âges » n'apparaît tout simplement pas côté client.
             { name: "tousAges", label: "Accueil", type: "dropdown", placeholder: "Non précisé",
-              options: [{ label: "Tous âges — aucune limite", value: "true" }] },
+              options: [{ label: "Tous âges — aucune limite", value: "true" }],
+              aide: "À laisser vide si une borne d'âge est renseignée à côté." },
         ],
         [
-            { name: "ageMin",          label: "Âge minimum",      type: "number", placeholder: "Ex : 8" },
-            { name: "ageMax",          label: "Âge maximum",      type: "number", placeholder: "Ex : 70" },
-            { name: "tailleGroupeMin", label: "Groupe — minimum", type: "number", placeholder: "2" },
-            { name: "tailleGroupeMax", label: "Groupe — maximum", type: "number", placeholder: "12" },
+            { name: "ageMin",          label: "Âge minimum",      type: "number", placeholder: "Ex : 8",
+              min: 0, max: 120, unite: "an" },
+            { name: "ageMax",          label: "Âge maximum",      type: "number", placeholder: "Ex : 70",
+              min: 0, max: 120, unite: "an" },
+            { name: "tailleGroupeMin", label: "Groupe — minimum", type: "number", placeholder: "2",
+              min: 1, max: 60, unite: "voyageur" },
+            { name: "tailleGroupeMax", label: "Groupe — maximum", type: "number", placeholder: "12",
+              min: 1, max: 60, unite: "voyageur" },
         ],
         [
             { name: "langues",    label: "Langues d'accompagnement", type: "multiselect", defaultValue: [] },
@@ -109,75 +148,17 @@ const createConstant = {
 
     ],
 
-    categoryTarifs: [
-        [
-            { name: "name", label: "Nom",  type: "text", placeholder: "Nom de la catégorie (ex : Adulte)" },
-        ],
-        [
-            { name: "code", label: "Code", type: "text", placeholder: "Code de la catégorie (ex : ADULTE)" },
-        ],
-    ],
-
-    devises: [
-        [
-            { name: "name", label: "Nom",  type: "text", placeholder: "Nom de la devise (ex : Ariary)" },
-        ],
-        [
-            { name: "code", label: "Code", type: "text", placeholder: "Code ISO à 3 lettres (ex : MGA)" },
-        ],
-    ],
-
-    conditionTarifs: [
-        [
-            { name: "type",     label: "Type",      type: "dropdown", placeholder: "Sélectionner un type" },
-            { name: "operator", label: "Opérateur", type: "dropdown", placeholder: "Sélectionner un opérateur" },
-        ],
-        [
-            { name: "value",    label: "Valeur",    type: "number",   placeholder: "Valeur de la condition (ex : 18)" },
-        ],
-    ],
-
-    circuitDateTarifs: [
-        [
-            { name: "circuitId", label: "Circuit",        type: "dropdown", placeholder: "Sélectionner un circuit" },
-        ],
-        [
-            // ← pas de date de retour à saisir : le back la calcule avec la durée du programme
-            { name: "dateDebut", label: "Date de départ", type: "date" },
-        ],
-    ],
-
-    circuitTarifs: [
-        [
-            // ← le prix se rattache à une date de départ, pas au circuit : le même voyage
-            //   peut coûter plus cher en décembre qu'en octobre
-            { name: "circuitDateTarifId", label: "Date de départ",   type: "dropdown", placeholder: "Sélectionner une date de départ" },
-        ],
-        [
-            { name: "categoryTarifId", label: "Catégorie de tarif",  type: "dropdown", placeholder: "Sélectionner une catégorie" },
-            { name: "deviseId",        label: "Devise",              type: "dropdown", placeholder: "Sélectionner une devise" },
-        ],
-        [
-            { name: "price",           label: "Prix",                type: "number",   placeholder: "Prix du tarif" },
-        ],
-    ],
-
-    circuitTarifConditions: [
-        [
-            { name: "circuitTarifId",   label: "Tarif de circuit", type: "dropdown", placeholder: "Sélectionner un tarif" },
-        ],
-        [
-            { name: "conditionTarifId", label: "Condition",        type: "dropdown", placeholder: "Sélectionner une condition" },
-        ],
-    ],
-
     categoryPois: [
         [
-            { name: "name", label: "Nom",  type: "text", placeholder: "Nom de la catégorie (ex : Hôtel)" },
+            { name: "name", label: "Nom",  type: "text", placeholder: "Nom de la catégorie (ex : Hôtel)",
+              obligatoire: true, maxLength: 100 },
         ],
         [
-            { name: "code",          label: "Code",        type: "text",     placeholder: "Code de la catégorie (ex : HOTEL)" },
+            { name: "code",          label: "Code",        type: "text",     placeholder: "Code de la catégorie (ex : HOTEL)",
+              obligatoire: true, maxLength: 50,
+              aide: "En majuscules, sans espace. Il ne change plus ensuite." },
             { name: "isHebergement", label: "Hébergement", type: "dropdown", placeholder: "On peut y dormir ?", defaultValue: "false",
+                obligatoire: true,
                 options: [
                     { label: "Oui, on y passe la nuit", value: "true"  },
                     { label: "Non",                     value: "false" },
@@ -188,19 +169,24 @@ const createConstant = {
 
     pois: [
         [
-            { name: "destinationId", label: "Destination",   type: "dropdown", placeholder: "Sélectionner une destination" },
-            { name: "categoryPoiId", label: "Catégorie",     type: "dropdown", placeholder: "Sélectionner une catégorie" },
+            { name: "destinationId", label: "Destination",   type: "dropdown", placeholder: "Sélectionner une destination",
+              obligatoire: true, recherche: true, placeholderRecherche: "Nom du lieu…" },
+            { name: "categoryPoiId", label: "Catégorie",     type: "dropdown", placeholder: "Sélectionner une catégorie",
+              obligatoire: true },
         ],
         [
-            { name: "nom",           label: "Nom",           type: "text",     placeholder: "Nom du lieu (ex : Hôtel du Lac)" },
-            { name: "stars",         label: "Étoiles (0-5)", type: "number",   placeholder: "4" },
+            { name: "nom",           label: "Nom",           type: "text",     placeholder: "Nom du lieu (ex : Hôtel du Lac)",
+              obligatoire: true, maxLength: 255 },
+            { name: "stars",         label: "Étoiles (0-5)", type: "number",   placeholder: "4", ...ETOILES },
         ],
         [
             { name: "description",   label: "Description",   type: "textarea", placeholder: "Ce qui rend ce lieu unique…" },
         ],
         [
-            { name: "lat",           label: "Latitude",      type: "number",   placeholder: "-22.5556" },
-            { name: "lng",           label: "Longitude",     type: "number",   placeholder: "45.4056" },
+            { name: "lat",           label: "Latitude",      type: "number",   placeholder: "-22.5556",
+              entier: false, step: "any", ...LAT, aide: AIDE_GPS },
+            { name: "lng",           label: "Longitude",     type: "number",   placeholder: "45.4056",
+              entier: false, step: "any", ...LNG },
         ],
         [
             { name: "imageUrls",     label: "Photos",        type: "image",    folder: "pois",        defaultValue: [] },
@@ -210,48 +196,6 @@ const createConstant = {
         ],
     ],
 
-    circuitDays: [
-        [
-            { name: "circuitStepId", label: "Étape du circuit",   type: "dropdown", placeholder: "Sélectionner une étape" },
-        ],
-        [
-            { name: "jour",          label: "Jour dans l'étape",  type: "number",   placeholder: "1" },
-            { name: "titre",         label: "Titre du jour",      type: "text",     placeholder: "Ex : Canyons et piscines naturelles" },
-        ],
-        [
-            { name: "description",   label: "Déroulé",            type: "textarea", placeholder: "Racontez la journée…" },
-        ],
-        [
-            // ← options filtrées par l'étape choisie : seuls les hébergements de sa destination
-            { name: "hebergementId", label: "Hébergement du soir", type: "dropdown", placeholder: "Aucun (pas de nuit ce jour-là)", dependsOn: "circuitStepId" },
-        ],
-        [
-            { name: "petitDejeuner", label: "Petit-déjeuner",     type: "dropdown", placeholder: "Choisir", defaultValue: "false", options: repasOptions },
-            { name: "dejeuner",      label: "Déjeuner",           type: "dropdown", placeholder: "Choisir", defaultValue: "false", options: repasOptions },
-            { name: "diner",         label: "Dîner",              type: "dropdown", placeholder: "Choisir", defaultValue: "false", options: repasOptions },
-        ],
-    ],
-
-    circuitDayPois: [
-        [
-            { name: "circuitDayId", label: "Jour du programme",  type: "dropdown", placeholder: "Sélectionner un jour" },
-        ],
-        [
-            // ← options filtrées par le jour choisi : seuls les POI de la destination de son étape
-            { name: "poiId",        label: "Visite ou activité", type: "dropdown", placeholder: "Sélectionner un point d'intérêt", dependsOn: "circuitDayId" },
-        ],
-        [
-            { name: "inclus",       label: "Dans le prix",       type: "dropdown", placeholder: "Choisir", defaultValue: "true",
-                options: [
-                    { label: "Incluse",   value: "true"  },
-                    { label: "En option", value: "false" },
-                ]
-            },
-        ],
-        [
-            { name: "note",         label: "Précision",          type: "text",     placeholder: "Ex : entrée du parc et guide local compris" },
-        ],
-    ],
 };
 
 export default createConstant;

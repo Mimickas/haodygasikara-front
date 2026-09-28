@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { changerMotDePasseApi } from "../../../../api/client/compteApi";
+import { motDePasseOublieApi } from "../../../../api/authApi";
 import { apiErrorMessage } from "../../../../utils/apiError";
 import Champ from "./Champ";
 import Avis from "./Avis";
@@ -24,7 +25,47 @@ const LONGUEUR_MINIMALE = 8;
  * fermer demanderait une colonne de version de jeton vérifiée à chaque
  * renouvellement — un chantier en soi. L'écran ne le promet donc pas.
  */
-export default function BlocMotDePasse() {
+export default function BlocMotDePasse({ compte }) {
+    // Un compte ouvert avec Google n'a jamais choisi de mot de passe : on ne
+    // lui demande pas « l'actuel », on lui envoie un lien pour en créer un.
+    if (compte?.motDePasse === false) return <AjouterMotDePasse email={compte.email} />;
+    return <ChangerMotDePasse />;
+}
+
+function AjouterMotDePasse({ email }) {
+    const [envoi, setEnvoi] = useState(false);
+    const [avis, setAvis] = useState(null);
+
+    const envoyer = async () => {
+        setEnvoi(true);
+        setAvis(null);
+        try {
+            await motDePasseOublieApi(email);
+            setAvis({ ton: "succes", texte: `Un lien vient de partir à ${email}. Il est valable 30 minutes.` });
+        } catch (error) {
+            setAvis({ ton: "erreur", texte: apiErrorMessage(error, "L'envoi n'a pas abouti. Réessayez dans un instant.") });
+        } finally {
+            setEnvoi(false);
+        }
+    };
+
+    return (
+        <div>
+            <p className="cx-param__texte font-body">
+                Votre compte se connecte avec Google, sans mot de passe. Pour pouvoir aussi vous
+                connecter avec votre adresse, recevez un lien par e-mail et choisissez-en un.
+            </p>
+            <Avis ton={avis?.ton}>{avis?.texte}</Avis>
+            <div className="cx-param__actions">
+                <button type="button" onClick={envoyer} disabled={envoi} className="cx-devis__bouton font-body-strong">
+                    {envoi ? "Envoi…" : "Recevoir le lien"}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function ChangerMotDePasse() {
     const [form, setForm] = useState({ actuel: "", nouveau: "", confirmation: "" });
     const [envoi, setEnvoi] = useState(false);
     const [avis, setAvis] = useState(null);

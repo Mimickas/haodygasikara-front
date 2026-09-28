@@ -1,8 +1,8 @@
-// src/providers/AuthProvider.jsx
 import { useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useAuthStore } from "../store/authStore";
+import CursorClient from "../components/client/layout/cursor/CursorClient";
 
 /**
  * Restaure la session une seule fois, a la racine de l'application.
@@ -32,5 +32,10 @@ export default function AuthProvider() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return <Outlet />;
+    // Le curseur du site vit ici, dans le routeur : il sait sur quelle page on
+    // est, et se retire de l'administration.
+    return <>
+        <Outlet />
+        <CursorClient />
+    </>;
 }

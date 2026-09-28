@@ -13,3 +13,5 @@ export const findAllTags = async () => {
 export const updateTagApi = (id, payload) => api.put(`/admin/tags/${id}`, payload);
 
 export const getTagStatsApi = () => api.get("/admin/tags/stats");
+// Refusée (409) tant qu'une destination porte l'étiquette
+export const deleteTagApi = (id) => api.delete(`/admin/tags/${id}`);

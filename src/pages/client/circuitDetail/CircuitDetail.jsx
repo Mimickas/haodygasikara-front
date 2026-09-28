@@ -79,9 +79,12 @@ export default function CircuitDetail() {
                     tags={circuit?.tags ?? []}
                     visuels={visuels}
                     duree={jours}
+                    circuitId={id}
+                    modele={Boolean(circuit?.isTemplate)}
                 />
 
                 <CircuitItineraire
+                    circuit={circuit}
                     etapes={etapes}
                     jours={jours}
                     depart={depart}

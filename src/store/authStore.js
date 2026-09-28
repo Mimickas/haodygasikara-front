@@ -1,5 +1,13 @@
 import { create } from "zustand";
 
+// Se résout quand la restauration de session du démarrage est finie, qu'elle
+// ait réussi ou non. Les requêtes parties avant l'attendent (axiosInstance) :
+// sinon elles voyageraient sans jeton, et une page qui charge à l'ouverture
+// (« Mes circuits », un circuit à soi) recevrait « introuvable » alors que le
+// voyageur est bel et bien connecté.
+let signalerRestauration;
+export const restaurationTerminee = new Promise((resolve) => { signalerRestauration = resolve; });
+
 export const useAuthStore = create((set) => ({
     accessToken: null,
     user: null,
@@ -12,7 +20,10 @@ export const useAuthStore = create((set) => ({
 
     setAuth: (token, user) => set({ accessToken: token, user }),
     clearAuth: () => set({ accessToken: null, user: null }),
-    finRestauration: () => set({ sessionRestauree: true }),
+    finRestauration: () => {
+        set({ sessionRestauree: true });
+        signalerRestauration?.();
+    },
 
     // Retouche du compte en place, sans toucher au jeton.
     //

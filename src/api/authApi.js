@@ -55,3 +55,23 @@ export const resendCodeApi = async (payload) => {
     const { data } = await api.post("/auth/resend-code", payload);
     return data;
 };
+
+// Connexion Google — { accessToken } obtenu par la fenêtre Google ; le serveur
+// le vérifie auprès de Google puis ouvre la session comme pour un mot de passe.
+export const loginGoogleApi = async (accessToken) => {
+    const { data } = await api.post("/auth/google", { accessToken }, { withCredentials: true });
+    return data;
+};
+
+// Mot de passe oublié — { email }. La réponse est la même que le compte existe
+// ou non : on ne révèle pas qui est inscrit.
+export const motDePasseOublieApi = async (email) => {
+    const { data } = await api.post("/auth/mot-de-passe/oublie", { email });
+    return data;
+};
+
+// Nouveau mot de passe — { token (reçu par e-mail), password }.
+export const reinitialiserMotDePasseApi = async (payload) => {
+    const { data } = await api.post("/auth/mot-de-passe/reinitialiser", payload);
+    return data;
+};

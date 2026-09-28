@@ -2,10 +2,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { updateDestinationApi } from "../../../api/admin/destinations";
 import CreateModal from "../../../components/admin/crud/createModal/CreateModal";
 import { useCloudinaryUpload } from "../../../hooks/admin/useCloudinaryUpload";
+import { useFormulaireAdmin } from "../../../hooks/admin/useFormulaireAdmin";
+import { chargerFormulaireDestination } from "../../../hooks/admin/useDestinationActionToolbar";
 
 export default function DestinationEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { formulaire, erreur } = useFormulaireAdmin(() => chargerFormulaireDestination(id));
     const { upload, uploadMany, uploading, setUploading } = useCloudinaryUpload();
 
     const handleSubmit = async (formData) => {
@@ -39,10 +42,16 @@ export default function DestinationEdit() {
             navigate("/admin/haodygasikara/destinations");
         } catch (error) {
             console.error("Erreur mise à jour destination :", error);
+            throw error;
         } finally {
             setUploading(false);
         }
     };
 
-    return <CreateModal onSubmit={handleSubmit} uploading={uploading} />;
+    if (!formulaire) {
+        return <p className="my-8 font-body text-sm" style={{ color: erreur ? "var(--brand-terre)" : "var(--text-muted)" }}>
+            {erreur ?? "Chargement du formulaire…"}
+        </p>;
+    }
+    return <CreateModal fields={formulaire.fields} values={formulaire.values} onSubmit={handleSubmit} uploading={uploading} />;
 }

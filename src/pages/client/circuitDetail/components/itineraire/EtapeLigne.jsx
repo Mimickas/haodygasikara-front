@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { ChevronDown } from "lucide-react";
-import { imagesTriees } from "../../../../../utils/circuit";
+import { imagesTriees, journeesDeLEtape } from "../../../../../utils/circuit";
+import { imageCloudinary } from "../../../../../utils/image";
 import Journee from "./Journee";
 
 // ── Une halte de l'itineraire ─────────────────────────────────────────────
@@ -14,7 +15,7 @@ import Journee from "./Journee";
 // la memoisation tient donc — seules l'ancienne et la nouvelle ligne ouverte
 // rendent a nouveau.
 const EtapeLigne = memo(function EtapeLigne({
-    cle, step, index, total, duree, debut, fin, ouvert, onBasculer,
+    cle, circuit, step, index, total, duree, debut, fin, ouvert, onBasculer,
 }) {
     const destination = step?.destination;
     const image = imagesTriees(destination)[0];
@@ -29,8 +30,9 @@ const EtapeLigne = memo(function EtapeLigne({
         ? null
         : debut === fin ? `Jour ${debut}` : `Jours ${debut} — ${fin}`;
 
-    // `days` arrive deja trie par jour (CircuitStepDetaille le garantit).
-    const programme = step?.days ?? [];
+    // Le programme ne pend plus a l'etape : il appartient au circuit, et cette
+    // etape couvre les journees `debut` a `fin` du voyage.
+    const programme = journeesDeLEtape(circuit, debut, fin);
     const depliable = programme.length > 0;
 
     return (
@@ -46,14 +48,14 @@ const EtapeLigne = memo(function EtapeLigne({
                 style={{ cursor: depliable ? "pointer" : "default" }}
             >
 
-                <span className="cx-leg__num font-body-strong tabular-nums">
+                <span className="cx-leg__num font-title tabular-nums">
                     {String(index + 1).padStart(2, "0")}
                 </span>
 
                 <div className="cx-leg__media">
                     {image && (
                         <img
-                            src={image}
+                            src={imageCloudinary(image, 900)}
                             alt={destination?.nom ?? ""}
                             loading="lazy"
                             decoding="async"
@@ -62,7 +64,7 @@ const EtapeLigne = memo(function EtapeLigne({
                 </div>
 
                 <div className="cx-leg__texte min-w-0 flex flex-wrap items-baseline gap-x-7 gap-y-2">
-                    <h3 className="cx-leg__nom font-body-bold">
+                    <h3 className="cx-leg__nom font-title">
                         {destination?.nom}
                     </h3>
                     {meta && (

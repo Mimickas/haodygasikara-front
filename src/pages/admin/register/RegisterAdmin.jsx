@@ -1,18 +1,21 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { registerAdminApi } from "../../../api/authApi"
-import InputComponent from "../../../components/ui/input/InputComponent"
+import CadreAccesAdmin, { ChampAcces } from "../../../components/admin/ui/acces/CadreAccesAdmin"
+import BandeauErreur from "../../../components/admin/ui/erreur/BandeauErreur"
 
+const VIDE = { nom: "", prenom: "", email: "", password: "", confirmPassword: "" }
+
+// Première installation : le tout premier administrateur. Le serveur refuse
+// cette route dès qu'un administrateur existe ; les suivants se créent depuis
+// Administration → Utilisateurs.
 export default function RegisterAdmin() {
-    const [form, setForm] = useState({
-        nom: "",
-        prenom: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    })
+    const [form, setForm] = useState(VIDE)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
     const [loading, setLoading] = useState(false)
+
+    const champ = (cle) => (val) => setForm({ ...form, [cle]: val })
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -44,8 +47,8 @@ export default function RegisterAdmin() {
                 password: form.password,
             })
 
-            setSuccess(response.message || "Inscription réussie. Vérifiez votre email.")
-            setForm({ nom: "", prenom: "", email: "", password: "", confirmPassword: "" })
+            setSuccess(response.message || "Administrateur créé : vérifiez votre adresse e-mail.")
+            setForm(VIDE)
 
         } catch (err) {
             // ApiResponse d'erreur → { message, errors, ... }
@@ -62,133 +65,32 @@ export default function RegisterAdmin() {
     }
 
     return (
-        <div className="min-h-screen w-full flex justify-center items-center px-4 py-10"
-             style={{ backgroundColor: "var(--bg)" }}>
-
-            <div className="w-full max-w-sm">
-
-                <div className="mb-8 flex justify-center">
-                    <img src="/logo/logo-1-vertical.png" alt="Haodygasikara" className="w-40" />
-                </div>
-
-                <form onSubmit={handleSubmit}
-                    className="rounded-2xl p-8"
-                    style={{
-                        backgroundColor: "var(--bg-card)",
-                        boxShadow: "var(--shadow-card)",
-                    }}>
-
-                    <h1 className="font-abhaya-bold text-3xl mb-1"
-                        style={{ color: "var(--text-primary)" }}>
-                        Créer un admin
-                    </h1>
-                    <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
-                        Enregistrement d’un nouvel administrateur.
+        <CadreAccesAdmin
+            surtitre="Installation"
+            titre="Premier administrateur"
+            texte="Le compte principal de l'agence. Les suivants se créent ensuite depuis Administration → Utilisateurs."
+        >
+            <form onSubmit={handleSubmit} className="ad-acces__formulaire" noValidate>
+                <BandeauErreur message={error} />
+                {success && (
+                    <p className="ad-note ad-note--succes font-body">
+                        {success}{" "}
+                        <Link to="/admin/haodygasikara/login" className="ad-acces__lien font-body-strong">Se connecter</Link>
                     </p>
+                )}
 
-                    {error && (
-                        <p className="text-sm mb-4 px-3 py-2 rounded-lg"
-                           style={{ color: "var(--error-text)", backgroundColor: "var(--error-bg)" }}>
-                            {error}
-                        </p>
-                    )}
+                <div className="ad-acces__rangee">
+                    <ChampAcces id="admin-nom" libelle="Nom" autoComplete="family-name" value={form.nom} setValue={champ("nom")} placeholder="Rakoto" />
+                    <ChampAcces id="admin-prenom" libelle="Prénom" autoComplete="given-name" value={form.prenom} setValue={champ("prenom")} placeholder="Jean" />
+                </div>
+                <ChampAcces id="admin-email" libelle="E-mail" type="email" autoComplete="email" value={form.email} setValue={champ("email")} placeholder="prenom@haodygasikara.com" />
+                <ChampAcces id="admin-mot-de-passe" libelle="Mot de passe" type="password" autoComplete="new-password" value={form.password} setValue={champ("password")} placeholder="8 caractères au moins" />
+                <ChampAcces id="admin-confirmation" libelle="Confirmer le mot de passe" type="password" autoComplete="new-password" value={form.confirmPassword} setValue={champ("confirmPassword")} placeholder="••••••••" />
 
-                    {success && (
-                        <p className="text-sm mb-4 px-3 py-2 rounded-lg"
-                           style={{ color: "var(--success-text)", backgroundColor: "var(--success-bg)" }}>
-                            {success}
-                        </p>
-                    )}
-
-                    <div className="flex flex-col gap-4">
-
-                        <div className="flex gap-3">
-                            <div className="flex flex-col gap-1.5 w-1/2">
-                                <label className="text-sm font-body-strong"
-                                       style={{ color: "var(--text-secondary)" }}>
-                                    Nom
-                                </label>
-                                <InputComponent
-                                    value={form.nom}
-                                    setValue={val => setForm({ ...form, nom: val })}
-                                    placeholder="Rakoto"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-1.5 w-1/2">
-                                <label className="text-sm font-body-strong"
-                                       style={{ color: "var(--text-secondary)" }}>
-                                    Prénom
-                                </label>
-                                <InputComponent
-                                    value={form.prenom}
-                                    setValue={val => setForm({ ...form, prenom: val })}
-                                    placeholder="Jean"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-body-strong"
-                                   style={{ color: "var(--text-secondary)" }}>
-                                Email
-                            </label>
-                            <InputComponent
-                                type="email"
-                                value={form.email}
-                                setValue={val => setForm({ ...form, email: val })}
-                                placeholder="admin@example.com"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-body-strong"
-                                   style={{ color: "var(--text-secondary)" }}>
-                                Mot de passe
-                            </label>
-                            <InputComponent
-                                type="password"
-                                value={form.password}
-                                setValue={val => setForm({ ...form, password: val })}
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-body-strong"
-                                   style={{ color: "var(--text-secondary)" }}>
-                                Confirmer le mot de passe
-                            </label>
-                            <InputComponent
-                                type="password"
-                                value={form.confirmPassword}
-                                setValue={val => setForm({ ...form, confirmPassword: val })}
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-2.5 rounded-lg text-sm font-bold mt-2 cursor-pointer transition-colors"
-                            style={{
-                                backgroundColor: loading ? "var(--cta-disabled-bg)" : "var(--cta-bg)",
-                                color: loading ? "var(--cta-disabled-text)" : "var(--cta-text)",
-                                boxShadow: loading ? "none" : "var(--cta-shadow)",
-                                cursor: loading ? "not-allowed" : "pointer",
-                            }}
-                            onMouseEnter={e => {
-                                if (!loading) e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)"
-                            }}
-                            onMouseLeave={e => {
-                                if (!loading) e.currentTarget.style.backgroundColor = "var(--cta-bg)"
-                            }}>
-                            {loading ? "Création..." : "Créer le compte"}
-                        </button>
-
-                    </div>
-                </form>
-            </div>
-        </div>
+                <button type="submit" disabled={loading} className="ad-bouton ad-bouton--plein ad-acces__envoi font-body-strong">
+                    {loading ? "Création…" : "Créer le compte"}
+                </button>
+            </form>
+        </CadreAccesAdmin>
     )
 }

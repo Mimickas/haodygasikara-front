@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaArrowRight, FaGoogle } from "react-icons/fa6";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { useAuthTransition, modeDepuisUrl } from "../../../../hooks/design/animations/login/useAuthTransition";
 import ChampTelephone from "../../../../components/client/form/ChampTelephone";
 import ChampDateNaissance from "../../../../components/client/form/ChampDateNaissance";
@@ -11,7 +11,14 @@ import { useAuthStore } from "../../../../store/authStore";
 import { useAuth } from "../../../../hooks/useAuth";
 import { registerApi } from "../../../../api/authApi";
 
-const IMG = "/img/login/elle-leontiev-Wtv8wbxk-M4-unsplash.jpg";
+// « Continuer avec Google » est retiré de cet écran tant que l'identifiant
+// client OAuth n'est pas créé : un bouton qui ne peut qu'échouer n'a rien à
+// faire devant un visiteur. Tout le reste est en place et dort — le hook
+// `useConnexionGoogle`, la route `/api/auth/google`, la colonne `user.google_id`.
+// Pour le remettre : renseigner `app.google.client-id` côté serveur, puis
+// rétablir le bloc du bouton ici (cf. l'historique git de ce fichier).
+
+const IMG = "/img/login/elle-leontiev-Wtv8wbxk-M4-unsplash-1920.webp";
 const LARGEUR_FORMULAIRE = 450;
 
 const TEXTES = {
@@ -34,7 +41,7 @@ function Champ({ id, label, type, value, onChange, autoComplete }) {
         <div>
             <label
                 htmlFor={id}
-                className="block font-body-strong text-[10px] uppercase tracking-[0.35em] mb-4"
+                className="block font-body-strong text-[11px] uppercase tracking-[0.1em] mb-4"
                 style={{ color: "var(--text-muted)" }}
             >
                 {label}
@@ -71,7 +78,10 @@ export default function LoginClient() {
 
     const [envoi, setEnvoi] = useState(false);
     const [erreur, setErreur] = useState("");
-    const [succes, setSucces] = useState("");
+    // Un message peut arriver avec la page : e-mail vérifié, mot de passe
+    // changé, session expirée… Il s'affiche à l'ouverture.
+    const [succes, setSucces] = useState(location.state?.ton === "succes" ? location.state.message : "");
+    const [info] = useState(location.state?.ton !== "succes" ? location.state?.message ?? "" : "");
 
     const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     const majChamp = (cle) => (v) => setForm((f) => ({ ...f, [cle]: v }));
@@ -129,7 +139,7 @@ export default function LoginClient() {
             className="group flex items-center gap-3.5 cursor-pointer"
         >
             <FaArrowLeft className="text-[11px] transition-transform duration-500 ease-out group-hover:-translate-x-1.5" />
-            <span className="font-body-strong text-[10px] uppercase tracking-[0.35em]">Retour</span>
+            <span className="font-body-strong text-[11px] uppercase tracking-[0.1em]">Retour</span>
         </button>
     );
 
@@ -149,7 +159,7 @@ export default function LoginClient() {
 
                 <div className="absolute inset-x-0 bottom-0 z-10 px-12 pb-12">
                     <span className="block overflow-hidden mb-7">
-                        <span data-photo-kicker className="block font-body-strong text-[10px] uppercase tracking-[0.5em]" style={{ color: "var(--brand-ocre)" }}>
+                        <span data-photo-kicker className="block font-body-strong text-[11px] uppercase tracking-[0.1em]" style={{ color: "var(--brand-ocre)" }}>
                             Haodygasikara — Madagascar
                         </span>
                     </span>
@@ -165,7 +175,7 @@ export default function LoginClient() {
 
                     <div className="mt-9">
                         <div data-photo-rule style={{ borderTop: "1px solid rgba(245,240,230,0.25)" }} />
-                        <p data-photo-foot className="font-body text-[10px] uppercase tracking-[0.35em] pt-6" style={{ color: "rgba(245,240,230,0.7)" }}>
+                        <p data-photo-foot className="font-body text-[11px] uppercase tracking-[0.1em] pt-6" style={{ color: "rgba(245,240,230,0.7)" }}>
                             Devis sur mesure sous 48 heures
                         </p>
                     </div>
@@ -181,7 +191,7 @@ export default function LoginClient() {
 
                     <div data-swap>
                         <span className="block overflow-hidden mb-6">
-                            <span data-form-kicker className="block font-body-strong text-[10px] uppercase tracking-[0.45em]" style={{ color: "var(--brand-terre)" }}>
+                            <span data-form-kicker className="block font-body-strong text-[11px] uppercase tracking-[0.1em]" style={{ color: "var(--brand-terre)" }}>
                                 Espace voyageur
                             </span>
                         </span>
@@ -203,28 +213,9 @@ export default function LoginClient() {
                         {t.intro}
                     </p>
 
-                    <div data-swap data-text-item>
-                        <button
-                            type="button"
-                            className="mt-11 w-full flex items-center justify-center gap-4 py-4 font-body-strong text-[11px] uppercase tracking-[0.25em] transition-colors duration-300 cursor-pointer"
-                            style={{ border: "1px solid var(--border-strong)", color: "var(--text-primary)" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--brand-terre)"; e.currentTarget.style.color = "var(--brand-terre)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-                        >
-                            <FaGoogle className="text-sm" />
-                            Continuer avec Google
-                        </button>
-                    </div>
-
-                    <div data-swap data-text-item className="flex items-center gap-6 my-11">
-                        <span className="flex-1" style={{ borderTop: "1px solid var(--border)" }} />
-                        <span className="font-body text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--text-muted)" }}>
-                            ou
-                        </span>
-                        <span className="flex-1" style={{ borderTop: "1px solid var(--border)" }} />
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-9">
+                    {/* Le séparateur « ou » est parti avec le bouton Google : il ne
+                        séparait plus rien. L'écart qu'il tenait est repris ici. */}
+                    <form onSubmit={handleSubmit} className="mt-12 flex flex-col gap-9">
                         {inscription && (
                             <div data-swap data-text-item className="grid grid-cols-2 gap-6">
                                 <Champ id="prenom" label="Prénom" type="text" value={form.prenom} onChange={handleChange} autoComplete="given-name" />
@@ -276,6 +267,7 @@ export default function LoginClient() {
                                 <div className="flex justify-end mt-4">
                                     <Link
                                         to="/mot-de-passe-oublie"
+                                        state={{ email: form.email }}
                                         className="font-body text-[11px] transition-colors duration-300"
                                         style={{ color: "var(--text-muted)" }}
                                         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-terre)")}
@@ -286,6 +278,13 @@ export default function LoginClient() {
                                 </div>
                             )}
                         </div>
+
+                        {info && !erreur && !succes && (
+                            <p role="status" className="font-body text-sm leading-relaxed px-5 py-4"
+                                style={{ backgroundColor: "var(--warning-bg)", color: "var(--warning-text)" }}>
+                                {info}
+                            </p>
+                        )}
 
                         {(erreur || succes) && (
                             <p
@@ -306,7 +305,7 @@ export default function LoginClient() {
                             data-text-item
                             type="submit"
                             disabled={envoi}
-                            className="w-full py-5 font-body-strong text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 cursor-pointer disabled:cursor-wait"
+                            className="w-full py-5 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-colors duration-300 cursor-pointer disabled:cursor-wait"
                             style={{
                                 backgroundColor: envoi ? "var(--cta-bg-hover)" : "var(--cta-bg)",
                                 color: "var(--cta-text)",
@@ -326,7 +325,7 @@ export default function LoginClient() {
                             type="button"
                             onClick={() => basculer(t.bascule.vers)}
                             disabled={enTransition}
-                            className="group flex items-center gap-3 font-body-strong text-[11px] uppercase tracking-[0.25em] transition-colors duration-300 cursor-pointer disabled:cursor-default"
+                            className="group flex items-center gap-3 font-body-strong text-[11px] uppercase tracking-[0.1em] transition-colors duration-300 cursor-pointer disabled:cursor-default"
                             style={{ color: "var(--text-primary)" }}
                             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-terre)")}
                             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-primary)")}

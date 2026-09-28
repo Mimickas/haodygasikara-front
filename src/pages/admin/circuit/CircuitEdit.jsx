@@ -2,11 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { updateCircuitApi } from "../../../api/admin/circuit";
 import CreateModal from "../../../components/admin/crud/createModal/CreateModal";
 import { useCloudinaryUpload } from "../../../hooks/admin/useCloudinaryUpload";
-import { toCircuitPayload } from "../../../utils/circuitForm";
+import { useFormulaireAdmin } from "../../../hooks/admin/useFormulaireAdmin";
+import { chargerFormulaireCircuit } from "../../../hooks/admin/useCircuitActionToolbar";
+import { coherenceCircuit, toCircuitPayload } from "../../../utils/circuitForm";
 
 export default function CircuitEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { formulaire, erreur } = useFormulaireAdmin(() => chargerFormulaireCircuit(id));
     const { upload, uploading, setUploading } = useCloudinaryUpload();
 
     const handleSubmit = async (formData) => {
@@ -28,10 +31,16 @@ export default function CircuitEdit() {
             navigate("/admin/haodygasikara/circuits");
         } catch (error) {
             console.error("Erreur mise à jour circuit :", error);
+            throw error;
         } finally {
             setUploading(false);
         }
     };
 
-    return <CreateModal onSubmit={handleSubmit} uploading={uploading} />;
+    if (!formulaire) {
+        return <p className="my-8 font-body text-sm" style={{ color: erreur ? "var(--brand-terre)" : "var(--text-muted)" }}>
+            {erreur ?? "Chargement du formulaire…"}
+        </p>;
+    }
+    return <CreateModal fields={formulaire.fields} values={formulaire.values} onSubmit={handleSubmit} uploading={uploading} coherence={coherenceCircuit} />;
 }

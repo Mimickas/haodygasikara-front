@@ -6,18 +6,18 @@ import { DURATIONS } from "../../../../../constants/client/circuitFilters";
 // de Haodygasikara.
 export default function CircuitFilters({ query, onQuery, duration, onDuration, shown, total, top }) {
     return (
-        <div className="sticky z-30 px-16 py-6" style={{ top, backgroundColor: "var(--brand-terre)" }}>
-            <div className="flex items-center justify-between gap-12">
+        <div className="sticky z-30 px-5 sm:px-16 py-4 lg:py-6" style={{ top, backgroundColor: "var(--brand-terre)" }}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
                 <div className="flex items-baseline gap-4 shrink-0">
-                    <h2 className="font-title text-3xl leading-none" style={{ color: "var(--text-inverse)" }}>
+                    <h2 className="font-title text-2xl lg:text-3xl leading-none" style={{ color: "var(--text-inverse)" }}>
                         La sélection
                     </h2>
-                    <span className="font-body text-[11px] uppercase tracking-[0.3em]" style={{ color: "rgba(245,240,230,0.75)" }}>
+                    <span className="font-body text-[11px] uppercase tracking-[0.1em]" style={{ color: "rgba(245,240,230,0.75)" }}>
                         {String(shown).padStart(2, "0")} / {String(total).padStart(2, "0")}
                     </span>
                 </div>
 
-                <label className="flex items-center gap-3 flex-1 max-w-md">
+                <label className="flex items-center gap-3 w-full lg:w-auto lg:flex-1 lg:max-w-md">
                     <FaMagnifyingGlass className="text-[12px] shrink-0" style={{ color: "rgba(245,240,230,0.6)" }} />
                     <input
                         value={query}
@@ -39,7 +39,7 @@ export default function CircuitFilters({ query, onQuery, duration, onDuration, s
                     )}
                 </label>
 
-                <div className="flex items-center gap-8 shrink-0">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-8 lg:shrink-0">
                     {DURATIONS.map((d) => {
                         const active = d.id === duration;
                         return (
@@ -47,7 +47,7 @@ export default function CircuitFilters({ query, onQuery, duration, onDuration, s
                                 key={d.id}
                                 type="button"
                                 onClick={() => onDuration(d.id)}
-                                className="relative font-body text-[11px] uppercase tracking-[0.25em] transition-colors duration-300 cursor-pointer py-1"
+                                className="relative font-body text-[11px] uppercase tracking-[0.1em] transition-colors duration-300 cursor-pointer py-1"
                                 style={{ color: active ? "var(--text-inverse)" : "rgba(245,240,230,0.62)" }}
                             >
                                 {d.label}

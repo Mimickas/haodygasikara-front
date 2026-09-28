@@ -1,94 +1,87 @@
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import gsap from "gsap";
 
-// Curseur en deux couches, comme sur les sites de maison :
-// - un point qui colle exactement au pointeur
-// - un anneau qui le rattrape avec du retard
-// Le mix-blend-mode: difference (dans le CSS) l'inverse sur son fond :
-// il reste lisible sur le sable, sur le noir et sur les photos.
+// ── Le curseur du site ─────────────────────────────────────────────────────
+//
+// Un seul élément, trois états — il dit ce que le geste va faire :
+//
+//   repos   un point de 8 px qui suit le pointeur avec un léger fondu ;
+//   lien    au-dessus d'un lien ou d'un bouton, le point s'ouvre en un cercle
+//           fin de 44 px : « ceci se clique », sans rien masquer ;
+//   média   au-dessus d'une carte ou d'une photo marquée data-curseur, un
+//           disque terre porte un mot — « Voir », « Ouvrir » — celui du geste.
+//
+// Sur un champ de saisie, la main revient au curseur natif (la barre de
+// saisie porte du sens). Rien sur écran tactile, rien dans l'administration :
+// c'est un outil de travail, le curseur du système y est le bon.
+//
+// La position passe par transform (quickTo, sur le ticker GSAP déjà en marche
+// pour le défilement) ; la forme, par des transitions CSS sur l'élément seul.
 
-const SUIVI = 0.5;          // retard de l'anneau, en secondes
-const ECHELLE_SURVOL = 1.9; // grossissement au-dessus d'un élément cliquable
-const ECHELLE_APPUI = 0.8;
-
-const CLIQUABLE = 'a, button, [role="button"], label, summary, [data-cursor-hover]';
-const SAISIE = 'input, textarea, select, [contenteditable="true"]';
+const SUIVI = 0.16;   // un fondu, pas un retard : le point ne traîne jamais derrière la main
+const CLIQUABLE = 'a, button, [role="button"], label, summary, select';
+const SAISIE = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, [contenteditable="true"]';
 
 export default function CursorClient() {
-    const dotRef = useRef(null);
-    const ringRef = useRef(null);
+    const { pathname } = useLocation();
+    const actif = !pathname.startsWith("/admin");
+    const curseurRef = useRef(null);
+    const libelleRef = useRef(null);
 
     useEffect(() => {
-        // Pas de curseur sur mesure au doigt ni au stylet
-        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+        if (!actif) return undefined;
+        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return undefined;
 
-        const dot = dotRef.current;
-        const ring = ringRef.current;
-        if (!dot || !ring) return;
+        const curseur = curseurRef.current;
+        const libelle = libelleRef.current;
+        if (!curseur || !libelle) return undefined;
 
+        const sobre = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const racine = document.documentElement;
         racine.classList.add("has-custom-cursor");
 
-        gsap.set([dot, ring], { xPercent: -50, yPercent: -50, opacity: 0 });
+        gsap.set(curseur, { xPercent: -50, yPercent: -50 });
+        const posX = gsap.quickTo(curseur, "x", { duration: sobre ? 0 : SUIVI, ease: "power3" });
+        const posY = gsap.quickTo(curseur, "y", { duration: sobre ? 0 : SUIVI, ease: "power3" });
 
-        // quickSetter/quickTo écrivent directement dans le transform, sur le
-        // ticker GSAP déjà en marche pour Lenis : aucune boucle rAF en plus.
-        const posDotX = gsap.quickSetter(dot, "x", "px");
-        const posDotY = gsap.quickSetter(dot, "y", "px");
-        const posRingX = gsap.quickTo(ring, "x", { duration: SUIVI, ease: "power3" });
-        const posRingY = gsap.quickTo(ring, "y", { duration: SUIVI, ease: "power3" });
-
-        let visible = false;
-
-        const onMove = (e) => {
-            posDotX(e.clientX);
-            posDotY(e.clientY);
-            posRingX(e.clientX);
-            posRingY(e.clientY);
-
-            if (!visible) {
-                visible = true;
-                gsap.to([dot, ring], { opacity: 1, duration: 0.35, ease: "power2.out" });
-            }
+        let etatCourant = "";
+        const etat = (mode, mot = "") => {
+            if (mode === etatCourant && libelle.textContent === mot) return;
+            etatCourant = mode;
+            curseur.dataset.etat = mode;
+            libelle.textContent = mot;
         };
 
-        const etat = (mode) => {
-            if (mode === "saisie") {
-                // On rend la main au curseur natif : la barre de saisie porte du sens
-                gsap.to([dot, ring], { opacity: 0, duration: 0.2 });
-                return;
-            }
-            const survol = mode === "survol";
-            gsap.to(ring, {
-                scale: survol ? ECHELLE_SURVOL : 1,
-                borderColor: survol ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.85)",
-                opacity: 1,
-                duration: 0.4,
-                ease: "power3.out",
-            });
-            gsap.to(dot, { scale: survol ? 0.6 : 1, opacity: 1, duration: 0.3, ease: "power3.out" });
+        const onMove = (e) => {
+            posX(e.clientX);
+            posY(e.clientY);
+            curseur.classList.add("curseur--visible");
         };
 
         const onOver = (e) => {
             const cible = e.target;
-            if (typeof cible.closest !== "function") return;
+            if (typeof cible?.closest !== "function") return;
             if (cible.closest(SAISIE)) return etat("saisie");
-            etat(cible.closest(CLIQUABLE) ? "survol" : "repos");
+            const media = cible.closest("[data-curseur]");
+            const clic = cible.closest(CLIQUABLE);
+            // Un bouton posé DANS une carte (« + » du créateur) a son propre
+            // geste : le cercle de lien, pas le mot de la carte.
+            if (media && !(clic && clic !== media && media.contains(clic))) {
+                return etat("media", media.getAttribute("data-curseur"));
+            }
+            etat(clic ? "lien" : "repos");
         };
 
-        const onDown = () => gsap.to(ring, { scale: ECHELLE_APPUI, duration: 0.25, ease: "power3.out" });
-        const onUp = (e) => {
-            const cliquable = e.target?.closest?.(CLIQUABLE);
-            gsap.to(ring, { scale: cliquable ? ECHELLE_SURVOL : 1, duration: 0.35, ease: "power3.out" });
-        };
-
-        const onLeave = () => { visible = false; gsap.to([dot, ring], { opacity: 0, duration: 0.25 }); };
+        const onDown = () => curseur.classList.add("curseur--appui");
+        const onUp = () => curseur.classList.remove("curseur--appui");
+        const onLeave = () => curseur.classList.remove("curseur--visible");
 
         window.addEventListener("mousemove", onMove, { passive: true });
         window.addEventListener("mouseover", onOver, { passive: true });
         window.addEventListener("mousedown", onDown, { passive: true });
         window.addEventListener("mouseup", onUp, { passive: true });
-        document.addEventListener("mouseleave", onLeave);
+        document.documentElement.addEventListener("mouseleave", onLeave);
 
         return () => {
             racine.classList.remove("has-custom-cursor");
@@ -96,15 +89,17 @@ export default function CursorClient() {
             window.removeEventListener("mouseover", onOver);
             window.removeEventListener("mousedown", onDown);
             window.removeEventListener("mouseup", onUp);
-            document.removeEventListener("mouseleave", onLeave);
-            gsap.killTweensOf([dot, ring]);
+            document.documentElement.removeEventListener("mouseleave", onLeave);
+            curseur.classList.remove("curseur--visible", "curseur--appui");
+            gsap.killTweensOf(curseur);
         };
-    }, []);
+    }, [actif]);
+
+    if (!actif) return null;
 
     return (
-        <>
-            <div ref={ringRef} className="cursor-layer cursor-ring" aria-hidden="true" />
-            <div ref={dotRef} className="cursor-layer cursor-dot" aria-hidden="true" />
-        </>
+        <div ref={curseurRef} className="curseur" data-etat="repos" aria-hidden="true">
+            <span ref={libelleRef} className="curseur__libelle font-body-strong" />
+        </div>
     );
 }

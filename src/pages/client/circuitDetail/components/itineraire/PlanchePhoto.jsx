@@ -1,3 +1,4 @@
+import { imageCloudinary } from "../../../../../utils/image";
 // ── La planche photo d'un lieu ────────────────────────────────────────────
 // Un grand cadre et deux vignettes qui se partagent exactement sa hauteur.
 // Angles vifs, gouttiere de 10 px, aucun rayon : la photographie se suffit.
@@ -41,7 +42,7 @@ function Cadre({ media, legende, grand = false, reste = 0 }) {
         <figure className={`cx-jour__media${grand ? " cx-jour__media--grand" : ""}`}>
             {media.type === "video" ? (
                 <video
-                    src={media.src}
+                    src={imageCloudinary(media.src, 1200)}
                     poster={media.poster ?? undefined}
                     muted
                     loop

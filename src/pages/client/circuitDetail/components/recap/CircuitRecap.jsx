@@ -1,3 +1,8 @@
+import { Link } from "react-router-dom";
+import BoutonPersonnaliser from "./BoutonPersonnaliser";
+import { imageCloudinary } from "../../../../../utils/image";
+import { useDemandeVivante } from "../../../../../hooks/client/devis/useDemandeVivante";
+import { actionDemandeVivante, libelleStatutDevis } from "../../../../../constants/client/devis";
 import FicheTechnique from "./FicheTechnique";
 import Decompte from "./Decompte";
 import Depliant from "./Depliant";
@@ -36,8 +41,9 @@ import ListeInclusions from "./ListeInclusions";
 // dire, et la section entière disparaît si tout est vide. Un champ que
 // l'administration n'a pas rempli ne devient jamais une phrase.
 export default function CircuitRecap({
-    recap, fiche, tags = [], visuels = [], duree,
+    recap, fiche, tags = [], visuels = [], duree, circuitId, modele = false,
 }) {
+    const demande = useDemandeVivante(circuitId);
     const compris = recap?.compris ?? [];
     const nonCompris = recap?.nonCompris ?? [];
 
@@ -81,7 +87,7 @@ export default function CircuitRecap({
                         <figure key={media.cle ?? media.src} className="cx-voyage__cadre">
                             {media.type === "video" ? (
                                 <video
-                                    src={media.src}
+                                    src={imageCloudinary(media.src, 900)}
                                     poster={media.poster ?? undefined}
                                     muted loop autoPlay playsInline preload="metadata"
                                 />
@@ -107,15 +113,26 @@ export default function CircuitRecap({
                         nuitees={recap?.nuitees ?? 0}
                     />
 
-                    {/* La demande de devis attend son API, qui n'existe pas
-                        encore (cf. AccountPanel). */}
+                    {/* Le seul engagement du site : une demande de devis, chiffrée
+                        à la main par un conseiller. */}
+                    {/* Une demande vivante pour ce circuit : on ne propose pas d'en
+                        envoyer une seconde, on mène à celle qui existe. */}
                     <div className="cx-devis">
                         <p className="cx-devis__mention font-body">
-                            Devis sur mesure sous 48&nbsp;heures
+                            {demande
+                                ? `Demande ${demande.reference} · ${libelleStatutDevis(demande.statutAffiche)}`
+                                : <>Devis détaillé sous 48&nbsp;heures</>}
                         </p>
-                        <button type="button" className="cx-devis__bouton font-body-strong">
-                            Demander un devis
-                        </button>
+                        {demande ? (
+                            <Link to="/mes-devis" className="cx-devis__bouton font-body-strong">
+                                {actionDemandeVivante(demande.statutAffiche)}
+                            </Link>
+                        ) : (
+                            <Link to={`/circuit/${circuitId}/devis`} className="cx-devis__bouton font-body-strong">
+                                Demander un devis
+                            </Link>
+                        )}
+                        {modele && <BoutonPersonnaliser circuitId={circuitId} />}
                     </div>
                 </div>
 

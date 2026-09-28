@@ -1,16 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaArrowDown } from "react-icons/fa6";
 import { useCircuitHero } from "../../../../../hooks/design/animations/circuit/useCircuitHero";
 
 // Le contraste vient de la masse photographique posée contre le sable :
 // toutes les images occupent le même panneau, donc exactement le même cadre.
-const FALLBACK_IMAGES = [
-    "/img/home/firstHero/baoba.jpg",
-    "/img/home/ctaSection/tropical-beach-landscape-with-deckchair-parasol-from-nosy-be-madagascar-vintage-light-filter.jpg",
-    "/img/beautiful-waterfall-streaming-into-river-surrounded-by-greens.jpg",
-];
+//
+// Ce sont LES MÊMES photographies qu'avant, au même cadrage — seulement
+// servies à une taille d'écran. Les fichiers d'origine sortaient de
+// l'appareil : 5472 × 3648, soit 76 Mo de bitmap une fois décodés, ×3 pour le
+// carrousel. C'est ce que le navigateur devait garder vivant et recomposer à
+// chaque fondu : d'où le à-coup. En 1920 (et 2880 pour les écrans denses),
+// c'est 9 Mo par visuel et le fondu redevient une affaire de compositeur.
+const VISUELS = ["1", "2", "3"].map((n) => ({
+    src: `/img/viewcircuit/hero/${n}-1920.webp`,
+    srcSet: `/img/viewcircuit/hero/${n}-1920.webp 1920w, /img/viewcircuit/hero/${n}-2880.webp 2880w`,
+}));
 
-const MAX_IMAGES = 3;
+// Le panneau occupe 54 % de la largeur à partir de 1024 px, tout l'écran en
+// dessous : sans cette indication le navigateur suppose 100vw et prend
+// systématiquement la version 2880.
+const CADRE = "(min-width: 1024px) 54vw, 100vw";
+
 const SLIDE_MS = 6000;
 const CURTAIN_PANELS = 6;
 
@@ -19,20 +29,28 @@ const TITLE_LINES = ["Explorer", "Madagascar."];
 const INTRO =
     "Ici, vous choisissez où voyager. Ouvrez un circuit pour suivre son tracé sur la carte, parcourir ses étapes une à une, puis demander votre devis.";
 
-export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 }) {
+export default function CircuitHero({ onBrowse, topOffset = 84 }) {
     const scopeRef = useCircuitHero();
     const [current, setCurrent] = useState(0);
 
-    const images = useMemo(() => {
-        const fromCatalogue = circuits.map((c) => c.imageUrl).filter(Boolean);
-        return [...fromCatalogue, ...FALLBACK_IMAGES].slice(0, MAX_IMAGES);
-    }, [circuits]);
-
+    // Le carrousel compte sur CE QU'IL AFFICHE, et rien d'autre.
+    //
+    // Il tournait sur une liste calculée à part — les photos du catalogue,
+    // puis les visuels de secours —, alors que le panneau n'a jamais rendu que
+    // les visuels de secours. Les deux comptes coïncidaient par accident
+    // (trois et trois) : un quatrième visuel, ou un plafond retouché, et
+    // l'index partait sur une image inexistante, donc sur un panneau vide. La
+    // liste était de surcroît recalculée à chaque arrivée du catalogue, pour
+    // rien. (Si l'on veut un jour les photos des circuits dans le héros, c'est
+    // le rendu qu'il faut changer — pas cette minuterie.)
     useEffect(() => {
-        if (images.length < 2) return;
-        const id = setInterval(() => setCurrent((i) => (i + 1) % images.length), SLIDE_MS);
+        if (VISUELS.length < 2) return undefined;
+        const id = setInterval(
+            () => setCurrent((i) => (i + 1) % VISUELS.length),
+            SLIDE_MS,
+        );
         return () => clearInterval(id);
-    }, [images.length]);
+    }, []);
 
     return (
         <section
@@ -42,17 +60,16 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
             style={{ backgroundColor: "var(--bg-territoires)" }}
         >
             {/* Le panneau photo demarre sous le header, sinon le logo devient illisible dessus */}
-            <div className="relative z-10 h-full flex" style={{ paddingTop: `${topOffset}px` }}>
+            <div className="relative z-10 h-full flex flex-col lg:flex-row" style={{ paddingTop: `${topOffset}px` }}>
                 {/* ── Colonne texte ──────────────────────────────────────── */}
                 <div
                     data-hero-content
-                    className="flex flex-col justify-center pl-16 pr-14 pb-16"
-                    style={{ width: "46%" }}
+                    className="flex flex-col justify-center w-full lg:w-[46%] px-5 sm:px-16 lg:pl-16 lg:pr-14 pt-8 pb-8 lg:pt-0 lg:pb-16"
                 >
                     <span className="block overflow-hidden mb-8">
                         <span
                             data-hero-kicker
-                            className="block font-body-strong text-[11px] uppercase tracking-[0.55em]"
+                            className="block font-body-strong text-[11px] uppercase tracking-[0.1em]"
                             style={{ color: "var(--brand-terre)" }}
                         >
                             Tous nos circuits
@@ -71,7 +88,7 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                     </h1>
 
                     <p
-                        className="mt-9 max-w-md font-body text-[16px] leading-[1.85]"
+                        className="mt-6 lg:mt-9 max-w-md font-body text-[15px] lg:text-[16px] leading-[1.8] lg:leading-[1.85]"
                         style={{ color: "var(--text-secondary)" }}
                     >
                         {INTRO.split(" ").map((mot, i) => (
@@ -84,12 +101,12 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                     <button
                         data-hero-cue
                         onClick={onBrowse}
-                        className="group mt-12 self-start flex items-center gap-5 px-11 py-5 transition-colors duration-300 cursor-pointer"
+                        className="group mt-8 lg:mt-12 self-start flex items-center gap-5 px-8 lg:px-11 py-4 lg:py-5 transition-colors duration-300 cursor-pointer"
                         style={{ backgroundColor: "var(--cta-bg)", color: "var(--cta-text)" }}
                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg-hover)")}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--cta-bg)")}
                     >
-                        <span className="font-body-strong text-[11px] uppercase tracking-[0.3em]">
+                        <span className="font-body-strong text-[11px] uppercase tracking-[0.1em]">
                             Voir la sélection
                         </span>
                         <FaArrowDown className="text-[11px] transition-transform duration-500 ease-out group-hover:translate-y-1" />
@@ -97,23 +114,27 @@ export default function CircuitHero({ circuits = [], onBrowse, topOffset = 84 })
                 </div>
 
                 {/* ── Panneau image, pleine hauteur jusqu'au bord ────────── */}
-                <div data-hero-panel className="relative overflow-hidden" style={{ width: "54%" }}>
+                <div data-hero-panel className="relative overflow-hidden flex-1 min-h-[28%] lg:flex-none lg:w-[54%]">
                     {/* plus haut que le cadre : la dérive ne découvre jamais de vide */}
                     <div data-hero-media className="absolute inset-x-0" style={{ top: "-8%", bottom: "-8%" }}>
-                        {FALLBACK_IMAGES.map((src, i) => (
+                        {VISUELS.map((visuel, i) => (
                             <img
                                 key={i}
-                                src={src}
+                                src={visuel.src}
+                                srcSet={visuel.srcSet}
+                                sizes={CADRE}
                                 alt=""
+                                decoding="async"
+                                fetchPriority={i === 0 ? "high" : "low"}
                                 className="absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out"
                                 style={{ opacity: i === current ? 1 : 0, transitionDuration: "2200ms" }}
                             />
                         ))}
                     </div>
 
-                    {FALLBACK_IMAGES.length > 1 && (
-                        <div className="absolute right-10 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-3">
-                            {FALLBACK_IMAGES.map((src, i) => (
+                    {VISUELS.length > 1 && (
+                        <div className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-3">
+                            {VISUELS.map((_, i) => (
                                 <span
                                     key={i}
                                     className="transition-all duration-700 ease-out"

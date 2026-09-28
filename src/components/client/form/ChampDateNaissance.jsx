@@ -14,7 +14,7 @@ export default function ChampDateNaissance({ label = "Date de naissance", valeur
 
     return (
         <div>
-            <span className="block font-body-strong text-[10px] uppercase tracking-[0.35em] mb-4" style={{ color: "var(--text-muted)" }}>
+            <span className="block font-body-strong text-[11px] uppercase tracking-[0.1em] mb-4" style={{ color: "var(--text-muted)" }}>
                 {label}
             </span>
 
@@ -69,7 +69,7 @@ export default function ChampDateNaissance({ label = "Date de naissance", valeur
                 />
             </div>
 
-            <p className="font-body text-[10px] uppercase tracking-[0.25em] mt-3" style={{ color: "var(--text-muted)" }}>
+            <p className="font-body text-[11px] uppercase tracking-[0.1em] mt-3" style={{ color: "var(--text-muted)" }}>
                 Entre {ANNEE_MIN} et {ANNEE_MAX}
             </p>
         </div>

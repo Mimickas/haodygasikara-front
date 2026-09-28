@@ -29,7 +29,7 @@ export default function ProtectedRoute({ children, role }) {
                 style={{ backgroundColor: "var(--bg)" }}
             >
                 <span
-                    className="font-body-strong text-[10px] uppercase tracking-[0.45em]"
+                    className="font-body-strong text-[11px] uppercase tracking-[0.1em]"
                     style={{ color: "var(--text-muted)" }}
                 >
                     Un instant
@@ -43,7 +43,10 @@ export default function ProtectedRoute({ children, role }) {
         return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
     }
 
-    if (role && user?.role !== role) {
+    // Un SUPER_ADMIN a tous les droits d'un ADMIN : l'écran de connexion de
+    // l'administration l'accepte, la garde doit l'accepter aussi.
+    const roles = role === "ADMIN" ? ["ADMIN", "SUPER_ADMIN"] : [role];
+    if (role && !roles.includes(user?.role)) {
         return <Navigate to={loginPath} replace />;
     }
 

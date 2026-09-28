@@ -145,6 +145,18 @@ export default function BlocEmail({ compte, onMaj }) {
         );
     }
 
+    // ── Compte ouvert avec Google : pas de mot de passe pour garantir ────
+    // le changement. Il faut d'abord en ajouter un (réglage suivant).
+    if (compte.motDePasse === false) {
+        return (
+            <p className="cx-param__texte font-body">
+                Votre compte se connecte avec Google. Changer d'adresse demande un mot de
+                passe, qui prouve que c'est bien vous : ajoutez-en un dans le réglage
+                « Mot de passe » ci-dessous, puis revenez ici.
+            </p>
+        );
+    }
+
     // ── Cas nominal : on demande le changement ──────────────────────────
     return (
         <form onSubmit={demander}>

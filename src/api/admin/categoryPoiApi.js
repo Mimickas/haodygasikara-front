@@ -12,11 +12,6 @@ export const findAllCategoryPoisApi = async () => {
     return data;
 };
 
-export const findCategoryPoiByIdApi = async (id) => {
-    const { data } = await api.get(`/admin/category-pois/${id}`);
-    return data;
-};
-
 export const updateCategoryPoiApi = (id, payload) => api.put(`/admin/category-pois/${id}`, payload);
 
 export const deleteCategoryPoiApi = (id) => api.delete(`/admin/category-pois/${id}`);

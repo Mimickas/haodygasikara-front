@@ -9,6 +9,9 @@ import Reglage from "./components/Reglage";
 import BlocIdentite from "./components/BlocIdentite";
 import BlocEmail from "./components/BlocEmail";
 import BlocMotDePasse from "./components/BlocMotDePasse";
+import BlocPreferences from "./components/BlocPreferences";
+import { findPreferencesApi } from "../../../api/client/composerApi";
+import { CONTACT } from "../../../constants/client/contact";
 
 // ── Vos paramètres — /mon-compte ──────────────────────────────────────────
 //
@@ -40,6 +43,8 @@ export default function MonCompte() {
     const [compte, setCompte] = useState(null);
     const [etat, setEtat] = useState("chargement");   // chargement | pret | erreur
     const [ouvert, setOuvert] = useState(null);
+    // Les envies de voyage : null tant qu'elles ne sont pas lues
+    const [envies, setEnvies] = useState(null);
 
     const charger = useCallback(async () => {
         if (!isAuthenticated) {
@@ -51,6 +56,8 @@ export default function MonCompte() {
             const reponse = await findMonCompteApi();
             setCompte(reponse?.data ?? null);
             setEtat("pret");
+            // Secondaires : une panne ne doit pas masquer le reste du compte
+            findPreferencesApi().then((r) => setEnvies(r?.data ?? [])).catch(() => setEnvies([]));
         } catch (error) {
             console.error("Chargement du compte impossible", error);
             setEtat("erreur");
@@ -111,9 +118,9 @@ export default function MonCompte() {
                         </h1>
                         {isAuthenticated && (
                             <p className="cx-tete__chapo font-body">
-                                Votre identit&eacute;, votre adresse de connexion et votre mot de
-                                passe. Ce que vous modifiez ici vaut pour vos demandes de devis
-                                comme pour nos messages.
+                                Votre identit&eacute;, votre adresse de connexion, votre mot de
+                                passe et vos envies de voyage. Ce que vous modifiez ici vaut pour
+                                vos demandes de devis comme pour nos messages.
                             </p>
                         )}
                     </div>
@@ -166,11 +173,24 @@ export default function MonCompte() {
                             numero="03"
                             titre="Mot de passe"
                             propos="Il vous sera redemandé pour toute modification qui touche l'accès au compte."
-                            valeur="Modifiable depuis cet écran"
+                            valeur={compte.motDePasse === false ? "Aucun : connexion avec Google" : "Modifiable depuis cet écran"}
                             ouvert={ouvert === "motdepasse"}
                             onBasculer={() => basculer("motdepasse")}
                         >
-                            <BlocMotDePasse />
+                            <BlocMotDePasse compte={compte} />
+                        </Reglage>
+
+                        <Reglage
+                            numero="04"
+                            titre="Vos envies de voyage"
+                            propos="Les thèmes qui vous attirent : le créateur de circuit vous propose d'abord les destinations qui leur ressemblent."
+                            valeur={envies == null ? "…" : envies.length ? envies.map((t) => t.nom).join(", ") : "Aucune pour l'instant"}
+                            ouvert={ouvert === "envies"}
+                            onBasculer={() => basculer("envies")}
+                        >
+                            {envies == null
+                                ? <p className="cx-param__texte font-body">Chargement…</p>
+                                : <BlocPreferences envies={envies} onMaj={setEnvies} />}
                         </Reglage>
 
                         {/* Le filet de fermeture, comme sous « trois gestes » de
@@ -181,8 +201,8 @@ export default function MonCompte() {
 
                     <p className="cx-param__pied font-body">
                         Une question sur votre compte&nbsp;?{" "}
-                        <a href="mailto:contact@haodygasikara.com" className="cx-param__accent">
-                            contact@haodygasikara.com
+                        <a href={`mailto:${CONTACT.email}`} className="cx-param__accent">
+                            {CONTACT.email}
                         </a>
                     </p>
 

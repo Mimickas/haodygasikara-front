@@ -47,8 +47,6 @@ export function useTags() {
     const actions = {
         create: createTag,
         edit:   editTag,
-        export: () => console.log("export"),
-        sort:   () => console.log("sort"),
     };
 
     return { open, setOpen, actions, fields };

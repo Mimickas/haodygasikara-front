@@ -11,8 +11,6 @@ export function useCategoryPoi() {
     const actions = {
         create: () => setOpen(true),
         edit:   () => setOpen(true),
-        export: () => console.log("export"),
-        sort:   () => console.log("sort"),
     };
 
     return { open, setOpen, actions, fields };
