@@ -3,8 +3,7 @@ import gsap from "gsap";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { distanceKm } from "../../../../utils/geo";
-
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+import { CENTRE_MADAGASCAR, JETON_MAPBOX, habillerCartePapier } from "../../../../utils/carte";
 
 // ── La carte du tracé ──────────────────────────────────────────────────────
 //
@@ -18,43 +17,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 // Elle s'ouvre en volet par-dessus la galerie (clip-path, power4) et ne se
 // recadre que quand l'itinéraire change — pas quand le catalogue est filtré.
 
-const CENTRE_MADAGASCAR = [46.8, -19.2];
 const SOBRE = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
-const PAPIER = {
-    terre: "#EBE3D4",
-    mer: "#F7F3EA",
-    texte: "#8B7C6D",
-    halo: "#F7F3EA",
-    frontiere: "#CFC3AF",
-};
-
-// Repeint le style clair de Mapbox aux couleurs du site. Chaque couche est
-// essayée séparément : un nom de couche absent d'une version du style ne
-// doit pas empêcher les autres d'être repeintes.
-function habiller(m) {
-    const peindre = (id, prop, valeur) => { try { m.setPaintProperty(id, prop, valeur); } catch { /* couche absente */ } };
-    for (const couche of m.getStyle()?.layers ?? []) {
-        const { id, type } = couche;
-        if (type === "background") peindre(id, "background-color", PAPIER.terre);
-        else if (id === "water" || id.startsWith("water-")) {
-            if (type === "fill") peindre(id, "fill-color", PAPIER.mer);
-            if (type === "line") peindre(id, "line-color", PAPIER.mer);
-        } else if (type === "fill" && /landuse|landcover|park|national|building|wetland|glacier|sand/.test(id)) {
-            peindre(id, "fill-opacity", 0);
-        } else if (type === "hillshade") {
-            peindre(id, "hillshade-exaggeration", 0);
-        } else if (type === "line" && /admin|boundary/.test(id)) {
-            peindre(id, "line-color", PAPIER.frontiere);
-        } else if (type === "line" && /road|bridge|tunnel|rail|ferry/.test(id)) {
-            peindre(id, "line-opacity", 0.35);
-        } else if (type === "symbol") {
-            peindre(id, "text-color", PAPIER.texte);
-            peindre(id, "text-halo-color", PAPIER.halo);
-            peindre(id, "icon-opacity", 0);
-        }
-    }
-}
 
 const geojsonCatalogue = (destinations) => ({
     type: "FeatureCollection",
@@ -69,7 +32,7 @@ export default function CarteParcours({ visible, etapes, destinations, survol, o
     const carte = useRef(null);
     const reperes = useRef([]);
     const [prete, setPrete] = useState(false);
-    const sansJeton = !import.meta.env.VITE_MAPBOX_TOKEN;
+    const sansJeton = !JETON_MAPBOX;
 
     const rappels = useRef({ onSurvol, onOuvrir, destinations });
     useEffect(() => { rappels.current = { onSurvol, onOuvrir, destinations }; }, [onSurvol, onOuvrir, destinations]);
@@ -116,7 +79,7 @@ export default function CarteParcours({ visible, etapes, destinations, survol, o
         carte.current = m;
 
         m.on("load", () => {
-            habiller(m);
+            habillerCartePapier(m);
             m.addSource("catalogue", { type: "geojson", data: geojsonCatalogue([]) });
             m.addLayer({
                 id: "catalogue-points", type: "circle", source: "catalogue",

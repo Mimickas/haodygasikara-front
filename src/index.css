@@ -1502,6 +1502,126 @@ body {
 .cx-leg--ouvert .cx-leg__aplat { transform: scaleX(1); }
 
 
+/* ==========================================================================
+   « VOIR SUR LA CARTE » — le voyage en plan
+   ==========================================================================
+   Le voile plein écran ouvert par le bouton d'une journée. Même grammaire que
+   la fiche d'une destination : un voile d'encre, un panneau de sable, un titre
+   serif, un filet. La carte elle-même porte les couleurs de la maison
+   (cf. utils/carte.js). */
+.cx-carte-voile {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 3vw, 44px);
+    background-color: rgba(37, 26, 18, 0.55);
+}
+.cx-carte {
+    display: flex;
+    flex-direction: column;
+    width: min(1180px, 100%);
+    height: min(820px, 100%);
+    background-color: var(--bg);
+}
+.cx-carte__tete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(18px, 2.2vw, 28px) clamp(18px, 2.4vw, 34px) clamp(14px, 1.6vw, 20px);
+    border-bottom: 1px solid var(--border);
+}
+.cx-carte__titre {
+    margin-top: 10px;
+    font-weight: normal;
+    font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+    line-height: 1.02;
+    color: var(--text-primary);
+}
+.cx-carte__fermer {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.cx-carte__fermer:hover { background-color: var(--text-primary); color: var(--bg); }
+
+/* Le cadre porte la hauteur, le fond porte la carte. Deux classes sur le fond,
+   et pour la même raison qu'au créateur de circuit : Mapbox pose
+   `.mapboxgl-map` dessus et sa feuille — chargée après celle-ci — y remettrait
+   `position: relative`, ce qui ferait tomber la hauteur à zéro. */
+.cx-carte__cadre { position: relative; flex: 1; min-height: 0; background-color: var(--bg-territoires); }
+.cx-carte .cx-carte__fond { position: absolute; inset: 0; }
+.cx-carte__absente {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-muted);
+    text-align: center;
+}
+.cx-carte__legende {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px clamp(18px, 2.4vw, 34px);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+}
+.cx-carte__sep { width: 1px; height: 12px; background-color: var(--border-strong); }
+.cx-carte .mapboxgl-ctrl-group { border-radius: 0; box-shadow: none; border: 1px solid var(--border); }
+.cx-carte .mapboxgl-ctrl-group button { border-radius: 0; }
+
+/* Les repères : le carré numéroté du créateur de circuit, même main. Le
+   transform de l'élément appartient à Mapbox (il le positionne) — l'échelle
+   agit donc sur la pastille intérieure. */
+.cx-carte-repere { line-height: 0; }
+.cx-carte-repere__pastille {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F5F0E6;
+    color: #2B211A;
+    border: 1px solid rgba(43, 33, 26, 0.35);
+    font-family: var(--font-body-strong);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+}
+.cx-carte-repere--jour .cx-carte-repere__pastille {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background-color: #A85832;
+    color: #F5F0E6;
+    font-family: var(--font-title);
+    font-size: 16px;
+    box-shadow: 0 10px 24px rgba(43, 33, 26, 0.28);
+}
+
+@media (max-width: 720px) {
+    .cx-carte-voile { padding: 0; }
+    .cx-carte { width: 100%; height: 100%; }
+}
+
+
 
 
 /* ==========================================================================

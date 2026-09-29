@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { findCircuitClientById } from "../../../api/client/cricuitApi";
 import { circuitLegs, circuitMedias, circuitRoute } from "../../../utils/circuit";
 import { useCircuitDetailAnimations } from "../../../hooks/design/animations/circuit/useCircuitDetailAnimations";
@@ -7,6 +7,11 @@ import CircuitDetailHero from "./components/hero/CircuitDetailHero";
 import CircuitApropos from "./components/apropos/CircuitApropos";
 import CircuitRecap from "./components/recap/CircuitRecap";
 import CircuitItineraire from "./components/itineraire/CircuitItineraire";
+
+// « Voir sur la carte » embarque Mapbox GL — 1,8 Mo a lui seul. Il part dans
+// son propre paquet, telecharge au premier clic : lire une fiche circuit ne
+// doit pas couter le moteur d'une carte qu'on n'ouvrira peut-etre jamais.
+const CarteCircuit = lazy(() => import("./components/carte/CarteCircuit"));
 
 // ── La page detail d'un circuit ───────────────────────────────────────────
 // Elle ne fait plus que trois choses : charger le circuit, en tirer les deux
@@ -27,6 +32,14 @@ import CircuitItineraire from "./components/itineraire/CircuitItineraire";
 export default function CircuitDetail() {
     const { id } = useParams();
     const [circuit, setCircuit] = useState(null);
+
+    // La journee ouverte sur la carte, ou null. Elle vit ici : c'est la page
+    // qui connait le circuit entier, et la carte montre le voyage, pas la
+    // seule halte d'ou part le clic.
+    const [jourSurCarte, setJourSurCarte] = useState(null);
+    // Stable : EtapeLigne est memoisee, un rappel neuf a chaque rendu lui
+    // ferait redessiner toutes les haltes.
+    const fermerCarte = useCallback(() => setJourSurCarte(null), []);
 
     const loadCircuit = useCallback(async () => {
         try {
@@ -90,8 +103,22 @@ export default function CircuitDetail() {
                     depart={depart}
                     arrivee={arrivee}
                     circuitId={id}
+                    onVoirCarte={setJourSurCarte}
                 />
             </div>
+
+            {/* `null` en attente : le voile s'ouvre deja, et un indicateur de
+                chargement le temps du paquet se verrait plus que l'attente. */}
+            {jourSurCarte && (
+                <Suspense fallback={null}>
+                    <CarteCircuit
+                        circuit={circuit}
+                        etapes={etapes}
+                        jour={jourSurCarte}
+                        onFermer={fermerCarte}
+                    />
+                </Suspense>
+            )}
         </>
     );
 }
