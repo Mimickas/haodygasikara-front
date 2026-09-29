@@ -1,17 +1,26 @@
 {
-  "extends": "expo/tsconfig.base",
+  // Ce projet est un site Vite + React en JavaScript : aucun fichier .ts ni
+  // .tsx. Ce fichier ne sert donc qu'à l'éditeur (complétion, JSX) et à l'outil
+  // de transformation de Vite, qui le lit pour CHAQUE module.
+  //
+  // Il héritait de `expo/tsconfig.base` — un reste de gabarit : `expo` n'est pas
+  // une dépendance d'ici. Le paquet absent, la lecture échouait, et avec elle la
+  // transformation de tous les modules : `npm run dev` ne servait plus que des
+  // pages d'erreur (« Failed to load tsconfig »). Le build de production, qui ne
+  // passe pas par ce chemin, n'en montrait rien.
   "compilerOptions": {
-    "strict": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+  "include": ["src"]
 }
