@@ -2,6 +2,7 @@ import ImageUploadField from "../../../upload/ImageUploadField";
 import VideoUploadField from "../../../upload/VideoUploadField";
 import MultiSelectField from "../createModal/MultiSelectField";
 import ChampProgramme from "../createModal/ChampProgramme";
+import ChampEtapes from "../createModal/ChampEtapes";
 import InclusionsField from "../createModal/InclusionsField";
 import ChampRecherche from "./ChampRecherche";
 
@@ -94,6 +95,16 @@ export default function ChampFormulaire({
             case "video":
                 return <VideoUploadField value={valeur || null} onChange={onChange} />;
 
+            case "etapes":
+                // Les étapes ne prennent pas une liste d'options mais les lieux.
+                return (
+                    <ChampEtapes
+                        value={valeur}
+                        onChange={onChange}
+                        destinations={field.destinations ?? []}
+                    />
+                );
+
             case "programme":
                 // Le programme jour par jour. Il ne recoit pas une liste
                 // d'options mais trois referentiels : les lieux, les points
@@ -132,7 +143,7 @@ export default function ChampFormulaire({
     // Un <label> qui engloberait un champ d'envoi de fichier relaierait les
     // clics vers son input caché : htmlFor, et seulement pour les champs
     // simples. Les groupes de boutons radio se rattachent par aria-labelledby.
-    const pourLibelle = !["image", "video", "programme", "inclusions", "multiselect", "radio"].includes(field.type);
+    const pourLibelle = !["image", "video", "programme", "etapes", "inclusions", "multiselect", "radio"].includes(field.type);
 
     return (
         <>

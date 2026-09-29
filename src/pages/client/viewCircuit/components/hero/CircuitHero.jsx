@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
 import { FaArrowDown } from "react-icons/fa6";
 import { useCircuitHero } from "../../../../../hooks/design/animations/circuit/useCircuitHero";
+import { VISUELS_HERO } from "./visuels";
 
 // Le contraste vient de la masse photographique posée contre le sable :
 // toutes les images occupent le même panneau, donc exactement le même cadre.
 //
-// Ce sont LES MÊMES photographies qu'avant, au même cadrage — seulement
-// servies à une taille d'écran. Les fichiers d'origine sortaient de
-// l'appareil : 5472 × 3648, soit 76 Mo de bitmap une fois décodés, ×3 pour le
-// carrousel. C'est ce que le navigateur devait garder vivant et recomposer à
-// chaque fondu : d'où le à-coup. En 1920 (et 2880 pour les écrans denses),
-// c'est 9 Mo par visuel et le fondu redevient une affaire de compositeur.
-const VISUELS = ["1", "2", "3"].map((n) => ({
-    src: `/img/viewcircuit/hero/${n}-1920.webp`,
-    srcSet: `/img/viewcircuit/hero/${n}-1920.webp 1920w, /img/viewcircuit/hero/${n}-2880.webp 2880w`,
-}));
+// Les visuels vivent à côté (./visuels) : la PAGE les précharge avant de lever
+// son voile, ce héros les affiche — une seule liste pour les deux.
+const VISUELS = VISUELS_HERO;
 
 // Le panneau occupe 54 % de la largeur à partir de 1024 px, tout l'écran en
 // dessous : sans cette indication le navigateur suppose 100vw et prend

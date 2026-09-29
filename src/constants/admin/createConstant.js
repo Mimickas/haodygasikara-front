@@ -97,9 +97,16 @@ const createConstant = {
             { name: "videoUrl",  label: "Vidéo",  type: "video", placeholder: "Vidéo du circuit",  folder: "circuits/videos", defaultValue: "" },
         ],
         [
-            // Le programme jour par jour : la SEULE saisie du parcours. Les
-            // séjours — où l'on dort, combien de nuits — s'en déduisent côté
-            // serveur, et l'ancien écran « Jour par jour » a disparu avec eux.
+            // Les étapes du voyage : un lieu, un nombre de jours. Renseignées,
+            // elles FONT FOI ; laissées vides, elles se déduisent du programme
+            // ci-dessous (les journées consécutives au même coucher forment un
+            // séjour, cf. ProgrammeService côté serveur).
+            { name: "steps", label: "Étapes du circuit", type: "etapes", defaultValue: [] },
+        ],
+        [
+            // Le programme jour par jour : le détail du parcours — ce qu'on
+            // fait, où l'on dort, ce qu'on mange. L'ancien écran « Jour par
+            // jour » a disparu au profit de celui-ci.
             { name: "days", label: "Programme jour par jour", type: "programme", defaultValue: [] },
         ],
 

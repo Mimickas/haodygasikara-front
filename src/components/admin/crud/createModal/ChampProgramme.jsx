@@ -16,6 +16,12 @@ import MultiSelectField from "./MultiSelectField";
 // Une journée traverse PLUSIEURS lieux, dans l'ordre : « Antananarivo →
 // Ampefy → Chute de Lily ». Le dernier est celui où l'on dort, sauf si
 // l'hébergement du soir en désigne un autre.
+//
+// Un lieu peut REVENIR dans la journée — « Ampefy → Itasy → Ampefy » est un
+// aller-retour ordinaire, on part du lac et on y rentre dormir. Seule la
+// répétition IMMÉDIATE n'a pas de sens : on ne se déplace pas d'un lieu vers
+// lui-même. Les choix d'une ligne excluent donc ses VOISINES, et rien d'autre ;
+// le serveur applique la même règle.
 
 const JOURS_MAX = 60;
 const LIEUX_MAX = 6;
@@ -192,7 +198,12 @@ export default function ChampProgramme({ value, onChange, destinations = [], poi
                                                             visites: [],
                                                         })}
                                                         options={destinations.filter((o) =>
-                                                            !lieux.some((l, m) => m !== k && String(l.destinationId) === String(o.value)))}
+                                                            // Jamais le lieu que la ligne porte déjà : le retirer
+                                                            // de ses propres choix l'effacerait de l'écran.
+                                                            String(o.value) === String(lieu.destinationId)
+                                                            || ![lieux[k - 1]?.destinationId, lieux[k + 1]?.destinationId]
+                                                                .filter(Boolean)
+                                                                .some((voisin) => String(voisin) === String(o.value)))}
                                                         placeholder="Choisir un lieu"
                                                         placeholderRecherche="Rechercher une destination…"
                                                     />

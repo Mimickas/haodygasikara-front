@@ -10,6 +10,8 @@ import { REDIRECTIONS_AUTH } from "../../../../constants/client/erreursAuth";
 import { useAuthStore } from "../../../../store/authStore";
 import { useAuth } from "../../../../hooks/useAuth";
 import { registerApi } from "../../../../api/authApi";
+import VoilePage from "../../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../../hooks/design/useChargementPage";
 
 // « Continuer avec Google » est retiré de cet écran tant que l'identifiant
 // client OAuth n'est pas créé : un bouton qui ne peut qu'échouer n'a rien à
@@ -19,6 +21,7 @@ import { registerApi } from "../../../../api/authApi";
 // rétablir le bloc du bouton ici (cf. l'historique git de ce fichier).
 
 const IMG = "/img/login/elle-leontiev-Wtv8wbxk-M4-unsplash-1920.webp";
+const VISUELS = [IMG];
 const LARGEUR_FORMULAIRE = 450;
 
 const TEXTES = {
@@ -62,6 +65,9 @@ function Champ({ id, label, type, value, onChange, autoComplete }) {
 }
 
 export default function LoginClient() {
+    // Le volet photographique occupe plus de la moitié de l'écran : la page
+    // attend sa photographie, sinon elle s'ouvre sur un aplat sombre.
+    const { progression, pret: pageChargee } = useChargementPage({ images: VISUELS });
     const navigate = useNavigate();
     const { login } = useAuth();
     const location = useLocation();
@@ -145,6 +151,7 @@ export default function LoginClient() {
 
     return (
         <div ref={scopeRef} className="min-h-screen w-full flex" style={{ backgroundColor: "var(--bg)" }}>
+            <VoilePage progression={progression} pret={pageChargee} />
             {/* ── Volet photographique — il ne bouge pas d'un mode à l'autre ─ */}
             <div data-volet className="relative hidden lg:block shrink-0 z-0 overflow-hidden" style={{ width: "52%" }}>
                 <img src={IMG} alt="" className="absolute inset-0 w-full h-full object-cover" data-img />

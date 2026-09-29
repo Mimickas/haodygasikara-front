@@ -17,8 +17,10 @@ const POIDS_MAX_MO = 8;
  * L'image de l'espace voyageur. La même que dans le panneau du compte, et ce
  * n'est pas un hasard : on entre chez soi, on doit reconnaître l'endroit.
  */
-const IMAGE =
+// Exportée : la page la précharge avant de lever son voile (cf. MonCompte).
+export const IMAGE_HERO_COMPTE =
     "/img/home/ctaSection/tropical-beach-landscape-with-deckchair-parasol-from-nosy-be-madagascar-vintage-light-filter-1920.webp";
+const IMAGE = IMAGE_HERO_COMPTE;
 
 /**
  * Le hero de la page de paramètres.

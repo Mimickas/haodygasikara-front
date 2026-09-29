@@ -11,7 +11,7 @@ import EtapeLigne from "./EtapeLigne";
 //
 // L'etat vit ici et pas dans la page : quelle halte est ouverte ne regarde que
 // cette liste.
-export default function CircuitItineraire({ circuit, etapes = [], jours, depart, arrivee, circuitId }) {
+export default function CircuitItineraire({ circuit, etapes = [], jours, depart, arrivee, circuitId, onVoirCarte }) {
     // On garde la CLE de la halte depliee, pas son objet : l'objet d'origine
     // devient perime des que le circuit est recharge, et la comparaison
     // d'identite laissait alors la ligne ouverte sur du vide.
@@ -64,6 +64,7 @@ export default function CircuitItineraire({ circuit, etapes = [], jours, depart,
                             fin={fin}
                             ouvert={ouverte === cle}
                             onBasculer={basculer}
+                            onVoirCarte={onVoirCarte}
                         />
                     );
                 })}

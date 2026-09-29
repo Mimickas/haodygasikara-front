@@ -15,7 +15,7 @@ import Journee from "./Journee";
 // la memoisation tient donc — seules l'ancienne et la nouvelle ligne ouverte
 // rendent a nouveau.
 const EtapeLigne = memo(function EtapeLigne({
-    cle, circuit, step, index, total, duree, debut, fin, ouvert, onBasculer,
+    cle, circuit, step, index, total, duree, debut, fin, ouvert, onBasculer, onVoirCarte,
 }) {
     const destination = step?.destination;
     const image = imagesTriees(destination)[0];
@@ -106,6 +106,7 @@ const EtapeLigne = memo(function EtapeLigne({
                             key={jour?.id ?? i}
                             jour={jour}
                             lieu={destination?.nom}
+                            onVoirCarte={onVoirCarte}
                         />
                     ))}
                 </div>

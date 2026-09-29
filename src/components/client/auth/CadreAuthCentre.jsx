@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
+import VoilePage from "../layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 
 // Le cadre des pages d'authentification « au centre » : fond sable, une barre
 // haute discrète (retour, marque), le contenu seul au milieu, un pied qui
@@ -8,8 +10,14 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 export default function CadreAuthCentre({ surTitre, titre, children, lienPied = { vers: "/login", libelle: "Se connecter" } }) {
     const navigate = useNavigate();
 
+    // Le voile de la maison, ici pour toutes les pages qui portent ce cadre :
+    // elles n'ont pas de serveur à attendre, mais elles ont des POLICES — et un
+    // titre d'affiche qui se repose après coup se voit autant qu'une image.
+    const { progression, pret } = useChargementPage({ images: [] });
+
     return (
         <div className="min-h-screen w-full flex flex-col" style={{ backgroundColor: "var(--bg-territoires)" }}>
+            <VoilePage progression={progression} pret={pret} />
             <div className="flex items-center justify-between px-6 sm:px-12 py-10">
                 <button
                     type="button"

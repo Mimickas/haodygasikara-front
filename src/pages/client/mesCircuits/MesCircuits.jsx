@@ -9,6 +9,8 @@ import { actionDemandeVivante, libelleStatutDevis } from "../../../constants/cli
 import { messageErreurApi } from "../../../utils/auth";
 import { formatDateCourte } from "../../../utils/format";
 import { imageCloudinary } from "../../../utils/image";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 
 // ── Mes circuits — /mes-circuits ───────────────────────────────────────────
 //
@@ -39,6 +41,15 @@ export default function MesCircuits() {
     }, [isAuthenticated]);
 
     useEffect(() => { charger(); }, [charger]);
+
+    // Les couvertures des cartes arrivent avec la liste : la page attend
+    // qu'elles soient la, sinon la grille s'ouvre sur des cadres vides.
+    const { progression, pret } = useChargementPage({
+        donneesPretes: etat !== "chargement",
+        images: etat === "chargement"
+            ? null
+            : circuits.map((c) => imageCloudinary(c.couverture, 800)).filter(Boolean),
+    });
 
     // La clé, c'est le nombre de cartes : une suppression ou une duplication
     // refait la liste, et les déclencheurs doivent suivre. Sans elle, les
@@ -72,6 +83,7 @@ export default function MesCircuits() {
 
     return (
         <div className="cx-detail cx-sous-entete">
+            <VoilePage progression={progression} pret={pret} />
             <section className="cx-mc" data-header-text="var(--text-primary)">
                 <div className="cx-tete">
                     <span className="cx-tete__mention cx-label cx-label--accent font-body-strong">Votre carnet</span>

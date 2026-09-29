@@ -12,6 +12,9 @@ import BlocMotDePasse from "./components/BlocMotDePasse";
 import BlocPreferences from "./components/BlocPreferences";
 import { findPreferencesApi } from "../../../api/client/composerApi";
 import { CONTACT } from "../../../constants/client/contact";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
+import { IMAGE_HERO_COMPTE } from "./components/HeroCompte";
 
 // ── Vos paramètres — /mon-compte ──────────────────────────────────────────
 //
@@ -68,6 +71,15 @@ export default function MonCompte() {
 
     const pret = etat === "pret" && Boolean(compte);
 
+    // Le voile tient jusqu'à ce que le compte soit là ET la photographie du
+    // hero chargée : sans elle, la page s'ouvrait sur un cadre noir que
+    // l'image venait remplir sous les yeux du visiteur.
+    const chargeRetombe = etat !== "chargement";
+    const { progression, pret: pageChargee } = useChargementPage({
+        donneesPretes: chargeRetombe,
+        images: chargeRetombe ? (isAuthenticated ? [IMAGE_HERO_COMPTE] : []) : null,
+    });
+
     // Le hero s'ouvre au chargement ; les réglages se révèlent au défilement.
     useCompteHero(pret);
     useRevelation(
@@ -100,6 +112,8 @@ export default function MonCompte() {
     // la photographie s'affiche tout de suite, le texte apparaît dedans.
     return (
         <>
+            <VoilePage progression={progression} pret={pageChargee} />
+
             {isAuthenticated && <HeroCompte compte={compte} onMaj={majCompte} />}
 
             <div className={`cx-detail${isAuthenticated ? "" : " cx-sous-entete"}`}>

@@ -53,6 +53,20 @@ const toProgramme = (days) => (Array.isArray(days) ? days : [])
     }))
     .filter((j) => j.lieux.length > 0);
 
+/**
+ * Les etapes du voyage, mises en forme pour le serveur.
+ *
+ * Une ligne sans lieu n'est qu'une ligne ouverte puis abandonnee : elle ne part
+ * pas. Une etape dure au moins un jour — un blanc vaut 1, pas 0.
+ */
+const toEtapes = (steps) => (Array.isArray(steps) ? steps : [])
+    .filter((e) => e.destinationId)
+    .map((e) => ({
+        destinationId: Number(e.destinationId),
+        durationDays: Math.max(1, Number(e.durationDays) || 1),
+        notes: e.notes?.trim() || null,
+    }));
+
 export function toCircuitPayload(formData, { imageUrls, videoUrl }) {
     return {
         ...formData,
@@ -61,6 +75,7 @@ export function toCircuitPayload(formData, { imageUrls, videoUrl }) {
         videoUrl,
 
         days: toProgramme(formData.days),
+        steps: toEtapes(formData.steps),
 
         // Le <radio> renvoie la chaîne "true" ; la valeur relue à l'édition est
         // déjà un booléen. Les deux passent.
@@ -107,6 +122,21 @@ export function toCircuitPayload(formData, { imageUrls, videoUrl }) {
 //
 // Une seule fonction, passée aux deux écrans du circuit : la création et la
 // modification ne peuvent pas diverger.
+/**
+ * Le rang (1..n) du premier element dont la valeur repete celle du precedent,
+ * ou 0 si la suite est propre. Les blancs ne comptent pas : une ligne pas
+ * encore remplie n'est pas un doublon.
+ */
+function suiviDeLuiMeme(liste, cle) {
+    const suite = Array.isArray(liste) ? liste : [];
+    for (let i = 1; i < suite.length; i++) {
+        const avant = suite[i - 1]?.[cle];
+        const ici = suite[i]?.[cle];
+        if (avant && ici && String(avant) === String(ici)) return i + 1;
+    }
+    return 0;
+}
+
 export function coherenceCircuit(formData) {
     const erreurs = {};
     const nb = (v) => (v === "" || v == null ? null : Number(v));
@@ -142,6 +172,28 @@ export function coherenceCircuit(formData) {
         erreurs.days = sansLieu.length === 1
             ? `Le jour ${sansLieu[0]} n'a aucun lieu : ajoutez-en un, ou retirez la journée.`
             : `Les jours ${sansLieu.join(", ")} n'ont aucun lieu : ajoutez-en un, ou retirez ces journées.`;
+    }
+
+    // Un lieu ne se suit pas lui-même, ni dans le trajet d'une journée ni dans
+    // la suite des étapes. « Ampefy → Itasy → Ampefy » est un aller-retour
+    // ordinaire et passe ; « Ampefy → Ampefy » ne dit rien — c'est une étape de
+    // deux jours, pas deux étapes. Le serveur applique la même règle ; la poser
+    // ici évite un aller-retour pour l'apprendre.
+    if (!erreurs.days) {
+        const jourFautif = journees.findIndex((j) => suiviDeLuiMeme(j.lieux, "destinationId"));
+        if (jourFautif >= 0) {
+            erreurs.days = `Le jour ${jourFautif + 1} passe deux fois de suite par le même lieu : `
+                + "un lieu ne se suit pas lui-même.";
+        }
+    }
+
+    const etapes = Array.isArray(formData.steps) ? formData.steps : [];
+    const rang = suiviDeLuiMeme(etapes, "destinationId");
+    if (rang) {
+        erreurs.steps = `Les étapes ${rang - 1} et ${rang} sont au même endroit : deux étapes qui se `
+            + "suivent ne peuvent pas être au même lieu — donnez plutôt plus de jours à l'une des deux.";
+    } else if (etapes.some((e) => e.destinationId && Number(e.durationDays) < 1)) {
+        erreurs.steps = "Une étape dure au moins un jour.";
     }
 
     return erreurs;

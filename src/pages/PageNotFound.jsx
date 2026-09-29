@@ -1,5 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa6";
+import VoilePage from "../components/client/layout/VoilePage";
+import { useChargementPage } from "../hooks/design/useChargementPage";
+
+const LOGO = "/img/logo/logo-2-horizontal.png";
 
 // ── La page introuvable ────────────────────────────────────────────────────
 //
@@ -8,11 +12,14 @@ import { FaArrowRight } from "react-icons/fa6";
 // l'accueil — sur-titre en capitales espacées, titre d'affiche, bouton terre.
 export default function PageNotFound() {
     const { pathname } = useLocation();
+    const { progression, pret } = useChargementPage({ images: [LOGO] });
 
     return (
         <main className="cx-404">
+            <VoilePage progression={progression} pret={pret} />
+
             <Link to="/" className="cx-404__logo" aria-label="Haodygasikara, retour à l'accueil">
-                <img src="/img/logo/logo-2-horizontal.png" alt="Haodygasikara" />
+                <img src={LOGO} alt="Haodygasikara" />
             </Link>
 
             <section className="cx-404__contenu">

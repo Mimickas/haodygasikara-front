@@ -23,7 +23,7 @@ import PlanchePhoto from "./PlanchePhoto";
 //
 // Le dernier point n'est pas un detail : la planche montre l'hebergement. La
 // poser juste apres la fiche du soir, c'est ce qui dit de quoi elle parle.
-export default function Journee({ jour, lieu }) {
+export default function Journee({ jour, lieu, onVoirCarte }) {
     const repas = formatRepas(jour);
     const aRepas = repas !== "—";
     const trajet = trajetDuJour(jour);
@@ -31,6 +31,10 @@ export default function Journee({ jour, lieu }) {
     // La planche photo est celle de l'hebergement — son film compris, s'il en
     // a un. Le POI porte ses visuels dans la meme forme qu'une destination.
     const medias = mediasPoi(jour?.hebergement);
+
+    // Un lieu sans coordonnees ne se pose pas sur la carte.
+    const peutSeVoir = Boolean(onVoirCarte) && (jour?.lieux ?? []).some(
+        (l) => l?.latitude != null && l?.longitude != null);
 
     return (
         <article className="cx-jour">
@@ -41,13 +45,23 @@ export default function Journee({ jour, lieu }) {
                     Jour {jour?.jour}
                 </span>
 
-                {/* Le renvoi vers la carte reste a brancher : il est ici en
-                    bouton, pas en paragraphe, pour que le jour ou il l'est il
-                    n'y ait rien a redessiner. */}
-                <button type="button" className="cx-jour__carte font-body-strong">
-                    Voir sur la carte
-                    <ArrowUpRight size={13} />
-                </button>
+                {/* Le renvoi vers la carte. Il attendait d'etre branche : le bouton
+                    etait la, sans rien derriere, et un clic ne faisait rien.
+                    Il ouvre maintenant le voyage en plan, cadre sur CETTE
+                    journee (cf. components/carte/CarteCircuit).
+
+                    Sans lieu situe, pas de bouton : une carte qui s'ouvre sur
+                    rien est pire qu'un bouton absent. */}
+                {peutSeVoir && (
+                    <button
+                        type="button"
+                        className="cx-jour__carte font-body-strong"
+                        onClick={() => onVoirCarte(jour)}
+                    >
+                        Voir sur la carte
+                        <ArrowUpRight size={13} />
+                    </button>
+                )}
             </div>
 
             {/* Le trajet de la journee : « Antananarivo → Ampefy → Chute de
