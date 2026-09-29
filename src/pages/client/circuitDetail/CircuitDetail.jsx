@@ -2,6 +2,9 @@ import { useParams } from "react-router-dom";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { findCircuitClientById } from "../../../api/client/cricuitApi";
 import { circuitLegs, circuitMedias, circuitRoute } from "../../../utils/circuit";
+import { imageCloudinary } from "../../../utils/image";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 import { useCircuitDetailAnimations } from "../../../hooks/design/animations/circuit/useCircuitDetailAnimations";
 import CircuitDetailHero from "./components/hero/CircuitDetailHero";
 import CircuitApropos from "./components/apropos/CircuitApropos";
@@ -32,6 +35,9 @@ const CarteCircuit = lazy(() => import("./components/carte/CarteCircuit"));
 export default function CircuitDetail() {
     const { id } = useParams();
     const [circuit, setCircuit] = useState(null);
+    // « Retombé », pas « abouti » : un circuit introuvable doit pouvoir
+    // s'afficher plutôt que de laisser la page fermée pour toujours.
+    const [charge, setCharge] = useState(false);
 
     // La journee ouverte sur la carte, ou null. Elle vit ici : c'est la page
     // qui connait le circuit entier, et la carte montre le voyage, pas la
@@ -47,6 +53,8 @@ export default function CircuitDetail() {
             setCircuit(res?.data ?? null);
         } catch (error) {
             console.error("Chargement du circuit impossible", error);
+        } finally {
+            setCharge(true);
         }
     }, [id]);
 
@@ -68,8 +76,22 @@ export default function CircuitDetail() {
     // visuels des etapes, et le film s'il y en a un.
     const visuels = circuitMedias(circuit, 4).slice(1);
 
+    // Ce que la fiche montre en ouvrant : la couverture du héros et les
+    // premiers visuels de la planche. Les photographies d'étape arrivent au
+    // dépli du programme — elles n'ont pas à retenir l'ouverture.
+    const { progression, pret } = useChargementPage({
+        donneesPretes: charge,
+        images: charge
+            ? [imageCloudinary(circuit?.imageUrl, 1920),
+               ...circuitMedias(circuit, 4).filter((m) => m.type === "image").map((m) => imageCloudinary(m.src, 900))]
+                .filter(Boolean)
+            : null,
+    });
+
     return (
         <>
+            <VoilePage progression={progression} pret={pret} />
+
             <CircuitDetailHero
                 circuit={circuit}
                 days={jours}

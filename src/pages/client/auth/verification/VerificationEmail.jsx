@@ -5,6 +5,8 @@ import { resendCodeApi, verifyCodeApi } from "../../../../api/authApi";
 import { codeErreurApi, messageErreurApi, secondesAvantReessai } from "../../../../utils/auth";
 import { CODES_ERREUR } from "../../../../constants/client/erreursAuth";
 import { formaterAttente, useCompteARebours } from "../../../../hooks/useCompteARebours";
+import VoilePage from "../../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../../hooks/design/useChargementPage";
 
 const LONGUEUR_CODE = 6;
 
@@ -14,6 +16,10 @@ const LONGUEUR_CODE = 6;
 const SECONDES_ENTRE_ENVOIS = 60;
 
 export default function VerificationEmail() {
+    // Pas de serveur à attendre en ouvrant, mais des polices : le code se
+    // saisit chiffre par chiffre dans de grandes cases, et une police qui
+    // arrive après coup les fait toutes sauter.
+    const { progression, pret: pageChargee } = useChargementPage({ images: [] });
     const navigate = useNavigate();
     const { state } = useLocation();
 
@@ -120,6 +126,8 @@ export default function VerificationEmail() {
 
     return (
         <div className="min-h-screen w-full flex flex-col" style={{ backgroundColor: "var(--bg-territoires)" }}>
+            <VoilePage progression={progression} pret={pageChargee} />
+
             {/* ── Barre haute, discrète ───────────────────────────────────── */}
             <div className="flex items-center justify-between px-12 py-10">
                 <button

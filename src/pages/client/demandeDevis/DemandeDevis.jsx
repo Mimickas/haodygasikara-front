@@ -15,6 +15,8 @@ import { formatDateCourte } from "../../../utils/format";
 import { messageErreurApi } from "../../../utils/auth";
 
 import { imageCloudinary } from "../../../utils/image";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 // ── Demander un devis — /circuit/:id/devis ────────────────────────────────
 //
 // Les questions, dans l'ordre où un voyageur se les pose : QUAND, COMBIEN,
@@ -201,14 +203,26 @@ export default function DemandeDevis() {
         "envies"];
     const numero = (cle) => String(questions.indexOf(cle) + 1).padStart(2, "0");
 
+    // « Retombé », pas « abouti » : un circuit introuvable doit pouvoir
+    // afficher son message plutôt que de laisser la page fermée.
+    const { progression, pret: pageChargee } = useChargementPage({
+        donneesPretes: etat !== "chargement",
+        images: etat === "chargement" ? null : [imageCloudinary(circuit?.imageUrl, 1600)].filter(Boolean),
+    });
+
+    // Le voile de la maison tient l'attente : le circuit, sa photographie de
+    // couverture et les polices. Il remplace le « Chargement… » nu, qui posait
+    // une ligne de texte sur du vide le temps de l'aller-retour.
+    const voile = <VoilePage progression={progression} pret={pageChargee} />;
+
     // Sans hero sombre, la barre du haut s'encre en foncé (data-header-text)
     if (etat === "chargement") {
-        return <p className="cx-sous-entete cx-dv-attente cx-label cx-label--legende font-body-strong"
-            data-header-text="var(--text-primary)">Chargement&hellip;</p>;
+        return voile;
     }
     if (etat === "erreur" || !circuit) {
         return (
             <div className="cx-sous-entete cx-dv-attente" data-header-text="var(--text-primary)">
+                {voile}
                 {isAuthenticated ? <>
                     <p className="font-body">Ce circuit n'a pas pu être chargé.</p>
                     <Link to="/circuit" className="cx-dv-lien font-body-strong">Voir les circuits</Link>
@@ -223,6 +237,7 @@ export default function DemandeDevis() {
 
     return (
         <>
+            {voile}
             <header className="cx-dv-hero" data-header-text="var(--text-inverse)">
                 {circuit.imageUrl && <img src={imageCloudinary(circuit.imageUrl, 1600)} alt="" decoding="async" className="cx-dv-hero__image" />}
                 <div className="cx-dv-hero__voile" />

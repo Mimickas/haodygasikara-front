@@ -11,6 +11,8 @@ import { formatDateCourte } from "../../../utils/format";
 import { libelleNuits } from "../../../functions/devis/hebergements";
 import { messageErreurApi } from "../../../utils/auth";
 import { imageCloudinary } from "../../../utils/image";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 import {
     ETAPES_FRISE, joursAvant, libelleStatutDevis, montantDevis, tonStatutDevis,
 } from "../../../constants/client/devis";
@@ -48,6 +50,15 @@ export default function MesDevis() {
 
     useEffect(() => { charger(); }, [charger]);
 
+    // Les couvertures des circuits arrivent avec les demandes : la page les
+    // attend avant de s'ouvrir.
+    const { progression, pret } = useChargementPage({
+        donneesPretes: etat !== "chargement",
+        images: etat === "chargement"
+            ? null
+            : devis.map((d) => imageCloudinary(d.circuit?.couverture, 800)).filter(Boolean),
+    });
+
     useRevelation(
         [
             { cible: ".cx-md .cx-tete > *", y: 34, stagger: 0.09 },
@@ -68,6 +79,7 @@ export default function MesDevis() {
 
     return (
         <div className="cx-detail cx-sous-entete">
+            <VoilePage progression={progression} pret={pret} />
             <section className="cx-md" data-header-text="var(--text-primary)">
                 <div className="cx-tete">
                     <span className="cx-tete__mention cx-label cx-label--accent font-body-strong">Votre carnet</span>

@@ -4,7 +4,7 @@ import { useComposer } from "../../../hooks/client/composer/useComposer";
 import { useGlisserAjout } from "../../../hooks/client/composer/useGlisserAjout";
 import { useComposerIntro } from "../../../hooks/design/animations/composer/useComposerIntro";
 import { useEnvolEtape } from "../../../hooks/design/animations/composer/useEnvolEtape";
-import { usePrechargement } from "../../../hooks/design/usePrechargement";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
 import PanneauVoyage from "./components/PanneauVoyage";
 import Atlas from "./components/Atlas";
 import FicheDestination from "./components/FicheDestination";
@@ -40,17 +40,15 @@ export default function Composer() {
     const [onglet, setOnglet] = useState("destinations");
 
     // Le rideau attend le circuit, le catalogue ET les premières photos : sans
-    // elles, la révélation se jouerait sur des cadres vides.
-    // « Prêt » ne redevient jamais faux : un catalogue qui se recharge après
-    // un filtre ne doit pas relancer l'ouverture.
+    // elles, la révélation se jouerait sur des cadres vides. C'est l'attente de
+    // toutes les pages du site (useChargementPage) ; seul le costume change —
+    // ici le rideau à six panneaux, ailleurs le voile au compteur.
     const donneesPretes = !c.chargement && !c.catalogue.chargement;
     const premieresPhotos = useMemo(
         () => c.catalogue.destinations.slice(0, PHOTOS_AVANT_OUVERTURE).map((d) => d.image).filter(Boolean),
         [c.catalogue.destinations],
     );
-    const photosPretes = usePrechargement(donneesPretes ? premieresPhotos : null);
-    const [pret, setPret] = useState(false);
-    if (!pret && donneesPretes && photosPretes) setPret(true);
+    const { pret } = useChargementPage({ donneesPretes, images: donneesPretes ? premieresPhotos : null });
 
     const zoneRef = useRef(null);
     const listeRef = useRef(null);

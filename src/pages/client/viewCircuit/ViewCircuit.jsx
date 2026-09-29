@@ -6,9 +6,17 @@ import { DURATIONS } from "../../../constants/client/circuitFilters";
 import { circuitDays, circuitSteps } from "../../../utils/circuit";
 import CircuitFilters from "./components/filters/CircuitFilters";
 import CircuitHero from "./components/hero/CircuitHero";
+import { VISUELS_HERO } from "./components/hero/visuels";
+import VoilePage from "../../../components/client/layout/VoilePage";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
+import { imageCloudinary } from "../../../utils/image";
 
 const PER_PAGE = 6;
 const HEADER_FALLBACK = 84;
+
+// Ce que la page montre en ouvrant : les trois photographies du héros et la
+// premiere page de cartes. Le reste arrive au defilement et n'a pas a retenir
+// l'ouverture — a la largeur ou on les regarde, pas a celle du depot.
 
 // Cherche dans le nom du circuit et dans les lieux traversés
 const matchQuery = (circuit, needle) => {
@@ -29,6 +37,16 @@ export default function ViewCircuit() {
     const [headerHeight, setHeaderHeight] = useState(HEADER_FALLBACK);
 
     const indexRef = useRef(null);
+
+    // La page ne s'ouvre qu'une fois le catalogue la ET ses visuels charges.
+    // « Retombe » et non « abouti » : une erreur doit pouvoir s'afficher.
+    const visuels = useMemo(
+        () => status === "loading"
+            ? null
+            : [...VISUELS_HERO.map((v) => v.src),
+               ...circuits.slice(0, PER_PAGE).map((c) => imageCloudinary(c.imageUrl, 1280)).filter(Boolean)],
+        [status, circuits]);
+    const { progression, pret } = useChargementPage({ donneesPretes: status !== "loading", images: visuels });
 
     const loadCircuits = useCallback(async () => {
         setStatus("loading");
@@ -85,6 +103,7 @@ export default function ViewCircuit() {
 
     return (
         <section className="w-full" style={{ backgroundColor: "var(--bg)" }}>
+            <VoilePage progression={progression} pret={pret} />
             <CircuitHero onBrowse={scrollToIndex} topOffset={headerHeight} />
             
             <div ref={indexRef} data-header-text="var(--text-primary)" className="pb-32" style={{ scrollMarginTop: `${headerHeight}px` }}>

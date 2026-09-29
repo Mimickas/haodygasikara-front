@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useCircuitReveal } from "../../../hooks/design/useCircuitReveal";
 import { useHeroIntro } from "../../../hooks/design/animations/home/firstHero";
-import { useAssetsLoader } from "../../../hooks/design/useAssetsLoader";
+import { useChargementPage } from "../../../hooks/design/useChargementPage";
+import VoilePage from "../../../components/client/layout/VoilePage";
 import { imageCloudinary } from "../../../utils/image";
 
 // Des photographies de Madagascar, et seulement de Madagascar : chaque image
@@ -62,7 +63,10 @@ const ALL_IMAGES = [
 ];
 
 export default function Home() {
-    const { progress, ready } = useAssetsLoader(ALL_IMAGES);
+    // Le voile est celui de TOUTES les pages (components/client/layout/VoilePage) ;
+    // ici seulement, c'est l'accueil qui le lève : son voile et la photographie
+    // du héros partent ensemble, d'un seul mouvement (useHeroIntro).
+    const { progression, pret } = useChargementPage({ images: ALL_IMAGES });
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
 
@@ -70,7 +74,7 @@ export default function Home() {
     const [voileVisible, setVoileVisible] = useState(true);
 
     const { triggerRef, circuitContainerRef, etapesContainerRef, active, setCircuitRef } = useCircuitReveal(circuits.length);
-    const heroScope = useHeroIntro(ready, () => setVoileVisible(false));
+    const heroScope = useHeroIntro(pret, () => setVoileVisible(false));
     const prev = () => setCurrent((i) => (i === 0 ? heroImages.length - 1 : i - 1));
     const next = () => setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
     // « Découvrez la suite » : un écran plus bas, par Lenis quand il pilote
@@ -83,45 +87,24 @@ export default function Home() {
 
     // recalcule les positions des animations une fois tout chargé
     useEffect(() => {
-        if (!ready) return;
+        if (!pret) return;
         const t = setTimeout(() => ScrollTrigger.refresh(), 100);
         return () => clearTimeout(t);
-    }, [ready]);
+    }, [pret]);
 
     // carousel auto du hero — ne démarre qu'une fois prêt
     useEffect(() => {
-        if (!ready) return;
+        if (!pret) return;
         const interval = setInterval(() => {
             setCurrent((i) => (i === heroImages.length - 1 ? 0 : i + 1));
         }, 5000);
         return () => clearInterval(interval);
-    }, [ready]);
+    }, [pret]);
 
     return (
         <>
             {/* ===== ÉCRAN DE CHARGEMENT ===== */}
-            {voileVisible && (
-                <div
-                    data-loader
-                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
-                    style={{ backgroundColor: "var(--bg)" }}
-                >
-                    <span data-loader-item className="font-body-strong text-[11px] uppercase tracking-[0.1em] mb-10" style={{ color: "var(--brand-ocre)" }}>
-                        Haodygasikara
-                    </span>
-
-                    <div data-loader-item className="w-64 h-[2px] mb-5" style={{ backgroundColor: "var(--border)" }}>
-                        <div
-                            className="h-full transition-all duration-300 ease-out"
-                            style={{ width: `${progress}%`, backgroundColor: "var(--brand-terre)" }}
-                        />
-                    </div>
-
-                    <span data-loader-item className="font-body-strong" style={{ color: "var(--text-primary)", fontSize: "clamp(3rem, 6vw, 5rem)" }}>
-                        {progress}%
-                    </span>
-                </div>
-            )}
+            {voileVisible && <VoilePage progression={progression} pret={pret} pilote />}
 
             {/* ===== HERO ===== */}
             <section ref={heroScope} className="h-screen relative" data-header-text="var(--text-inverse)">
