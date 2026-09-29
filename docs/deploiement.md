@@ -24,8 +24,12 @@ Navigateur ──HTTPS──▶ nginx ─┬─ /        → fichiers du site (b
 
 Le site et l'API partagent **un seul domaine** : le site appelle `/api`
 (même origine). Pas de réglage CORS, et le cookie de session
-(`HttpOnly`, `SameSite=Strict`, chemin `/api/auth/refresh`) reste un cookie
+(`HttpOnly`, `SameSite=Lax`, chemin `/api/auth/refresh`) reste un cookie
 « maison ».
+
+Sur Render, où le site et l'API sont deux services d'adresses différentes, cette
+condition n'est PAS remplie d'office — voir le § 9 bis, qui explique pourquoi et
+comment la rétablir.
 
 Les cartes utilisent Mapbox (jeton public dans le build du site).
 
@@ -206,6 +210,76 @@ VITE_API_URL=/api VITE_MAPBOX_TOKEN=pk.… npm run build
 sudo rsync -a --delete dist/ /var/www/haodygasikara/
 ```
 
+## 9 bis. Déploiement sur Render (deux services)
+
+Render héberge le site et l'API dans **deux services séparés**, chacun avec sa
+propre adresse :
+
+```
+haodygasikara-front.onrender.com     site (Static Site)
+backend-haodygasikara.onrender.com   API  (Docker)
+```
+
+Et c'est là qu'est le piège : `onrender.com` figure dans la **Public Suffix
+List**, la liste des domaines « publics » embarquée dans tous les navigateurs —
+Render l'y a inscrit lui-même, pour que ses clients ne puissent pas se lire
+entre eux. Conséquence : ces deux adresses sont **deux sites différents** pour
+le navigateur, exactement comme deux domaines sans rapport.
+
+Le cookie de session appartient alors à l'API et devient un **cookie tiers** sur
+les pages du site. Le navigateur ne l'envoie pas, et refuse même de
+l'enregistrer. Le symptôme est déroutant : tout fonctionne pendant exactement
+la durée du jeton d'accès (quinze minutes), puis le renouvellement répond
+« Aucune session » et le site renvoie sur la page de connexion. Allonger
+`JWT_REFRESH_EXPIRATION` n'y change rien — le jeton n'arrive jamais au serveur.
+
+### Le relais : une seule adresse pour le navigateur
+
+Dans le tableau de bord du **Static Site** → *Redirects / Rewrites* :
+
+| Source | Destination | Action |
+|---|---|---|
+| `/api/*` | `https://backend-haodygasikara.onrender.com/api/*` | **Rewrite** |
+
+Cette règle doit être **AVANT** celle qui renvoie tout vers `/index.html` (la
+règle des applications à page unique) : Render les applique dans l'ordre, et
+celle de l'index avalerait `/api/…`.
+
+Puis on rebuild le site avec une adresse **relative** :
+
+```bash
+VITE_API_URL=/api VITE_MAPBOX_TOKEN=pk.… npm run build
+```
+
+Le navigateur n'appelle plus que `haodygasikara-front.onrender.com` : même
+origine, plus de cookie tiers, plus de CORS. C'est l'architecture du § 1, tenue
+par Render au lieu de nginx.
+
+### Les variables de l'API, une fois le relais en place
+
+| Variable | Valeur | Pourquoi |
+|---|---|---|
+| `APP_COOKIE_SAME_SITE` | `Lax` | même origine : plus besoin de `None` |
+| `APP_COOKIE_SECURE` | `true` | Render sert en HTTPS |
+| `APP_FRONT_URL` | l'adresse du site | liens des e-mails |
+| `APP_CORS_ORIGINS` | *(inutile)* | il n'y a plus d'appel entre origines |
+
+Sans le relais, il faut au contraire `APP_COOKIE_SAME_SITE=None` **et**
+`APP_CORS_ORIGINS` à l'adresse exacte du site. Cela fonctionne sur Chrome et
+Firefox, mais **pas sur Safari**, qui bloque les cookies tiers par défaut : le
+relais reste la seule solution qui marche partout.
+
+### Le service gratuit s'endort
+
+Une offre gratuite Render met le service en veille après quinze minutes sans
+trafic, et son réveil prend près d'une minute. C'est très exactement le moment
+où le jeton d'accès expire. Le site sait désormais faire la différence entre
+« session morte » et « serveur injoignable » (cf. `src/api/renouvellement.js`) :
+il attend le réveil au lieu de déconnecter. Le premier geste après une longue
+absence peut donc prendre une trentaine de secondes.
+
+---
+
 ## 10. Sécurité : à faire avant la mise en ligne
 
 `backhaodygasikara/src/main/resources/application.properties` (configuration
@@ -226,6 +300,8 @@ ligne :
 |---|---|
 | Déconnecté à chaque rechargement | Site en HTTP avec un cookie `Secure` → HTTPS, ou `APP_COOKIE_SECURE=false` (test uniquement) |
 | Erreur CORS dans la console | Site et API sur deux domaines → `APP_CORS_ORIGINS`, ou passer par le relais nginx |
+| Déconnecté toutes les 15 min | Site et API sur deux adresses : le cookie de session est refusé comme cookie tiers → § 9 bis (relais) |
+| Premier geste très lent après une pause | Service gratuit endormi : le réveil prend ~1 min, le site l'attend au lieu de déconnecter |
 | `Could not resolve placeholder 'X'` au démarrage | Variable `X` absente de `api.env` |
 | `type "geometry" does not exist` | Extension PostGIS non créée (étape 3) |
 | Aucun e-mail envoyé | `MAIL_PASSWORD` n'est pas un mot de passe d'application Gmail ; voir `journalctl -u haodygasikara-api` |

@@ -1,6 +1,7 @@
 // src/api/axiosInstance.js
 import axios from "axios";
 import { restaurationTerminee, useAuthStore } from "../store/authStore";
+import { renouvelerSession } from "./renouvellement";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL, // http://localhost:8080/api
@@ -47,6 +48,10 @@ const estMauvaisIdentifiant = (error) => error.response?.data?.code === "BAD_CRE
 
 // Session morte : retour à la BONNE page de connexion (client ou admin), et
 // jamais de rechargement si l'on y est déjà.
+//
+// N'est appelée QUE pour une session réellement finie. Un serveur injoignable
+// — endormi, en cours de redémarrage — n'a jamais rien dit de la session : y
+// renvoyer le voyageur le déconnecte pour rien (cf. api/renouvellement.js).
 const renvoyerVersConnexion = () => {
     const admin = window.location.pathname.startsWith("/admin");
     const cible = admin ? "/admin/haodygasikara/login" : "/login";
@@ -76,33 +81,36 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Cookie httpOnly envoyé automatiquement
-                const { data } = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/auth/refresh`,
-                    {},
-                    { withCredentials: true }
-                );
+                // Le cookie httpOnly part tout seul. Les reprises, s'il en
+                // faut, sont gérées là-bas : un serveur qui se réveille vaut
+                // la peine d'être attendu.
+                const { jeton, utilisateur } = await renouvelerSession();
 
-                const newToken = data.data?.token; // data.data car ApiResponse wrapper
-                // Plus de cookie de session (déconnexion dans un autre onglet) : c'est un échec
-                if (!newToken) throw new Error("Session expirée");
-
-                useAuthStore.getState().setAuth(newToken, useAuthStore.getState().user);
+                // La réponse porte le compte à jour : on le reprend plutôt que
+                // de garder celui d'avant, qui peut être nul (jeton restauré
+                // sans que le compte ait jamais été chargé).
+                useAuthStore.getState().setAuth(jeton, utilisateur ?? useAuthStore.getState().user);
 
                 // Débloque toutes les requêtes en attente
-                pendingRequests.forEach(({ resolve }) => resolve(newToken));
+                pendingRequests.forEach(({ resolve }) => resolve(jeton));
                 pendingRequests = [];
 
                 // Rejoue la requête originale
-                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                originalRequest.headers.Authorization = `Bearer ${jeton}`;
                 return api(originalRequest);
 
             } catch (refreshError) {
-                // Refresh token expiré → logout forcé
                 pendingRequests.forEach(({ reject }) => reject(refreshError));
                 pendingRequests = [];
-                useAuthStore.getState().clearAuth();
-                renvoyerVersConnexion();
+
+                // SEULE une session réellement finie déconnecte. Un serveur
+                // injoignable n'a rien dit : on garde le jeton et la session,
+                // et on laisse l'appel d'origine échouer — la page affichera
+                // son propre message, et le geste suivant repartira.
+                if (refreshError.sessionFinie) {
+                    useAuthStore.getState().clearAuth();
+                    renvoyerVersConnexion();
+                }
                 return Promise.reject(refreshError);
 
             } finally {

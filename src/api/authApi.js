@@ -1,5 +1,4 @@
 // src/api/authApi.js
-import axios from "axios";
 import api from "./axiosInstance";
 import { useAuthStore } from "../store/authStore";
 
@@ -34,15 +33,10 @@ export const registerAdminApi = async (userData) => {
     return data;
 };
 
-// Vérifie si la session est encore active au reload de page
-export const refreshSessionApi = async () => {
-    const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/refresh`,
-        {},
-        { withCredentials: true }
-    );
-    return data;
-};
+// Vérifie si la session est encore active au reload de page. La lecture de
+// l'échec vit dans api/renouvellement.js : un serveur endormi n'est pas une
+// session morte.
+export { renouvelerSession } from "./renouvellement";
 
 // Verification par code a 6 chiffres — { email, code }
 export const verifyCodeApi = async (payload) => {
