@@ -21,6 +21,11 @@ const buildFields = (destinationOptions, enums, tagOptions, poiOptions) => {
 
     return createConstant.circuits.map(group =>
         group.map(field => {
+            // Les étapes ne prennent pas une liste d'options : il leur faut
+            // les lieux.
+            if (field.type === "etapes") {
+                return { ...field, destinations: destinationOptions };
+            }
             // Le programme ne prend pas une liste d'options : il lui faut les
             // lieux, les points d'interet et les moyens de transport.
             if (field.type === "programme") {
@@ -97,6 +102,18 @@ export const chargerFormulaireCircuit = async (id) => {
         ...circuit,
         imageUrls: circuit.imageUrls ?? [],   // ← URLs déjà en ligne : le champ image les affiche telles quelles
         videoUrl: circuit.videoUrl ?? "",
+        // Les étapes, relues telles que l'écran va les reposer. Le serveur les
+        // renvoie déduites du programme quand l'agence ne les a pas saisies :
+        // l'écran les montre donc telles qu'elles sont en base, et les
+        // réenregistrer les fige — ce qui est exactement ce qu'on veut dire en
+        // ouvrant ce champ.
+        steps: [...(circuit.steps ?? [])]
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+            .map(e => ({
+                destinationId: e.idDestination ?? "",
+                durationDays: e.durationDays ?? 1,
+                notes: e.notes ?? "",
+            })),
         // Le programme, relu tel que l'ecran va le reposer. Les noms de champs
         // sont ceux de la requete : rien a traduire.
         days: (circuit.days ?? []).map(j => ({

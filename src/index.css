@@ -3590,6 +3590,48 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
    Meme vocabulaire que le reste de l'administration : angle vif, filet d'un
    pixel, la terre pour ce qui est actif. */
 .ad-prog { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+
+/* ── Les etapes du circuit — un lieu, un nombre de jours ────────────────────
+   Meme vocabulaire que le programme juste dessous : le numero en chiffres
+   tabulaires couleur terre, le filet d'un pixel, les memes gestes. La ligne
+   fautive — deux etapes de suite au meme endroit — se borde de terre cuite et
+   dit pourquoi, sous elle. */
+.ad-etapes { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.ad-etapes__liste { display: flex; flex-direction: column; gap: 8px; list-style: none; }
+.ad-etape {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 10px 0 10px 14px;
+    border: 1px solid var(--border);
+    background-color: var(--bg);
+}
+.ad-etape--faute { border-color: var(--brand-terre); }
+.ad-etape__lieu { min-width: 0; }
+.ad-etape__duree { display: flex; align-items: center; gap: 8px; }
+.ad-etape__duree .ad-champ { width: 72px; text-align: center; }
+.ad-etape__unite { color: var(--text-muted); font-size: 12.5px; }
+.ad-etape__report {
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+.ad-etape__alerte {
+    grid-column: 2 / -1;
+    margin-right: 14px;
+    color: var(--brand-terre);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+    .ad-etape { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .ad-etape__duree { grid-column: 2; }
+    .ad-etape__report { grid-column: 3; }
+}
+
 .ad-prog__tete { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
 .ad-prog__compte { color: var(--text-primary); font-size: 14px; }
 .ad-prog__aide,

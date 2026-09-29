@@ -53,6 +53,20 @@ const toProgramme = (days) => (Array.isArray(days) ? days : [])
     }))
     .filter((j) => j.lieux.length > 0);
 
+/**
+ * Les etapes du voyage, mises en forme pour le serveur.
+ *
+ * Une ligne sans lieu n'est qu'une ligne ouverte puis abandonnee : elle ne part
+ * pas. Une etape dure au moins un jour — un blanc vaut 1, pas 0.
+ */
+const toEtapes = (steps) => (Array.isArray(steps) ? steps : [])
+    .filter((e) => e.destinationId)
+    .map((e) => ({
+        destinationId: Number(e.destinationId),
+        durationDays: Math.max(1, Number(e.durationDays) || 1),
+        notes: e.notes?.trim() || null,
+    }));
+
 export function toCircuitPayload(formData, { imageUrls, videoUrl }) {
     return {
         ...formData,
@@ -61,6 +75,7 @@ export function toCircuitPayload(formData, { imageUrls, videoUrl }) {
         videoUrl,
 
         days: toProgramme(formData.days),
+        steps: toEtapes(formData.steps),
 
         // Le <radio> renvoie la chaîne "true" ; la valeur relue à l'édition est
         // déjà un booléen. Les deux passent.
@@ -142,6 +157,11 @@ export function coherenceCircuit(formData) {
         erreurs.days = sansLieu.length === 1
             ? `Le jour ${sansLieu[0]} n'a aucun lieu : ajoutez-en un, ou retirez la journée.`
             : `Les jours ${sansLieu.join(", ")} n'ont aucun lieu : ajoutez-en un, ou retirez ces journées.`;
+    }
+
+    const etapes = Array.isArray(formData.steps) ? formData.steps : [];
+    if (etapes.some((e) => e.destinationId && Number(e.durationDays) < 1)) {
+        erreurs.steps = "Une étape dure au moins un jour.";
     }
 
     return erreurs;
