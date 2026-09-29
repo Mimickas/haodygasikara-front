@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { FaPlus, FaXmark, FaArrowUp, FaArrowDown } from "react-icons/fa6";
 import ChampRecherche from "../form/ChampRecherche";
 
@@ -12,6 +13,20 @@ import ChampRecherche from "../form/ChampRecherche";
 // un séjour), et leur durée ne se donnait donc plus. Elle revient ici, et la
 // règle de partage est simple — quand cette liste est remplie, elle fait foi ;
 // laissée vide, les étapes continuent de se déduire du programme.
+//
+// ── La règle sur les destinations ─────────────────────────────────────────
+//
+// Une destination peut revenir dans le voyage, du moment qu'elle ne se suit pas
+// elle-même :
+//
+//     Ampefy → Itasy → Ampefy     on repasse par Ampefy : c'est un voyage
+//     Ampefy → Ampefy             ce n'est pas deux étapes, c'en est une de
+//                                 deux jours
+//
+// Les lieux VOISINS sont donc retirés des choix d'une ligne, ce qui rend la
+// faute impossible à commettre plutôt que seulement refusée après coup ; le
+// serveur la refuse aussi, et le formulaire la dit avant l'envoi
+// (cf. coherenceCircuit).
 
 const ETAPES_MAX = 30;
 const JOURS_MAX = 60;
@@ -20,6 +35,10 @@ const etapeVide = () => ({ destinationId: "", durationDays: 1 });
 
 export default function ChampEtapes({ value, onChange, destinations = [] }) {
     const etapes = Array.isArray(value) ? value : [];
+
+    const nomDestination = useMemo(
+        () => new Map(destinations.map((d) => [String(d.value), d.label])),
+        [destinations]);
 
     const maj = (suivantes) => onChange(suivantes);
     const majEtape = (i, patch) => maj(etapes.map((e, k) => (k === i ? { ...e, ...patch } : e)));
@@ -47,6 +66,20 @@ export default function ChampEtapes({ value, onChange, destinations = [] }) {
 
     const total = etapes.reduce((s, e) => s + Math.max(1, Number(e?.durationDays) || 1), 0);
 
+    // Les voisines d'une ligne : ce sont les seules qu'on lui interdit.
+    //
+    // Sauf le lieu qu'elle porte DÉJÀ. Un déplacement peut coller deux étapes
+    // identiques l'une à l'autre : retirer alors ce lieu de ses propres choix
+    // le rendait introuvable dans la liste, et la ligne fautive affichait
+    // « Choisir un lieu » — elle ne montrait plus la faute qu'on lui reproche.
+    const options = (i) => {
+        const sienne = String(etapes[i]?.destinationId ?? "");
+        const voisines = [etapes[i - 1]?.destinationId, etapes[i + 1]?.destinationId]
+            .filter(Boolean).map(String)
+            .filter((v) => v !== sienne);
+        return destinations.filter((o) => !voisines.includes(String(o.value)));
+    };
+
     return (
         <div className="ad-etapes">
             <div className="ad-prog__tete">
@@ -69,8 +102,12 @@ export default function ChampEtapes({ value, onChange, destinations = [] }) {
 
             <ol className="ad-etapes__liste">
                 {etapes.map((etape, i) => {
+                    const memeQueVoisine = Boolean(etape.destinationId) && (
+                        String(etapes[i - 1]?.destinationId ?? "") === String(etape.destinationId)
+                        || String(etapes[i + 1]?.destinationId ?? "") === String(etape.destinationId));
+
                     return (
-                        <li key={i} className="ad-etape">
+                        <li key={i} className={`ad-etape${memeQueVoisine ? " ad-etape--faute" : ""}`}>
                             <span className="ad-prog__num font-body-strong tabular-nums">
                                 {String(i + 1).padStart(2, "0")}
                             </span>
@@ -80,9 +117,10 @@ export default function ChampEtapes({ value, onChange, destinations = [] }) {
                                     id={`etape-${i}-lieu`}
                                     value={etape.destinationId}
                                     onChange={(v) => majEtape(i, { destinationId: v })}
-                                    options={destinations}
+                                    options={options(i)}
                                     placeholder="Choisir un lieu"
                                     placeholderRecherche="Rechercher une destination…"
+                                    invalide={memeQueVoisine}
                                 />
                             </div>
 
@@ -116,6 +154,13 @@ export default function ChampEtapes({ value, onChange, destinations = [] }) {
                                 </button>
                             </div>
 
+                            {memeQueVoisine && (
+                                <p className="ad-etape__alerte font-body">
+                                    {nomDestination.get(String(etape.destinationId)) ?? "Ce lieu"} est déjà l&apos;étape
+                                    voisine : deux étapes qui se suivent ne peuvent pas être au même endroit —
+                                    donnez plutôt plus de jours à l&apos;une des deux.
+                                </p>
+                            )}
                         </li>
                     );
                 })}
