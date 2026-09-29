@@ -5021,7 +5021,17 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
     clip-path: inset(0% 0% 0% 100%);
     visibility: hidden;
 }
-.cx-cp-carte-parcours__fond { position: absolute; inset: 0; }
+/* Le cadre de la carte.
+
+   Deux classes, pas une, et c'est le seul endroit du fichier : Mapbox pose
+   `.mapboxgl-map` sur ce conteneur, et sa feuille y remet `position: relative`.
+   Les deux sélecteurs pèsent le même poids — c'est donc l'ORDRE qui tranche, et
+   mapbox-gl.css arrive après index.css : elle voyage avec le paquet de la
+   carte, chargé à la demande. Sans `absolute`, `inset: 0` ne dimensionne plus
+   rien : le cadre tombait à zéro de haut, la carte se créait dans le vide, et
+   l'`overflow: hidden` de Mapbox cachait le canevas. Le volet s'ouvrait sur
+   du vide. En pesant deux classes, la règle de la maison repasse devant. */
+.cx-cp-carte-parcours .cx-cp-carte-parcours__fond { position: absolute; inset: 0; }
 .cx-cp-carte-parcours__absente { display: flex; align-items: center; justify-content: center; height: 100%; padding: 40px; color: var(--text-muted); text-align: center; }
 .cx-cp-carte-parcours__legende {
     position: absolute;
