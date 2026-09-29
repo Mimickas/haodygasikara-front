@@ -4882,8 +4882,14 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
 .cx-cp-recherche__effacer:hover { color: var(--brand-terre); }
 
 .cx-cp-filtres { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 26px; min-width: 0; }
-.cx-cp-filtre {
-    position: relative;
+
+/* Un groupe d'étiquettes, replié en un mot : le nom du groupe, le nombre de
+   choix faits dedans, une flèche. Même main que le tri, juste à côté. */
+.cx-cp-groupe { position: relative; flex-shrink: 0; }
+.cx-cp-groupe__declencheur {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 4px 0;
     font-family: var(--font-body);
     font-size: 11px;
@@ -4894,23 +4900,80 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
     cursor: pointer;
     transition: color 0.3s ease;
 }
-.cx-cp-filtre sup { margin-left: 4px; font-size: 8.5px; letter-spacing: 0.08em; }
-.cx-cp-filtre::after {
+.cx-cp-groupe__declencheur:hover { color: var(--text-primary); }
+.cx-cp-groupe--actif .cx-cp-groupe__declencheur { color: var(--text-primary); font-family: var(--font-body-strong); }
+.cx-cp-groupe__compte { margin-left: -4px; font-size: 8.5px; letter-spacing: 0.08em; color: var(--brand-terre); }
+.cx-cp-groupe__chevron { flex-shrink: 0; transition: transform 0.4s var(--cp-courbe); }
+.cx-cp-groupe__chevron--ouvert { transform: rotate(180deg); }
+
+/* Le filet sous un groupe qui filtre : le même trait que portait l'étiquette
+   choisie quand elles étaient toutes à plat. */
+.cx-cp-groupe--actif .cx-cp-groupe__declencheur::after {
     content: "";
     position: absolute;
     left: 0;
-    right: 0.25em;
+    right: 18px;
     bottom: -1px;
     height: 1px;
     background-color: var(--text-primary);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s var(--cp-courbe);
 }
-.cx-cp-filtre:hover,
-.cx-cp-filtre--actif { color: var(--text-primary); }
-.cx-cp-filtre--actif::after { transform: scaleX(1); }
-.cx-cp-filtres__sep { width: 1px; height: 12px; background-color: var(--border-strong); }
+
+.cx-cp-groupe__liste {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 0;
+    z-index: 10;
+    min-width: 230px;
+    max-height: 46vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 0;
+    list-style: none;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(43, 33, 26, 0.12);
+    scrollbar-width: thin;
+    animation: cx-cp-apparait 0.35s var(--cp-courbe);
+}
+/* Près du bord droit, le menu s'ouvre vers l'intérieur : la barre d'outils est
+   alignée à droite, et le dernier groupe sortirait du cadre. */
+.cx-cp-groupe:last-of-type .cx-cp-groupe__liste { left: auto; right: 0; }
+
+.cx-cp-groupe__option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 20px;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+.cx-cp-groupe__option:hover { color: var(--brand-terre); background-color: var(--bg-secondary); }
+.cx-cp-groupe__option--actif { color: var(--text-primary); font-family: var(--font-body-strong); }
+
+/* La marque du choix : un carré vide qui se remplit. Pas de coche dessinée —
+   le site n'en a nulle part. */
+.cx-cp-groupe__marque {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--border-strong);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.cx-cp-groupe__option--actif .cx-cp-groupe__marque { background-color: var(--brand-terre); border-color: var(--brand-terre); }
+.cx-cp-groupe__nom { flex: 1; min-width: 0; }
+.cx-cp-groupe__nombre {
+    flex-shrink: 0;
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
 .cx-cp-filtres__effacer {
     font-family: var(--font-body-strong);
     font-size: 11px;
@@ -5395,6 +5458,9 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
     .cx-cp-outils { top: calc(var(--entete-hauteur, 85px) + 53px); flex-wrap: wrap; gap: 14px 22px; }
     .cx-cp-recherche { flex: 1 1 100%; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
     .cx-cp-filtres { justify-content: flex-start; }
+    /* Les groupes s'alignent à gauche ici : le dernier n'est plus au bord
+       droit, son menu s'ouvre donc dans le même sens que les autres. */
+    .cx-cp-groupe:last-of-type .cx-cp-groupe__liste { left: 0; right: auto; }
     .cx-cp-carte-parcours { position: relative; height: calc(100vh - var(--entete-hauteur, 85px) - 53px); }
     .cx-cp[data-onglet="destinations"] .cx-cp-carte-parcours { display: none; }
     .cx-cp-rideau { position: fixed; }
