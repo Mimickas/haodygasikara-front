@@ -1,6 +1,6 @@
 // src/hooks/useAuth.js
 import { useAuthStore } from "../store/authStore";
-import { loginApi, loginGoogleApi, logoutApi, refreshSessionApi } from "../api/authApi";
+import { loginApi, loginGoogleApi, logoutApi, renouvelerSession } from "../api/authApi";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export function useAuth() {
@@ -52,13 +52,16 @@ export function useAuth() {
 
     const restoreSession = async () => {
         try {
-            const response = await refreshSessionApi();
-            // data = null : aucun cookie de session, le visiteur n'est pas connecté
-            if (!response.data) { clearAuth(); return; }
-            const { token, email, nom, prenom, role, photoUrl } = response.data;
-            setAuth(token, { email, nom, prenom, role, photoUrl });
-        } catch {
-            clearAuth(); // pas de session valide → reste déconnecté
+            const { jeton, utilisateur } = await renouvelerSession();
+            const { email, nom, prenom, role, photoUrl } = utilisateur;
+            setAuth(jeton, { email, nom, prenom, role, photoUrl });
+        } catch (erreur) {
+            // Session finie — aucun cookie, ou cookie mort : on reste
+            // déconnecté, c'est la vérité.
+            if (erreur.sessionFinie) { clearAuth(); return; }
+            // Serveur injoignable : il n'a RIEN dit de la session. La vider
+            // afficherait « Se connecter » à quelqu'un dont la session est
+            // peut-être parfaitement valide ; le prochain appel réessaiera.
         }
     };
 
