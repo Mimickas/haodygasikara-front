@@ -4230,6 +4230,45 @@ input.ad-etapes__num { text-align: center; outline: none; cursor: text; border-c
     font-size: 14px;
 }
 .ad-tb-paire + .ad-tb-paire { border-top: 1px solid var(--border-muted); }
+
+/* Ce que choisissent les voyageurs : les deux classements (Recharts).
+   Les barres restent carrées, comme tout l'écran ; les couleurs des données
+   vivent dans ChoixVoyageurs.jsx, avec la raison de chacune. */
+button.ad-tb-lien { cursor: pointer; }
+.ad-tb-graphe { margin: 0; }
+.ad-tb-graphe .recharts-wrapper:focus:not(:focus-visible),
+.ad-tb-graphe .recharts-surface:focus:not(:focus-visible) { outline: none; }
+.ad-tb-legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.ad-tb-legende li { display: inline-flex; align-items: center; gap: 8px; }
+.ad-tb-legende__cle { width: 12px; height: 12px; flex-shrink: 0; }
+.ad-tb-date {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-muted);
+    color: var(--text-muted);
+    font-size: 12px;
+}
+.ad-tb-bulle {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 13px;
+    box-shadow: 0 6px 18px rgba(43, 33, 26, 0.08);
+}
+.ad-tb-bulle__titre { margin-bottom: 2px; color: var(--text-primary); font-size: 13.5px; }
+.ad-tb-bulle__ligne { display: flex; align-items: center; gap: 6px; }
+.ad-tb-bulle__ligne .font-body-strong { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.ad-tb-bulle__trait { width: 12px; height: 2px; flex-shrink: 0; }
 .ad-tb-pied {
     display: flex;
     flex-wrap: wrap;
